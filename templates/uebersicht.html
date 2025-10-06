@@ -1,0 +1,59 @@
+<!-- templates/uebersicht.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Übersichtsseite Studierende</title>
+</head>
+<body>
+    <h1> Meldungen von {{ melder.name }}</h1>
+    <ul id="navigation">
+    {% for meldung in meldungen %}
+        <li>{{ meldung.modul.titel }} - {{ meldung.kategorie.value }}, Status: {{meldung.status.value}}</li>
+    {% endfor %}
+    </ul>
+
+    <from method="get" action="/uebersicht">
+        <label>
+            <input type="checkbox" name="eigene" {%if eigene %}checked{% endif %}>
+            Nur eigene Meldungen anzeigen
+        </label>
+
+        <p>
+        <label for="modul">Module:</label>
+        <select name="modul" id="modul">
+            <option value="">-- Alle --</option>
+            {% for modul in module %}
+                <option value="{{ modul.id }}" {% if select_modul == modul.id %}selected{% endif %}>
+                    {{ modul.name }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <label for="status">Status:</label>
+        <select name="status" id="status">
+            <option value="">-- Alle --</option>
+            {% for status in status_enum %}
+                <option value="{{ status.name }}" {% if selected_status == status.name %}selected{% endif %}>
+                    {{ status.value }}
+                </option>
+            {% endfor %}
+        </select>
+    
+        <label for="kategorie">Kategorie:</label>
+        <select name="kategorie" id="kategorie">
+            <option value="">-- Alle --</option>
+            {% for kategorie in kategorie_enum %}
+                <option value="{{ kategorie.name }}" {% if selected_kategorie == kategorie.name %}selected{% endif %}>
+                    {{ kategorie.value }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit">🔍 Filter anwenden</button>
+        </p>
+    </from>
+</body>
+</html>
+
+
+ 

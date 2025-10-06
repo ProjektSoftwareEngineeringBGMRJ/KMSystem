@@ -1,0 +1,91 @@
+from __future__ import annotations # verzögerte Auswertung von Typen (nicht direkt importiert)
+from typing import TYPE_CHECKING # vermeidet Zirkelimporte
+if TYPE_CHECKING: # Import nur für Typprüfung
+    from models.studierende import Studierende
+    from models.kommentar import Kommentar
+    from models.modul import Modul
+# Klasse: Meldung
+from datetime import datetime
+from models.enums import Kategorie, Status
+
+class Meldung:
+    def __init__(self, meldungs_id:int, beschreibung:str, kategorie:Kategorie, ersteller:Studierende, modul:Modul):
+        self.__meldungs_id = meldungs_id #
+        self.__beschreibung = beschreibung #
+        self.__kategorie = kategorie #
+        self.__status = Status.OFFEN # Defaultwert bei erstellung einer Meldung
+        self.__zeitstempel = datetime.now() # Erstellungszeitpunkt
+        self.__ersteller = ersteller # Referenz auf Objekt (ein Studierender)
+        self.__modul = modul # Modul-Objekt
+        self.__kommentare = []
+        
+    # zugriff auf Attribute von Meldung möglich: 
+    # z.B. print(meldung.ersteller.name)
+    # Getter Methoden
+    @property
+    def meldungs_id(self) -> int:
+        return self.__meldungs_id
+    
+    @property
+    def beschreibung(self) -> str:
+        return self.__beschreibung
+    
+    @property
+    def kategorie(self) -> Kategorie:
+        return self.__kategorie
+    
+    @property
+    def status(self) -> Status:
+        return self.__status
+    
+    @property
+    def zeitstempel(self) -> datetime:
+        return self.__zeitstempel
+    
+    @property
+    def ersteller(self) -> Studierende:
+        return self.__ersteller
+    
+    @property
+    def modul(self) -> Modul:
+        return self.__modul
+    
+    @property
+    def kommentare(self) -> list[Kommentar]:
+        return self.__kommentare
+    
+    # Setter Methoden
+    @meldungs_id.setter
+    def meldungs_id(self, value:int):
+        self.__meldungs_id = value
+        
+    @beschreibung.setter
+    def beschreibung(self, value:str):
+        self.__beschreibung = value
+
+    @kategorie.setter
+    def kategorie(self, value:Kategorie):
+        self.__kategorie = value
+    
+    @status.setter
+    def status(self, value:Status):
+        self.__status = value
+    
+    @kommentare.setter
+    def kommentare(self, value:str):
+        self.__kommentare.append(value)
+        
+    # Setter deaktiviert: unveränderlich nach Erstellung
+    
+    #@zeitstempel.setter
+    #def zeitstempel(self, value):
+    #    self.__zeitstempel = value
+    
+    #@ersteller.setter
+    #def ersteller(self, value):
+    #    self.__ersteller = value
+    
+    #@modul.setter
+    #def modul(self, value):
+    #    self.__modul = value   
+        
