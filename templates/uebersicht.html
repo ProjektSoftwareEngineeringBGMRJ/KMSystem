@@ -12,9 +12,9 @@
     {% endfor %}
     </ul>
 
-    <from method="get" action="/uebersicht">
+    <form method="get" action="/uebersicht">
         <label>
-            <input type="checkbox" name="eigene" {%if eigene %}checked{% endif %}>
+            <input type="checkbox" name="eigene" value="true" {% if eigene %}checked{% endif %}>
             Nur eigene Meldungen anzeigen
         </label>
 
@@ -23,8 +23,8 @@
         <select name="modul" id="modul">
             <option value="">-- Alle --</option>
             {% for modul in module %}
-                <option value="{{ modul.id }}" {% if select_modul == modul.id %}selected{% endif %}>
-                    {{ modul.name }}
+                <option value={{ modul.titel }} {% if select_modul == modul.titel %}selected{% endif %}>
+                    {{ modul.titel }}
                 </option>
             {% endfor %}
         </select>
@@ -51,7 +51,7 @@
 
         <button type="submit">🔍 Filter anwenden</button>
         </p>
-    </from>
+    </form>
 </body>
 </html>
 
