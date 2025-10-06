@@ -32,7 +32,7 @@ student_2.erstelle_meldung(1, "Meldung 1 von Lichter", Kategorie.ONLINETESTS, mo
 #    student_1.erstelle_meldung(1, "Hier ist ein großartiger Fehler in Zeile 1!", Kategorie.MUSTERKLAUSUR, modul_1)
 #    student_1.erstelle_meldung(2, "Hier ist ein großartiger Fehler in Zeile 2!", Kategorie.PDFSKRIPT, modul_1)
 #    student_1.erstelle_meldung(3, "Hier ist ein großartiger Fehler in Zeile 3!", Kategorie.FOLIENSÄTZE, modul_1)
-#    student_1.erstelle_meldung(4, "Die Geschichte ist fehlerhaft!", Kategorie.VIDEO, modul_2)
+#    student_1.erstelle_meldung(4, "Die Geschichte ist fehlerhaft!", Kategorie.VIDEO, modul_2) 
 #    student_2.erstelle_meldung(1, "Meldung 1 von Lichter", Kategorie.ONLINETESTS, modul_1)
 #    return render_template("uebersicht.html", meldungen = student_1.meldungen, melder = student_1) # ruft HTML-Datei aus Verzeichnis "templates" auf
     
