@@ -1,27 +1,45 @@
-from __future__ import annotations # verzögerte Auswertung von Typen (nicht direkt importiert)
-from typing import TYPE_CHECKING # vermeidet Zirkelimporte
-if TYPE_CHECKING: # Import nur für Typprüfung
-    from models.studierende import Studierende
-    from models.kommentar import Kommentar
-    from models.modul import Modul
-# Klasse: Meldung
-from datetime import datetime
-from models.enums import Kategorie, Status
+#from __future__ import annotations # verzögerte Auswertung von Typen (nicht direkt importiert)
+#from typing import TYPE_CHECKING # vermeidet Zirkelimporte
+#if TYPE_CHECKING: # Import nur für Typprüfung
+#    from models.studierende import Studierende
+#    from models.kommentar import Kommentar
+#    from models.modul import Modul
+## Klasse: Meldung
+#from datetime import datetime
+#from models.enums import Kategorie, Status
 
-class Meldung:
-    def __init__(self, meldungs_id:int, beschreibung:str, kategorie:Kategorie, ersteller:Studierende, modul:Modul):
-        self.__meldungs_id = meldungs_id #
-        self.__beschreibung = beschreibung #
-        self.__kategorie = kategorie #
-        self.__status = Status.OFFEN # Defaultwert bei erstellung einer Meldung
-        self.__zeitstempel = datetime.now() # Erstellungszeitpunkt
-        self.__ersteller = ersteller # Referenz auf Objekt (ein Studierender)
-        self.__modul = modul # Modul-Objekt
-        self.__kommentare = []
+from models.datenbank import db
+from models.enums import Kategorie, Status
+from datetime import datetime
+
+class Meldung(db.Model):
+    __tablename__ = "meldung"
+    
+    id = db.Column(db.Integer, primary_key=True)
+    beschreibung = db.Column(db.String(500), nullable=False)
+    kategorie = db.Column(db.Enum(Kategorie), nullable=False)
+    status = db.Column(db.Enum(Status), default=Status.OFFEN, nullable=False)
+    zeitstempel = db.Column(db.DateTime, default=datetime.now, nullable=False)
+    
+    # Beziehungen
+    ersteller_id = db.Column(db.Integer, db.ForeignKey("studierende.id"), nullable=False)
+    ersteller = db.relationship("Studierende", back_populates="meldungen")
+    
+    modul_id = db.Column(db.Integer, db.ForeignKey("modul.id"), nullable=False) 
+    modul = db.relationship("Modul", back_populates="meldungen")
+    
+    kommentare = db.relationship("Kommentar", back_populates="meldung", cascade="all, delete-orphan")
+    
+    def __init__(self, beschreibung:str, kategorie:Kategorie, ersteller, modul):
+        self.beschreibung = beschreibung 
+        self.kategorie = kategorie 
+        self.ersteller = ersteller # Referenz auf Objekt (ein Studierender)
+        self.modul = modul # Modul-Objekt
         
     # zugriff auf Attribute von Meldung möglich: 
     # z.B. print(meldung.ersteller.name)
     # Getter Methoden
+    '''
     @property
     def meldungs_id(self) -> int:
         return self.__meldungs_id
@@ -88,4 +106,4 @@ class Meldung:
     #@modul.setter
     #def modul(self, value):
     #    self.__modul = value   
-        
+    '''    

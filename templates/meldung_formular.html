@@ -1,0 +1,35 @@
+<h2>Neue Meldung erstellen</h2>
+
+{% if fehlermeldung %}
+    <p style="color: red;"><strong>{{ fehlermeldung }}</strong></p>
+{% endif %}
+
+<form method="post" action="{{ url_for('meldung_erstellen') }}">
+    <label for="modul">Modul:</label>
+    <select name="modul" id="modul" required>
+        <option value="">-- Bitte auswählen --</option>
+        {% for m in module %}
+            <option value="{{ m.titel }}" {% if selected_modul == m.titel %}selected{% endif %}>
+                {{ m.titel }}
+            </option>
+        {% endfor %}
+    </select><br>
+
+    <label for="kategorie">Kategorie:</label>
+    <select name="kategorie" id="kategorie" required>
+        <option value="">-- Bitte auswählen --</option>
+        {% for k in kategorie_enum %}
+            <option value="{{ k.name }}" {% if selected_kategorie == k.name %}selected{% endif %}>
+                {{ k.value }}
+            </option>
+        {% endfor %}
+    </select><br>
+
+    <label for="beschreibung">Bitte geben Sie eine Beschreibung ein:</label><br>
+    <textarea name="beschreibung" id="beschreibung" rows="4" cols="50" required>{{ beschreibung }}</textarea><br>
+
+    <button type="submit">Meldung absenden</button>
+</form>
+
+<!-- zurrück zur Übersicht navigieren -->
+<a href="{{ url_for('uebersicht') }}">← Zurück zur Übersicht</a>

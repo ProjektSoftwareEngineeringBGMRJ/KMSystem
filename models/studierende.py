@@ -1,18 +1,27 @@
 from __future__ import annotations # verzögerte Auswertung von Typen (nicht direkt importiert)
+from models.benutzer import Benutzer
+from models.datenbank import db
+from models.enums import Sichtbarkeit, Kategorie
+from models.meldung import Meldung # wird in erstelle_meldung instanziiert
 from typing import TYPE_CHECKING # vermeidet Zirkelimporte
+
 if TYPE_CHECKING: # Import nur für Typprüfung
     from models.modul import Modul
     from models.kommentar import Kommentar
-from models.benutzer import Benutzer
-from models.meldung import Meldung # wird in erstelle_meldung instanziiert
-from models.enums import Sichtbarkeit, Kategorie
-
 
 class Studierende(Benutzer): # erbt von Oberklasse
+    __tablename__ = "studierende"
+    id = db.Column(db.Integer, db.ForeignKey("benutzer.id"), primary_key=True)
     
-    def __init__(self, benutzer_id:int, name:str, email:str):
-        super().__init__(benutzer_id, name, email) # Attribute der Oberklasse initialisieren
-        self.meldungen: list[Meldung] = []  # Attribut: Liste von Meldung-Objekten
+    __mapper_args__ = {
+        "polymorphic_identity": "studierende"
+    }
+    
+    # Beziehung zu Meldungen
+    meldungen = db.relationship("Meldung", back_populates="ersteller", lazy="dynamic")
+    
+    def __init__(self, name:str, email:str, passwort:str):
+        super().__init__(name, email, passwort) # Attribute der Oberklasse initialisieren
         
     def get_sichtbare_kommentare(self, meldung:Meldung) -> list[Kommentar]:
         '''
@@ -27,11 +36,12 @@ class Studierende(Benutzer): # erbt von Oberklasse
                 sichtbare.append(kommentar)
         return sichtbare
     
-    def erstelle_meldung(self, meldungs_id:int, beschreibung:str, kategorie:Kategorie, modul:Modul) -> Meldung:
-        
-        meldung = Meldung(meldungs_id, beschreibung, kategorie, self, modul) # Als Ersteller wird mit self Objekt "Studierene" übergeben
-        self.meldungen.append(meldung) # Liste pflegen
-        modul.meldungen.append(meldung) # Modul aktualisieren
+    def erstelle_meldung(self, beschreibung:str, kategorie:Kategorie, modul:Modul) -> Meldung:
+        meldung = Meldung(beschreibung=beschreibung, kategorie=kategorie, ersteller=self, modul=modul) # Als Ersteller wird mit self Objekt "Studierene" übergeben
+        #self.meldungen.append(meldung) # Liste pflegen
+        #modul.meldungen.append(meldung) # Modul aktualisieren
+        db.session.add(meldung)
+        db.session.commit()
         return meldung
     
 

@@ -2,33 +2,58 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Übersichtsseite Studierende</title>
+    <title>Übersichtsseite</title>
 </head>
 <body>
-    <h1> Meldungen von {{ melder.name }}</h1>
-    <ul id="navigation">
-    {% for meldung in meldungen %}
-        <li>{{ meldung.modul.titel }} - {{ meldung.kategorie.value }}, Status: {{meldung.status.value}}</li>
-    {% endfor %}
-    </ul>
+    <p>Debug: User-Klasse={{user.__class__.__name__}}, Modul={{ selected_modul }}, Status={{ selected_status }}, Kategorie={{ selected_kategorie }}, Alle={{ alle_meldungen }}</p>
+    
+    {% if user.__class__.__name__ == "Studierende" %}
+        <form method="get" action="{{ url_for('meldung_erstellen') }}">
+            <button type="submit">➕ Neue Meldung erstellen</button>
+        </form>
+    {% endif %}
 
+    {% if user.__class__.__name__ == "Admin" %}
+        <form method="get" action="{{ url_for('nutzer_verwalten') }}">
+            <button type="submit"> Benutzer verwalten </button>
+        </form>
+    {% endif %}
+
+    <!-- Überschrift mit Name des Users -->
+    <h1> Meldungen von {{ user.name }}</h1>
+
+    <!-- Button: eigene oder alle Meldungen anzeigen -->
+    {% if user.__class__.__name__ != "Admin" %}
     <form method="get" action="/uebersicht">
-        <label>
-            <input type="checkbox" name="eigene" value="true" {% if eigene %}checked{% endif %}>
-            Nur eigene Meldungen anzeigen
-        </label>
+        <input type="hidden" name="modul" value="{{ selected_modul or '' }}">
+        <input type="hidden" name="status" value="{{ selected_status or '' }}">
+        <input type="hidden" name="kategorie" value="{{ selected_kategorie or '' }}">
+        <button type="submit" name="alle_meldungen" value="{% if alle_meldungen %}false{% else %}true{% endif %}">
+            {% if alle_meldungen %}
+                Nur eigene Meldungen anzeigen
+            {% else %}
+                Meldungen von allen anzeigen
+            {% endif %}
+        </button>
+    </form>
+    {% endif %}
 
-        <p>
+
+    <!-- filtern nach Modulen, Status, Kategorie -->
+    <form method="get" action="/uebersicht">
+        
+        {# Dropdown: alle Module #}
         <label for="modul">Module:</label>
         <select name="modul" id="modul">
             <option value="">-- Alle --</option>
             {% for modul in module %}
-                <option value={{ modul.titel }} {% if select_modul == modul.titel %}selected{% endif %}>
+                <option value={{ modul.titel }} {% if selected_modul == modul.titel %}selected{% endif %}>
                     {{ modul.titel }}
                 </option>
             {% endfor %}
         </select>
 
+        {# Dropdown: alle Status (enum) #}
         <label for="status">Status:</label>
         <select name="status" id="status">
             <option value="">-- Alle --</option>
@@ -39,6 +64,7 @@
             {% endfor %}
         </select>
     
+        {# Dropdown: alle Kategorien (enum) #}
         <label for="kategorie">Kategorie:</label>
         <select name="kategorie" id="kategorie">
             <option value="">-- Alle --</option>
@@ -49,9 +75,56 @@
             {% endfor %}
         </select>
 
+        {% if user.__class__.__name__ != "Admin" %}
+            {# beibehalten des Button-Wertes: Nur eigene Meldungen anzeigen/ Meldungen von allen anzeigen #}
+            <input type="hidden" name="alle_meldungen" value="{% if alle_meldungen %}true{% endif %}">
+        {% endif %}
         <button type="submit">🔍 Filter anwenden</button>
-        </p>
     </form>
+
+    <!-- Anzeigen der ausgewählten Meldungen
+    <ul id="navigation">
+    {% for meldung in meldungen %}
+        <li>{{ meldung.modul.titel }}: {{ meldung.kategorie.value }}, Status: {{meldung.status.value}}</li>
+    {% endfor %}
+    </ul> -->
+
+    <!-- Detailansicht einer Meldung -->
+    <ul id="navigation">
+    <p><strong>
+        {% if user.__class__.__name__ == "Lehrende" %}
+            Meldungen für {% if alle_meldungen %}alle{% else %}meine{% endif %} Module:
+        {% elif user.__class__.__name__ == "Studierende" %}
+            {% if alle_meldungen %}Alle{% else %}Eigene{% endif %} Meldungen:
+        {% else %}
+            Alle Meldungen:
+        {% endif %}
+    </strong></p>
+    {% if meldungen %}
+        {% for meldung in meldungen %}
+            <li>
+                {{ meldung.zeitstempel.strftime('%d.%m.%Y %H:%M') }} -
+                <a href="{{ url_for('meldung_anzeigen', meldungs_id=meldung.id) }}">
+                    {{ meldung.modul.titel }}: {{ meldung.kategorie.value }}
+                </a>
+                - Status: {{ meldung.status.value }}<br>
+                {{meldung.ersteller.name}}: {{ meldung.beschreibung }}
+                <p></p>
+            </li>
+        {% endfor %}
+    {% else %}Keine Meldungen vorhanden.{% endif %}
+    </ul>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div style="background-color: #e0ffe0; border: 1px solid #0a0; padding: 0.5em; border-radius: 4px;">
+                {% for msg in messages %}
+                    <strong>{{ msg }}</strong>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
 </body>
 </html>
 
