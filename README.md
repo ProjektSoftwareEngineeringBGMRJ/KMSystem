@@ -21,6 +21,7 @@ KMSystem/
 ├── static/                # CSS und JS-Dateien
 ├── datenbank.py           # SQLAlchemy-Initialisierung
 └── README.md              # Projektbeschreibung
+```
 
 ## Rollen und Zugriff
 | Rolle	| Zugriff auf Meldungen |	Zusatzfunktionen |
