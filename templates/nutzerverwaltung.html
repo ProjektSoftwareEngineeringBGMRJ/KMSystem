@@ -23,9 +23,18 @@
         <td>{{ benutzer.id }}</td>
         <td>{{ benutzer.name }}</td>
         <td>{{ benutzer.email }}</td>
-        <td>{{ benutzer.__class__.__name__ }}</td>
         <td>
-            <form method="post" action="{{ url_for('rolle_aendern') }}">
+            {% if benutzer.__class__.__name__ == "Lehrende" %}
+                Lehrende für:<br>
+                {% for modul in benutzer.module %}
+                    {{modul.titel}}{% if not loop.last %}, <br>{% endif %}
+                {% endfor %}
+            {% else %}
+                {{ benutzer.__class__.__name__ }}
+            {% endif %}
+        </td>
+        <td>
+            {#<form method="post" action="{{ url_for('rolle_aendern') }}">
                 <input type="hidden" name="benutzer_id" value="{{ benutzer.id }}">
                 <select name="neue_rolle">
                     <option value="">-- Bitte auswählen --</option>
@@ -34,11 +43,45 @@
                     <option value="Admin">Admin</option>
                 </select>
                 <button type="submit">Rolle ändern</button>
-            </form>
+            </form>#}
             <form method="post" action="{{ url_for('benutzer_loeschen') }}">
                 <input type="hidden" name="benutzer_id" value="{{ benutzer.id }}">
-                <button type="submit" onclick="return confirm('Benutzer wirklich löschen?')">Löschen</button>
+                <button type="submit" onclick="return confirm('Benutzer wirklich löschen?')">Benutzer Löschen</button>
             </form>
+
+            {% if benutzer.__class__.__name__ == "Lehrende" %}
+                {#<form method="post" action="{{ url_for('modul_zuweisen') }}">
+                    <input type="hidden" name="lehrende_id" value="{{ benutzer.id }}">
+                    <select name="modul_id">
+                        {% for modul in module %}
+                            <option value="{{ modul.id }}">{{ modul.titel }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit">Modul zuweisen</button>
+                </form>
+                <form method="post" action="{{ url_for('modul_entziehen') }}">
+                    <input type="hidden" name="lehrende_id" value="{{ benutzer.id }}">
+                    <select name="modul_id">
+                        {% for modul in module %}
+                            <option value="{{ modul.id }}">{{ modul.titel }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit">Modul entziehen</button>
+                </form>#}
+                <form method="post" action="{{ url_for('modul_aktion') }}">
+                    <input type="hidden" name="lehrende_id" value="{{ benutzer.id }}">
+                    
+                    <select name="modul_id">
+                        {% for modul in module %}
+                            <option value="{{ modul.id }}">{{ modul.titel }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <button type="submit" name="aktion" value="zuweisen">Modul zuweisen</button>
+                    <button type="submit" name="aktion" value="entziehen">Modul entziehen</button>
+                </form>
+
+            {% endif %}
         </td>
     </tr>
     {% endfor %}

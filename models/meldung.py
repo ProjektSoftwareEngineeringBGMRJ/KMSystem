@@ -22,13 +22,28 @@ class Meldung(db.Model):
     zeitstempel = db.Column(db.DateTime, default=datetime.now, nullable=False)
     
     # Beziehungen
-    ersteller_id = db.Column(db.Integer, db.ForeignKey("studierende.id"), nullable=False)
+    # beim löschen von Studierendem mit löschen
+    ersteller_id = db.Column(
+        db.Integer, 
+        db.ForeignKey("studierende.id", ondelete="CASCADE"), 
+        nullable=False
+        )
+    
     ersteller = db.relationship("Studierende", back_populates="meldungen")
     
-    modul_id = db.Column(db.Integer, db.ForeignKey("modul.id"), nullable=False) 
+    modul_id = db.Column(
+        db.Integer, 
+        db.ForeignKey("modul.id", ondelete="CASCADE"), 
+        nullable=False)
+     
     modul = db.relationship("Modul", back_populates="meldungen")
     
-    kommentare = db.relationship("Kommentar", back_populates="meldung", cascade="all, delete-orphan")
+    kommentare = db.relationship(
+        "Kommentar", 
+        back_populates="meldung", 
+        cascade="all, delete-orphan"
+        )
+    #kommentare = db.relationship("Kommentar", backref="autor", cascade="all, delete-orphan")
     
     def __init__(self, beschreibung:str, kategorie:Kategorie, ersteller, modul):
         self.beschreibung = beschreibung 

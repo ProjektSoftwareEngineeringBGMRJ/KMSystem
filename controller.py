@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash # insall
+from flask_migrate import Migrate
 from models.datenbank import db
+
 from models.meldung import Meldung
 from models.enums import Kategorie, Status, Sichtbarkeit, Benutzer_rolle
 from models.benutzer import Benutzer
@@ -8,6 +10,7 @@ from models.studierende import Studierende
 from models.lehrende import Lehrende
 from models.modul import Modul
 from models.rollen_liste import get_rolle_klasse
+from models.kommentar import Kommentar
 
 
 
@@ -20,10 +23,13 @@ app.secret_key = "irgendein_geheimer_schlüssel_123"
 
 db.init_app(app)
 
+migrate = Migrate(app, db)
+
 # Controller: @app.route(...) reagiert auf HTTP-Anfragen 
 
 # Dummy Daten (einmal ausführen):
 with app.app_context():
+    #db.drop_all()
     db.create_all()
 
     if not Admin.query.first():
@@ -50,8 +56,14 @@ with app.app_context():
 @app.before_request
 def setze_dummy_user():
     global current_user
+    
     #current_user = Lehrende.query.first()
+    
+    #current_user = Lehrende.query.filter_by(name="Prof1").first()
+    
     #current_user = Studierende.query.first()
+    #current_user = Studierende.query.filter_by(name="Studi1").first()
+    
     current_user = Admin.query.first()  # später: Session-basiert
 
 
@@ -76,7 +88,7 @@ def uebersicht():
         # List mit allen Modulen
         module = db.session.query(Modul).all()
         # alle_meldungen flase: nur eigene zeigen 
-        meldungen = db.session.query(Meldung).all() if alle_meldungen else current_user.meldungen.all()
+        meldungen = db.session.query(Meldung).all() if alle_meldungen else current_user.meldungen#.all()
     elif isinstance(current_user, Lehrende):
         if alle_meldungen:
             # alle module anzeigen
@@ -148,24 +160,42 @@ def status_aendern(meldungs_id:int):
         Status.GESCHLOSSEN: []
     }
     
-    if neuer_status in erlaubte_wechsel[meldung.status]:
-        meldung.status = neuer_status # Setter von Meldung nutzen
-        if kommentar_text.strip():
-            current_user.add_kommentar(meldung, kommentar_text.strip(), sichtbarkeit)
-            flash(f"Neuen {sichtbarkeit.value}en Kommentar hinzugefügt und Status zu \"{neuer_status.value}\" gewechselt.")
-        #return redirect(url_for("meldung_anzeigen", meldungs_id = meldungs_id))
+    try:
+        if meldung.modul not in current_user.module:
+            raise PermissionError("Dies ist nur für eigene Module möglich.")
         else:
-            flash(f"Status ohne Kommentar zu \"{neuer_status.value}\" gewechselt.")
-    elif neuer_status == meldung.status:
-        if kommentar_text.strip():
-            current_user.add_kommentar(meldung, kommentar_text.strip(), sichtbarkeit)
-            flash(f"Neuen {sichtbarkeit.value}en Kommentar ohne Statuswechsel hinzugefügt.")
-        else: 
-            flash("Status nicht gewechselt.")
-        #return redirect(url_for("meldung_anzeigen", meldungs_id = meldungs_id))
-    else:
-        flash(f"Statuswechsel von \"{meldung.status.value}\" zu \"{neuer_status.value}\" ist nicht erlaubt.")
+            # Statuswechsel: offen -> in Bearbeitung -> abgeschlossen
+            if neuer_status in erlaubte_wechsel[meldung.status]:
+                meldung.status = neuer_status # Setter von Meldung nutzen
+                
+                # Status ändern und kommentieren
+                if kommentar_text.strip():
+                    current_user.add_kommentar(meldung, kommentar_text.strip(), sichtbarkeit)
+                    flash(f"Neuen {sichtbarkeit.value}en Kommentar hinzugefügt und Status zu \"{neuer_status.value}\" gewechselt.")
+            
+                # nur Status ändern
+                else:
+                    flash(f"Status ohne Kommentar zu \"{neuer_status.value}\" gewechselt.")
+            
+            # Status nicht ändern
+            elif neuer_status == meldung.status:
+            
+                # Nur Kommentieren
+                if kommentar_text.strip():
+                    current_user.add_kommentar(meldung, kommentar_text.strip(), sichtbarkeit)
+                    flash(f"Neuen {sichtbarkeit.value}en Kommentar ohne Statuswechsel hinzugefügt.")
+                
+                else: 
+                    flash("Status nicht gewechselt.")
+                #return redirect(url_for("meldung_anzeigen", meldungs_id = meldungs_id))
+            
+            else:
+                flash(f"Statuswechsel von \"{meldung.status.value}\" zu \"{neuer_status.value}\" ist nicht erlaubt.")
     
+    # von add_kommentar (Lehrende)
+    except PermissionError as e:
+        flash(f"{e}")
+        
     # erzeugt URL
     return redirect(url_for("meldung_anzeigen", meldungs_id = meldungs_id))
     
@@ -211,34 +241,13 @@ def nutzer_verwalten():
         return redirect(url_for("uebersicht"))
     
     alle_nutzer = current_user.get_alle_benutzer()
+    alle_module = Modul.query.all()
     
     return render_template("nutzerverwaltung.html",
                            user = current_user,
-                           benutzer_liste = alle_nutzer
+                           benutzer_liste = alle_nutzer,
+                           module = alle_module
                            )
-    
-@app.route("/rolle_aendern", methods=["POST"])
-def rolle_aendern():
-    if not isinstance(current_user, Admin):
-        return redirect(url_for("uebersicht"))
-
-    benutzer_id = int(request.form.get("benutzer_id"))
-    
-    neue_rolle_name = request.form.get("neue_rolle")
-    rolle_enum = Benutzer_rolle(neue_rolle_name)
-
-    #benutzer = next((b for b in db.session.query(Benutzer).all() if b.id == benutzer_id), None)
-    benutzer = db.session.query(Benutzer).filter_by(id=benutzer_id).first()
-
-    neue_rolle_klasse = get_rolle_klasse(rolle_enum)
-
-    if benutzer and neue_rolle_klasse:
-        #neuer_benutzer = 
-        current_user.rolle_zuweisen(benutzer, neue_rolle_klasse)
-        #admin.rolle_aktualisieren(benutzer_id, neuer_benutzer) # rolle_akt. noch bauen
-        flash(f"Rolle von {benutzer.name} zu {neue_rolle_name} geändert.")
-
-    return redirect(url_for("nutzer_verwalten"))
 
 @app.route("/benutzer_erstellen", methods=["GET"])
 def benutzer_erstellen():
@@ -286,17 +295,139 @@ def benutzer_loeschen():
     benutzer = db.session.query(Benutzer).get(benutzer_id)
 
     if benutzer:
-        if isinstance(benutzer, Admin):
-            flash("Admins können nicht gelöscht werden.")
+        if isinstance(benutzer, Admin): # ??? vielleicht nur wenn dann kein Admin mehr da ist?
+            anzahl_admins = Admin.query.count()
+            if anzahl_admins <= 1:    
+                flash("Mindestens ein Admin muss erhalten bleiben.")
+                return redirect(url_for("nutzer_verwalten"))
         else:
+            # Alle Meldungen und Kommentare des Benutzers löschen
+            #for meldung in benutzer.meldungen:
+            #    db.session.delete(meldung)
+            #
+            #for kommentar in benutzer.kommentare:
+            #    db.session.delete(kommentar)
+            
+            # Benutzer löschen
             db.session.delete(benutzer)
             db.session.commit()
+            
             flash(f"Benutzer {benutzer.name} gelöscht.")
     else:
         flash("Benutzer nicht gefunden.")
 
     return redirect(url_for("nutzer_verwalten"))
 
+
+    # Alle Meldungen und Kommentare des Benutzers löschen
+    #for meldung in benutzer.meldungen:
+    #    db.session.delete(meldung)
+    #
+    #for kommentar in benutzer.kommentare:
+    #    db.session.delete(kommentar)
+    #
+    #db.session.delete(benutzer)
+    #db.session.commit()
+    #
+    # in Benutzer-Modell müssen dafür Backrefs definiert sein: 
+    #meldungen = db.relationship("Meldung", backref="ersteller", cascade="all, delete-orphan")
+    #kommentare = db.relationship("Kommentar", backref="autor", cascade="all, delete-orphan")
+
+@app.route("/module_verwalten", methods=["GET", "POST"])
+def module_verwalten():
+    if not isinstance(current_user, Admin):
+        flash("Keine Berechtigung.")
+        return redirect(url_for("uebersicht"))
+    
+    from models.modul import Modul
+    
+    if request.method == "POST":
+        # Modul erstellen
+        titel = request.form.get("titel")
+        # evtl. weitere (z.B. beschreibung)...
+        
+        neues_modul = Modul(titel=titel)
+        db.session.add(neues_modul)
+        db.session.commit()
+        flash(f"Modul \"{titel}\" wurde erfolgreich erstellt.")
+        
+    alle_module = Modul.query.all()
+    return render_template("module_verwalten.html", module=alle_module)
+
+@app.route("/modul_loeschen", methods=["POST"])
+def modul_loeschen():
+    if not isinstance(current_user, Admin):
+        flash("Keine Berechtigung.")
+        return redirect(url_for("uebersicht"))
+    
+    modul_id = int(request.form.get("modul_id"))
+    modul = Modul.query.get(modul_id)
+    
+    if modul:
+        db.session.delete(modul)
+        db.session.commit()
+        flash(f"Modul \"{modul.titel}\" gelöscht")
+    else:
+        flash("Modul nicht gefunden.")
+        
+    return redirect(url_for("module_verwalten"))
+
+@app.route("/modul_aktion", methods=["POST"])
+def modul_aktion():
+    if not isinstance(current_user, Admin):
+        flash("Keine Berechtigung.")
+        return redirect(url_for("uebersicht"))
+
+    lehrende_id = int(request.form.get("lehrende_id"))
+    modul_id = int(request.form.get("modul_id"))
+    aktion = request.form.get("aktion")
+
+    lehrende = Lehrende.query.get(lehrende_id)
+    modul = Modul.query.get(modul_id)
+
+    if not lehrende or not modul:
+        flash("Lehrende oder Modul nicht gefunden.")
+        return redirect(url_for("nutzer_verwalten"))
+
+    if aktion == "zuweisen":
+        if current_user.modul_zuweisen(modul, lehrende):
+            flash(f"Modul \"{modul.titel}\" wurde \"{lehrende.name}\" zugewiesen.")
+        else:
+            flash("Modul bereits zugewiesen.")
+    elif aktion == "entziehen":
+        if current_user.modul_entziehen(modul, lehrende):
+            flash(f"Modul \"{modul.titel}\" wurde \"{lehrende.name}\" entzogen.")
+        else:
+            flash("Modul war nicht zugewiesen.")
+    else:
+        flash("Ungültige Aktion.")
+
+    return redirect(url_for("nutzer_verwalten"))
+
+@app.route("/antwort_speichern/<int:kommentar_id>", methods=["POST"])
+def antwort_speichern(kommentar_id):
+    kommentar = Kommentar.query.get_or_404(kommentar_id)
+
+    if not isinstance(current_user, Studierende):
+        flash("Nur Studierende dürfen antworten.")
+        return redirect(url_for("meldung_anzeigen", meldungs_id=kommentar.meldung.id))
+
+    antwort_text = request.form.get("antwort_text", "").strip()
+    if not antwort_text:
+        flash("Antwort darf nicht leer sein.")
+        return redirect(url_for("meldung_anzeigen", meldungs_id=kommentar.meldung.id))
+
+    antwort = Kommentar(
+        text=antwort_text,
+        meldung=kommentar.meldung,
+        sichtbarkeit=Sichtbarkeit.PRIVAT,
+        verfasser=current_user.name,
+        antwort_auf=kommentar
+    )
+    db.session.add(antwort)
+    db.session.commit()
+    flash("Antwort gespeichert.")
+    return redirect(url_for("meldung_anzeigen", meldungs_id=kommentar.meldung.id))
 
 if __name__ == "__main__":
     app.run(debug=True)

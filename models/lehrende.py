@@ -26,9 +26,23 @@ class Lehrende(Benutzer):
         "polymorphic_identity": "lehrende"
     }
     
-    # Beziehungen zu Modul
-    module = db.relationship("Modul", secondary=modul_lehrende, back_populates="lehrende")
+    # Beziehungen
     
+    # Many to Many-Beziehung zu Modul
+    module = db.relationship(
+        "Modul", 
+        secondary=modul_lehrende, 
+        back_populates="lehrende"
+        )
+    
+    kommentare = db.relationship(
+        "Kommentar", 
+        back_populates="lehrende", 
+        cascade="all, delete-orphan"
+        )
+    
+    
+
     def __init__(self, name:str, email:str, passwort:str):
         super().__init__(name, email, passwort)
         #self.module = []   # Liste von Modul-Objekten
@@ -51,14 +65,17 @@ class Lehrende(Benutzer):
     def add_kommentar(self, meldung:"Meldung", text:str, sichtbarkeit:Sichtbarkeit = Sichtbarkeit.PRIVAT):
         # Prüfen, ob das Modul der Meldung vom Lehrenden betreut wird
         if meldung.modul not in self.module:
-            raise PermissionError("Lehrende dürfen nur zu ihren eigenen Modulen kommentieren.")
+            raise PermissionError("Dies ist nur für eigene Module möglich.")
+        
         kommentar = Kommentar(
-            #kommentar_id=len(meldung.kommentare) + 1, 
             text = text, 
-            sichtbarkeit = sichtbarkeit, 
+            #lehrende = self,
+            meldung = meldung,
+            sichtbarkeit = sichtbarkeit,
             lehrende = self,
-            meldung = meldung
+            verfasser = self.name # oder email
         )
+        
         db.session.add(kommentar)
         db.session.commit()
         #meldung.kommentare.append(kommentar)

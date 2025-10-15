@@ -16,8 +16,16 @@ if TYPE_CHECKING: # Import nur für Typprüfung
     from models.lehrende import Lehrende
 
 modul_lehrende = db.Table("modul_lehrende",
-                          db.Column("modul_id", db.Integer, db.ForeignKey("modul.id")),
-                          db.Column("lehrende_id", db.Integer, db.ForeignKey("lehrende.id"))
+                          db.Column(
+                              "modul_id", 
+                              db.Integer, 
+                              db.ForeignKey("modul.id")
+                              ),
+                          db.Column(
+                              "lehrende_id", 
+                              db.Integer, 
+                              db.ForeignKey("lehrende.id")
+                              )
                           )
 
 class Modul(db.Model):
@@ -27,62 +35,34 @@ class Modul(db.Model):
     titel = db.Column(db.String(200), nullable=False)
     
     # Beziehungen
-    meldungen = db.relationship("Meldung", back_populates="modul", cascade="all, delete-orphan")
-    lehrende = db.relationship("Lehrende", secondary=modul_lehrende, back_populates="module")
+    meldungen = db.relationship(
+        "Meldung", 
+        back_populates="modul", 
+        cascade="all, delete-orphan"
+        )
+    
+    # Many to Many-Beziehung zu Lehrende
+    lehrende = db.relationship(
+        "Lehrende", 
+        secondary=modul_lehrende, 
+        back_populates="module"
+        )
     
     def __init__(self, titel:str):
-        #self.__modul_id = modul_id
         self.titel = titel
-        #self.__meldungen = [] # Liste der Meldungen
-        #self.__lehrende = [] # Liste der Lehrenden
-        
-    '''
-    # getter Methoden    
-    @property
-    def modul_id(self) -> int:
-        return self.__modul_id
-            
-    @property
-    def titel(self) -> str:
-        return self.__titel
-    
-    @property
-    def meldungen(self) -> list[Meldung]:
-        return self.__meldungen
-    
-    @property
-    def lehrende(self) -> list[Lehrende]:
-        return self.__lehrende
-    
-    # setter Methoden 
-    @modul_id.setter
-    def modul_id(self, value:int):
-        self.__modul_id = value
-    
-    @titel.setter
-    def titel(self, value:str):
-        self.__titel = value
-        
-    #@meldungen.setter
-    #def meldungen(self, value):
-    #    self.__meldungen = value
-        
-    #@lehrende.setter
-    #def lehrende(self, value):
-    #    self.__lehrende = value
-    '''
+      
     # private Methode, nur für Admin erlaubt (Konvention: "_" vor Methodenname)
-    def _weise_lehrende_zu(self, lehrende:"Lehrende", aufrufer):
-        """
-        Fügt Lehrenden Modul & Modul Lehrenden hinzu. 
-        Darf nur von Admin aufgerufen werden!
-        """
-        from models.admin import Admin
-        
-        if not isinstance(aufrufer, Admin):
-            raise PermissionError("Nur Admins dürfen Lehrenden Module zuweisen.")
-        
-        if self not in lehrende.module:
-            lehrende.module.append(self) # SQLAlchemy Beziehung über relationship(..., back_populates=...) definiert.
-            # modul.lehrende wird automatisch synchronisiert 
-            #self.lehrende.append(lehrende) # Lehrperson zur Liste des Moduls hinzufügen
+    #def _weise_lehrende_zu(self, lehrende:"Lehrende", aufrufer):
+    #    """
+    #    Fügt Lehrenden Modul & Modul Lehrenden hinzu. 
+    #    Darf nur von Admin aufgerufen werden!
+    #    """
+    #    from models.admin import Admin
+    #    
+    #    if not isinstance(aufrufer, Admin):
+    #        raise PermissionError("Nur Admins dürfen Lehrenden Module zuweisen.")
+    #    
+    #    if self not in lehrende.module:
+    #        lehrende.module.append(self) # SQLAlchemy Beziehung über relationship(..., back_populates=...) definiert.
+    #        # modul.lehrende wird automatisch synchronisiert 
+    #        #self.lehrende.append(lehrende) # Lehrperson zur Liste des Moduls hinzufügen

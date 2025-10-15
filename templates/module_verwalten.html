@@ -1,0 +1,44 @@
+<h2>Modulverwaltung</h2>
+
+<form method="post">
+    <label>Titel:</label>
+    <input type="text" name="titel" required><br>
+    {#
+    <label>Semester:</label>
+    <input type="text" name="semester"><br>
+    <label>Beschreibung:</label>
+    <textarea name="beschreibung"></textarea><br>
+    #}
+    <button type="submit">Modul erstellen</button>
+</form>
+
+<hr>
+
+<h3>Bestehende Module</h3>
+<ul>
+    {% for modul in module %}
+        <li>
+            <strong>{{ modul.titel }}</strong> {#({{ modul.semester }})<br>
+            {{ modul.beschreibung }}<br>#}
+            <form method="post" action="{{ url_for('modul_loeschen') }}">
+                <input type="hidden" name="modul_id" value="{{ modul.id }}">
+                <button type="submit">Modul löschen</button>
+            </form>
+        </li>
+    {% else %}
+        <li>Keine Module vorhanden.</li>
+    {% endfor %}
+</ul>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div style="background-color: #e0ffe0; border: 1px solid #0a0; padding: 0.5em; border-radius: 4px;">
+        {% for msg in messages %}
+            <strong>{{ msg }}</strong>
+        {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<!-- zurrück zur Übersicht navigieren -->
+<a href="{{ url_for('uebersicht') }}">← Zurück zur Übersicht</a>

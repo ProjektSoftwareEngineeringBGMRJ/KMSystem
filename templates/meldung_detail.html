@@ -60,12 +60,32 @@
 {% if user.get_sichtbare_kommentare(meldung) %}
     <ul> 
         {% for kommentar in  user.get_sichtbare_kommentare(meldung) %}
-            <li>
-                <strong>{{ kommentar.zeitstempel.strftime('%d.%m.%Y %H:%M') }}</strong>, 
-                Sichtbarkeit: {{kommentar.sichtbarkeit.value}} - von {{kommentar.lehrende.name}}: 
-                <p>{{kommentar.text}}</p>
-                <br>
-            </li>  
+            {% if kommentar.lehrende != None %}    
+                <li>
+                    <strong>{{ kommentar.zeitstempel.strftime('%d.%m.%Y %H:%M') }}</strong>, 
+                    Sichtbarkeit: {{kommentar.sichtbarkeit.value}} - von {{kommentar.lehrende.name}}: 
+                    <p>{{kommentar.text}}</p>
+
+                    {% if user.__class__.__name__ == "Studierende" %}
+                        <form method="post" action="{{ url_for('antwort_speichern', kommentar_id=kommentar.id) }}">
+                            <textarea name="antwort_text" rows="2" cols="40" placeholder="Antwort schreiben..."></textarea><br>
+                            <button type="submit" onclick="return confirm('Antwort wirlich hinzufügen?')">Antwort senden</button>
+                        </form>
+                    {% endif %}
+
+                    {% if kommentar.antworten %}
+                        <ul>
+                            {% for antwort in kommentar.antworten %}
+                                <li>
+                                    <em>{{ antwort.verfasser }} am {{ antwort.zeitstempel.strftime('%d.%m.%Y %H:%M') }}:</em>
+                                    <p>{{ antwort.text }}</p>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    <br>
+                </li>
+            {% endif %}  
         {% endfor %}
     </ul>
 {% else %}
@@ -75,9 +95,3 @@
 <!-- zurrück zur Übersicht navigieren -->
 <!-- url_for('uebersicht') -->
 <a href="{{ url_for('uebersicht') }}">← Zurück zur Übersicht</a>
-
-
-{#
-{% for meldung in meldungen %}
-    <li>{{ meldung.modul.titel }}: {{ meldung.kategorie.value }}, Status: {{meldung.status.value}}</li>
-{% endfor %}#}

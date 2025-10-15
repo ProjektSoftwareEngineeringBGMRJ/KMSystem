@@ -3,7 +3,7 @@
 Ein webbasiertes System zum Melden von Fehlern, Verbesserungsvorschlägen und Ergänzungen zu Lerninhalten im akademischen Kontext.
 
 ## Technologien
-- **Python 3.11**
+- **Python 3.13.1**
 - **Flask** – Webframework
 - **SQLAlchemy** – ORM für Datenbankmodellierung
 - **Jinja2** – Template-Engine

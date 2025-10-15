@@ -18,7 +18,12 @@ class Studierende(Benutzer): # erbt von Oberklasse
     }
     
     # Beziehung zu Meldungen
-    meldungen = db.relationship("Meldung", back_populates="ersteller", lazy="dynamic")
+    #meldungen = db.relationship("Meldung", back_populates="ersteller", lazy="dynamic")
+    meldungen = db.relationship(
+        "Meldung", 
+        back_populates="ersteller", 
+        cascade="all, delete-orphan"
+        )
     
     def __init__(self, name:str, email:str, passwort:str):
         super().__init__(name, email, passwort) # Attribute der Oberklasse initialisieren
@@ -43,6 +48,23 @@ class Studierende(Benutzer): # erbt von Oberklasse
         db.session.add(meldung)
         db.session.commit()
         return meldung
+    
+    # Anworten auf Kommentare
+    def antworte_auf_kommentar(self, kommentar: "Kommentar", text: str):
+        if not isinstance(self, Studierende):
+            raise PermissionError("Nur Studierende dürfen antworten.")
+        
+        antwort = Kommentar(
+            text = text,
+            #lehrende=
+            meldung = kommentar.meldung,
+            sichtbarkeit = Sichtbarkeit.PRIVAT,
+            verfasser = self.name,  # oder self.email
+            antwort_auf = kommentar
+        )
+        
+        db.session.add(antwort)
+        db.session.commit()
     
 
     
