@@ -40,6 +40,8 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 
+
+
 @login_manager.user_loader
 def load_user(user_id):
     return Benutzer.query.get(int(user_id)) # SQLAlchemy lädt richtige Subklasse (Vererbung)
@@ -86,6 +88,11 @@ with app.app_context():
 
 
 # Controller: @app.route(...) reagiert auf HTTP-Anfragen: 
+
+# bei Aufruf von https://kmsystem.onrender.com/ zu login weiterleiten
+@app.route("/")
+def index():
+    return redirect("/login")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
