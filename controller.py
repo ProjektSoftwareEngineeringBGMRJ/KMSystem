@@ -13,12 +13,16 @@ from models.modul import Modul
 from models.rollen_liste import get_rolle_klasse
 from models.kommentar import Kommentar
 
-
+import os
 
 app = Flask(__name__)
 print(type(app))
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///kmsystem.db"
+
+# import os
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL") # Render: PostgreSQL
+#app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///kmsystem.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
 # aus .env-Datei oder Umgebungsvariablen laden
 app.secret_key = "irgendein_geheimer_schlüssel_123" 
 
