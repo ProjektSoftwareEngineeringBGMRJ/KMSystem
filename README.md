@@ -26,9 +26,9 @@ KMSystem/
 ## Rollen und Zugriff
 | Rolle	| Zugriff auf Meldungen |	Zusatzfunktionen |
 | ----- | --------------------- | ---------------- |
-| Studierende	| Eigene oder alle (umschaltbar) | Meldung erstellen |
-| Lehrende | Meldungen eigener Module |	Kommentierung zu Meldungen |
-| Admin | Alle Meldungen | Benutzer	Rollen ändern, Benutzer hinzufügen/ löschen |
+| Studierende | Eigene oder alle (umschaltbar) | Meldung erstellen, auf Kommentare eigener Meldungen antworten |
+| Lehrende | Meldungen eigener/ aller Module lesen | Kommentieren und Status ändern eigener Meldungen |
+| Admin | Alle Meldungen, Kommentare und Antworten lesen | Module erstellen/ löschen, Module zuweisen, Benutzer hinzufügen/ löschen |
 
 ## Projekt starten (lokal)
 ```bash

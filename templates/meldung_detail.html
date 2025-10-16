@@ -66,7 +66,7 @@
                     Sichtbarkeit: {{kommentar.sichtbarkeit.value}} - von {{kommentar.lehrende.name}}: 
                     <p>{{kommentar.text}}</p>
 
-                    {% if user.__class__.__name__ == "Studierende" %}
+                    {% if user.__class__.__name__ == "Studierende" and user.id == meldung.ersteller.id %}
                         <form method="post" action="{{ url_for('antwort_speichern', kommentar_id=kommentar.id) }}">
                             <textarea name="antwort_text" rows="2" cols="40" placeholder="Antwort schreiben..."></textarea><br>
                             <button type="submit" onclick="return confirm('Antwort wirlich hinzufügen?')">Antwort senden</button>

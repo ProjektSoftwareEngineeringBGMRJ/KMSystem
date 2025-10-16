@@ -456,8 +456,8 @@ def modul_aktion():
 def antwort_speichern(kommentar_id):
     kommentar = Kommentar.query.get_or_404(kommentar_id)
 
-    if not isinstance(current_user, Studierende):
-        flash("Nur Studierende dürfen antworten.")
+    if not isinstance(current_user, Studierende) or current_user.id != kommentar.meldung.ersteller.id:
+        flash("Nur Melder darf  antworten.")
         return redirect(url_for("meldung_anzeigen", meldungs_id=kommentar.meldung.id))
 
     antwort_text = request.form.get("antwort_text", "").strip()
