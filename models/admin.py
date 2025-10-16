@@ -58,20 +58,26 @@ class Admin(Benutzer):
         #   flash(f"Modul '{modul.titel}' wurde gelöscht.")
     
     def modul_zuweisen(self, modul: "Modul", lehrende: "Lehrende"):
-        if lehrende in modul.lehrende:
-            return False # wenn bereits zugewiesen
-        #modul._weise_lehrende_zu(lehrende, aufrufer=self) 
-        modul.lehrende.append(lehrende)
-        db.session.commit()
-        return True   
+        if modul:
+            if lehrende in modul.lehrende:
+                return False # wenn bereits zugewiesen
+            #modul._weise_lehrende_zu(lehrende, aufrufer=self) 
+            modul.lehrende.append(lehrende)
+            db.session.commit()
+            return True   
+        else:
+            raise ValueError("Bitte erst Module anlegen.")
     
     #####################?????#################
     def modul_entziehen(self, modul: "Modul", lehrende: "Lehrende"):
-        if lehrende not in modul.lehrende:
-            return False
-        modul.lehrende.remove(lehrende)
-        db.session.commit()
-        return True
+        if modul:
+            if lehrende not in modul.lehrende:
+                return False
+            modul.lehrende.remove(lehrende)
+            db.session.commit()
+            return True
+        else:
+            raise ValueError("Bitte erst Module anlegen.")
         
     def get_alle_meldungen(self) -> list["Meldung"]:
         from models.meldung import Meldung

@@ -452,18 +452,21 @@ def modul_aktion():
         flash("Lehrende oder Modul nicht gefunden.")
         return redirect(url_for("nutzer_verwalten"))
 
-    if aktion == "zuweisen":
-        if current_user.modul_zuweisen(modul, lehrende):
-            flash(f"Modul \"{modul.titel}\" wurde \"{lehrende.name}\" zugewiesen.")
+    try:
+        if aktion == "zuweisen":
+            if current_user.modul_zuweisen(modul, lehrende):
+                flash(f"Modul \"{modul.titel}\" wurde \"{lehrende.name}\" zugewiesen.")
+            else:
+                flash("Modul bereits zugewiesen.")
+        elif aktion == "entziehen":
+            if current_user.modul_entziehen(modul, lehrende):
+                flash(f"Modul \"{modul.titel}\" wurde \"{lehrende.name}\" entzogen.")
+            else:
+                flash("Modul war nicht zugewiesen.")
         else:
-            flash("Modul bereits zugewiesen.")
-    elif aktion == "entziehen":
-        if current_user.modul_entziehen(modul, lehrende):
-            flash(f"Modul \"{modul.titel}\" wurde \"{lehrende.name}\" entzogen.")
-        else:
-            flash("Modul war nicht zugewiesen.")
-    else:
-        flash("Ungültige Aktion.")
+            flash("Ungültige Aktion.")
+    except ValueError as e:
+        flash(f"{e}")
 
     return redirect(url_for("nutzer_verwalten"))
 
