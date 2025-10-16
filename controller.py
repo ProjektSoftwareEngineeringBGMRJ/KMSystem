@@ -19,7 +19,12 @@ app = Flask(__name__)
 print(type(app))
 
 # import os
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL") # Render: PostgreSQL
+#app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL") # Render: PostgreSQL
+
+# Lokale Fallback-URL, falls DATABASE_URL nicht gesetzt ist
+db_url = os.getenv("DATABASE_URL", "sqlite:///kmsystem.db")
+app.config["SQLALCHEMY_DATABASE_URI"] = db_url
+
 #app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///kmsystem.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
