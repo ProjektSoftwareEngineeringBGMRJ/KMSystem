@@ -47,6 +47,21 @@ login_manager.login_view = "login"
 def load_user(user_id):
     return Benutzer.query.get(int(user_id)) # SQLAlchemy lädt richtige Subklasse (Vererbung)
 
+
+# Admin in die Datenbank bringen (wenn leer):
+#from models.admin import Admin
+from flask import jsonify
+
+@app.route("/setup-admin")
+def setup_admin():
+    if not Admin.query.filter_by(email="admin@example.org").first():
+        admin = Admin(name="Admin", email="admin@example.org", passwort="admin123")
+        db.session.add(admin)
+        db.session.commit()
+        return jsonify({"status": "Admin erstellt."})
+    return jsonify({"status": "Admin existiert bereits."})
+
+
 # Dummy Daten (einmal ausführen):
 with app.app_context():
 #     #db.drop_all()
