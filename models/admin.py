@@ -1,5 +1,6 @@
 from models.benutzer import Benutzer
 from models.datenbank import db
+from flask import flash
 from typing import TYPE_CHECKING#, Type
 #from models.enums import Benutzer_rolle
 
@@ -27,11 +28,20 @@ class Admin(Benutzer):
     
     def erstelle_modul(self, titel:str) -> "Modul":
         from models.modul import Modul
-        neues_modul = Modul(titel=titel) 
-        #self.__module.append(neues_modul)
-        db.session.add(neues_modul)
-        db.session.commit()
-        return neues_modul
+        
+        modul_vorhanden = Modul.query.filter_by(titel=titel).first()
+        print(modul_vorhanden)
+        if modul_vorhanden:
+            raise ValueError(f"Modul \"{titel}\" bereits vorhanden.")
+        else: 
+            neues_modul = Modul(titel=titel) 
+            #self.__module.append(neues_modul)
+            db.session.add(neues_modul)
+            db.session.commit()
+            return neues_modul
+        
+            
+        
     
     def loesche_modul(self, modul: "Modul") -> bool:
         if modul.meldungen:

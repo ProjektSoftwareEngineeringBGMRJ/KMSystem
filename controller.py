@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash # insall
 from flask_migrate import Migrate
 from models.datenbank import db
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 
 from models.meldung import Meldung
 from models.enums import Kategorie, Status, Sichtbarkeit, Benutzer_rolle
@@ -19,56 +20,87 @@ print(type(app))
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///kmsystem.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 # aus .env-Datei oder Umgebungsvariablen laden
-app.secret_key = "irgendein_geheimer_schlüssel_123"
+app.secret_key = "irgendein_geheimer_schlüssel_123" 
 
 db.init_app(app)
 
 migrate = Migrate(app, db)
 
-# Controller: @app.route(...) reagiert auf HTTP-Anfragen 
+# Login Manager
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "login"
+
+@login_manager.user_loader
+def load_user(user_id):
+    return Benutzer.query.get(int(user_id)) # SQLAlchemy lädt richtige Subklasse (Vererbung)
 
 # Dummy Daten (einmal ausführen):
 with app.app_context():
-    #db.drop_all()
+#     #db.drop_all()
     db.create_all()
 
-    if not Admin.query.first():
-        admin = Admin(name="Administrator", email="admin@example.com", passwort="admin123")
-        student_1 = Studierende(name="Jens Müller", email="jmueller@example.com", passwort="pw1")
-        student_2 = Studierende(name="Horst Lichter", email="lichter@example.org", passwort="pw2")
-        prof_1 = Lehrende(name="Dr. Motte", email="motte@example.org", passwort="pw3")
+#     if not Admin.query.first():
+#         admin = Admin(name="Administrator", email="admin@example.com", passwort="admin123")
+#         student_1 = Studierende(name="Jens Müller", email="jmueller@example.com", passwort="pw1")
+#         student_2 = Studierende(name="Horst Lichter", email="lichter@example.org", passwort="pw2")
+#         prof_1 = Lehrende(name="Dr. Motte", email="motte@example.org", passwort="pw3")
 
-        db.session.add_all([admin, student_1, student_2, prof_1])
-        db.session.commit()
+#         db.session.add_all([admin, student_1, student_2, prof_1])
+#         db.session.commit()
 
-        modul_1 = admin.erstelle_modul("Ufologie")
-        modul_2 = admin.erstelle_modul("Kunstgeschichte")
-        admin.modul_zuweisen(modul_1, prof_1)
+#         modul_1 = admin.erstelle_modul("Ufologie")
+#         modul_2 = admin.erstelle_modul("Kunstgeschichte")
+#         admin.modul_zuweisen(modul_1, prof_1)
 
-        student_1.erstelle_meldung("Fehler in Zeile 1", Kategorie.MUSTERKLAUSUR, modul_1)
-        student_1.erstelle_meldung("Fehler in Zeile 2", Kategorie.PDFSKRIPT, modul_1)
-        student_1.erstelle_meldung("Fehler in Zeile 3", Kategorie.FOLIENSÄTZE, modul_1)
-        student_1.erstelle_meldung("Fehler in Geschichte", Kategorie.VIDEO, modul_2)
-        student_2.erstelle_meldung("Meldung von Lichter", Kategorie.ONLINETESTS, modul_1)
+#         student_1.erstelle_meldung("Fehler in Zeile 1", Kategorie.MUSTERKLAUSUR, modul_1)
+#         student_1.erstelle_meldung("Fehler in Zeile 2", Kategorie.PDFSKRIPT, modul_1)
+#         student_1.erstelle_meldung("Fehler in Zeile 3", Kategorie.FOLIENSÄTZE, modul_1)
+#         student_1.erstelle_meldung("Fehler in Geschichte", Kategorie.VIDEO, modul_2)
+#         student_2.erstelle_meldung("Meldung von Lichter", Kategorie.ONLINETESTS, modul_1)
 
-        db.session.commit()
+#         db.session.commit()
 
-@app.before_request
-def setze_dummy_user():
-    global current_user
+# Dummy User für Tests:
+# @app.before_request
+# def setze_dummy_user():
+#     global current_user
     
-    #current_user = Lehrende.query.first()
+#     #current_user = Lehrende.query.first()
     
-    #current_user = Lehrende.query.filter_by(name="Prof1").first()
+#     #current_user = Lehrende.query.filter_by(name="Prof1").first()
     
-    #current_user = Studierende.query.first()
-    #current_user = Studierende.query.filter_by(name="Studi1").first()
+#     #current_user = Studierende.query.first()
+#     #current_user = Studierende.query.filter_by(name="Studi1").first()
     
-    current_user = Admin.query.first()  # später: Session-basiert
+#     current_user = Admin.query.first()  # später: Session-basiert
 
+
+# Controller: @app.route(...) reagiert auf HTTP-Anfragen: 
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        email = request.form["email"]
+        passwort = request.form["passwort"]
+        user = Benutzer.query.filter_by(email=email).first()
+        if user and user.check_passwort(passwort):
+            login_user(user)
+            flash(f"Login erfolgreich als {user.type}.")
+            return redirect(url_for("uebersicht"))
+        else:
+            flash("Login fehlgeschlagen")
+    return render_template("login.html")
+
+@app.route("/logout")
+def logout():
+    logout_user()
+    flash("Erfolgreich ausgeloggt.")
+    return redirect(url_for("login"))
 
 # Übersichtsseite (acd Übersicht anzeigen)
 @app.route("/uebersicht") # GET-Anfrage <form method="get" action="/uebersicht">
+@login_required
 def uebersicht():
     
     # für Session-Login
@@ -126,6 +158,7 @@ def uebersicht():
     )
     
 @app.route("/meldung/<int:meldungs_id>")
+@login_required
 def meldung_anzeigen(meldungs_id):
     # später Datenbank
     # admin.get_alle_meldungen() -> list[Meldung]:
@@ -141,6 +174,7 @@ def meldung_anzeigen(meldungs_id):
                            sichtbarkeit_enum = Sichtbarkeit)
 
 @app.route("/meldung/<int:meldungs_id>/status_aendern", methods=["POST"])
+@login_required
 def status_aendern(meldungs_id:int):
     
     meldung = next((m for m in db.session.query(Meldung).all() if m.id == meldungs_id), None)
@@ -200,6 +234,7 @@ def status_aendern(meldungs_id:int):
     return redirect(url_for("meldung_anzeigen", meldungs_id = meldungs_id))
     
 @app.route("/meldung/neu", methods=["GET", "POST"])
+@login_required
 def meldung_erstellen():
     if request.method == "POST":
         # holen von Werten aus HTML-Formular
@@ -236,6 +271,7 @@ def meldung_erstellen():
                            )
     
 @app.route("/nutzerverwaltung", methods=["GET", "POST"])
+@login_required
 def nutzer_verwalten():
     if not isinstance(current_user, Admin):
         return redirect(url_for("uebersicht"))
@@ -250,12 +286,14 @@ def nutzer_verwalten():
                            )
 
 @app.route("/benutzer_erstellen", methods=["GET"])
+@login_required
 def benutzer_erstellen():
     if not isinstance(current_user, Admin):
         return redirect(url_for("uebersicht"))
     return render_template("benutzer_erstellen.html", user=current_user)
 
 @app.route("/benutzer_speichern", methods=["POST"])
+@login_required
 def benutzer_speichern():
     if not isinstance(current_user, Admin):
         return redirect(url_for("uebersicht"))
@@ -286,6 +324,7 @@ def benutzer_speichern():
     return redirect(url_for("nutzer_verwalten"))
 
 @app.route("/benutzer_loeschen", methods=["POST"])
+@login_required
 def benutzer_loeschen():
     if not isinstance(current_user, Admin):
         flash("Keine Berechtigung.")
@@ -334,6 +373,7 @@ def benutzer_loeschen():
     #kommentare = db.relationship("Kommentar", backref="autor", cascade="all, delete-orphan")
 
 @app.route("/module_verwalten", methods=["GET", "POST"])
+@login_required
 def module_verwalten():
     if not isinstance(current_user, Admin):
         flash("Keine Berechtigung.")
@@ -346,15 +386,21 @@ def module_verwalten():
         titel = request.form.get("titel")
         # evtl. weitere (z.B. beschreibung)...
         
-        neues_modul = Modul(titel=titel)
-        db.session.add(neues_modul)
-        db.session.commit()
-        flash(f"Modul \"{titel}\" wurde erfolgreich erstellt.")
+        #neues_modul = Modul(titel=titel)
+        #db.session.add(neues_modul)
+        #db.session.commit()
+        try:
+            current_user.erstelle_modul(titel=titel)
+            flash(f"Modul \"{titel}\" wurde erfolgreich erstellt.")
+        except ValueError as e:
+            flash(f"Fehler: {e}")    
+        
         
     alle_module = Modul.query.all()
     return render_template("module_verwalten.html", module=alle_module)
 
 @app.route("/modul_loeschen", methods=["POST"])
+@login_required
 def modul_loeschen():
     if not isinstance(current_user, Admin):
         flash("Keine Berechtigung.")
@@ -373,6 +419,7 @@ def modul_loeschen():
     return redirect(url_for("module_verwalten"))
 
 @app.route("/modul_aktion", methods=["POST"])
+@login_required
 def modul_aktion():
     if not isinstance(current_user, Admin):
         flash("Keine Berechtigung.")
@@ -405,6 +452,7 @@ def modul_aktion():
     return redirect(url_for("nutzer_verwalten"))
 
 @app.route("/antwort_speichern/<int:kommentar_id>", methods=["POST"])
+@login_required
 def antwort_speichern(kommentar_id):
     kommentar = Kommentar.query.get_or_404(kommentar_id)
 

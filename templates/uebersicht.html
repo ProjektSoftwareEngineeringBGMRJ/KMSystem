@@ -5,8 +5,11 @@
     <title>Übersichtsseite</title>
 </head>
 <body>
+    {#
     <p>Debug: User-Klasse={{user.__class__.__name__}}, Modul={{ selected_modul }}, Status={{ selected_status }}, Kategorie={{ selected_kategorie }}, Alle={{ alle_meldungen }}</p>
-    
+    #}
+    <a href="{{ url_for('logout') }}">Logout</a>
+
     {% if user.__class__.__name__ == "Studierende" %}
         <form method="get" action="{{ url_for('meldung_erstellen') }}">
             <button type="submit">➕ Neue Meldung erstellen</button>

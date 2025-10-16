@@ -1,12 +1,3 @@
-#from __future__ import annotations # verzögerte Auswertung von Typen (nicht direkt importiert)
-#from typing import TYPE_CHECKING # vermeidet Zirkelimporte
-#if TYPE_CHECKING: # Import nur für Typprüfung
-#    from models.meldung import Meldung
-#from models.benutzer import Benutzer
-#from models.kommentar import Kommentar # benötigt, da Instanziierung
-#from models.enums import Sichtbarkeit
-#from models.datenbank import db
-
 from models.benutzer import Benutzer
 from models.datenbank import db
 from models.modul import modul_lehrende
