@@ -13,20 +13,19 @@ from models.modul import Modul
 from models.rollen_liste import get_rolle_klasse
 from models.kommentar import Kommentar
 
-import os
+import os # für PostgreSQL
 
 app = Flask(__name__)
 print(type(app))
 
-# import os
-#app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL") # Render: PostgreSQL
 
-# Lokale URL, falls DATABASE_URL nicht gesetzt ist
-db_url = os.getenv("DATABASE_URL") #, "sqlite:///kmsystem.db")
+db_url = "sqlite:///kmsystem.db" # Lokale URL
+#db_url = os.getenv("DATABASE_URL") # Render: PostgreSQL
+
 app.config["SQLALCHEMY_DATABASE_URI"] = db_url
-print("Datenbank-URL:", db_url) # debug (daten verschwinden bei deploy, PostgreSQL nicht verwendet?)
 
-#app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///kmsystem.db"
+print("Datenbank-URL:", db_url) # debug (daten verschwinden bei deploy, wenn PostgreSQL nicht verwendet)
+
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # aus .env-Datei oder Umgebungsvariablen laden
@@ -482,7 +481,7 @@ def modul_aktion():
         else:
             flash("Ungültige Aktion.")
     except ValueError as e:
-        flash(f"{e}")
+        flash(str(e))
 
     return redirect(url_for("nutzer_verwalten"))
 
