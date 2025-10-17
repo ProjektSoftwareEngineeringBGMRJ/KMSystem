@@ -19,8 +19,8 @@ app = Flask(__name__)
 print(type(app))
 
 
-db_url = "sqlite:///kmsystem.db" # Lokale URL
-#db_url = os.getenv("DATABASE_URL") # Render: PostgreSQL
+#db_url = "sqlite:///kmsystem.db" # Lokale URL
+db_url = os.getenv("DATABASE_URL") # Render: PostgreSQL
 
 
 app.config["SQLALCHEMY_DATABASE_URI"] = db_url
