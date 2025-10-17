@@ -88,7 +88,7 @@ def load_user(user_id):
 # bei Aufruf von https://kmsystem.onrender.com/ zu login weiterleiten
 @app.route("/")
 def index():
-    return redirect("/login")
+    return redirect("/login") # Startseite
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
