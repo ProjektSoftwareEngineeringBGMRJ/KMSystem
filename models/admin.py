@@ -1,6 +1,5 @@
 from models.benutzer import Benutzer
 from models.datenbank import db
-from flask import flash
 from typing import TYPE_CHECKING#, Type
 #from models.enums import Benutzer_rolle
 
@@ -39,9 +38,6 @@ class Admin(Benutzer):
             db.session.add(neues_modul)
             db.session.commit()
             return neues_modul
-        
-            
-        
     
     def loesche_modul(self, modul: "Modul") -> bool:
         if modul.meldungen:
@@ -57,7 +53,7 @@ class Admin(Benutzer):
         #else:
         #   flash(f"Modul '{modul.titel}' wurde gelöscht.")
     
-    def modul_zuweisen(self, modul: "Modul", lehrende: "Lehrende"):
+    def modul_zuweisen(self, modul: "Modul", lehrende: "Lehrende") -> bool:
         # if modul is None:
         #     raise ValueError("Bitte erst Module anlegen.") # wenn noch kein Modul vorhanden
             
@@ -70,7 +66,7 @@ class Admin(Benutzer):
         return True   
     
     
-    def modul_entziehen(self, modul: "Modul", lehrende: "Lehrende"):
+    def modul_entziehen(self, modul: "Modul", lehrende: "Lehrende") -> bool:
         # if modul is None:
         #     raise ValueError("Bitte erst Module anlegen.") # wenn noch kein Modul vorhanden
         

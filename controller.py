@@ -48,7 +48,7 @@ def load_user(user_id):
     return Benutzer.query.get(int(user_id)) # SQLAlchemy lädt richtige Subklasse (Vererbung)
 
 
-# Admin in die Datenbank bringen (wenn leer):
+# Admin in die Datenbank bringen (wenn leer): Einmal "App-URL/setup-admin" aufrufen. 
 #from models.admin import Admin
 # from flask import jsonify
 
@@ -62,31 +62,11 @@ def load_user(user_id):
 #     return jsonify({"status": "Admin existiert bereits."})
 
 
-# Dummy Daten (einmal ausführen):
-with app.app_context():
-#     #db.drop_all()
-    db.create_all()
+# Erster Start: (einmal ausführen)
+# with app.app_context():
+# #     #db.drop_all() # Alle Tabellen löschen
+#     db.create_all() # Datenbank erstellen -> alle Tabellen aus Models
 
-#     if not Admin.query.first():
-#         admin = Admin(name="Administrator", email="admin@example.com", passwort="admin123")
-#         student_1 = Studierende(name="Jens Müller", email="jmueller@example.com", passwort="pw1")
-#         student_2 = Studierende(name="Horst Lichter", email="lichter@example.org", passwort="pw2")
-#         prof_1 = Lehrende(name="Dr. Motte", email="motte@example.org", passwort="pw3")
-
-#         db.session.add_all([admin, student_1, student_2, prof_1])
-#         db.session.commit()
-
-#         modul_1 = admin.erstelle_modul("Ufologie")
-#         modul_2 = admin.erstelle_modul("Kunstgeschichte")
-#         admin.modul_zuweisen(modul_1, prof_1)
-
-#         student_1.erstelle_meldung("Fehler in Zeile 1", Kategorie.MUSTERKLAUSUR, modul_1)
-#         student_1.erstelle_meldung("Fehler in Zeile 2", Kategorie.PDFSKRIPT, modul_1)
-#         student_1.erstelle_meldung("Fehler in Zeile 3", Kategorie.FOLIENSÄTZE, modul_1)
-#         student_1.erstelle_meldung("Fehler in Geschichte", Kategorie.VIDEO, modul_2)
-#         student_2.erstelle_meldung("Meldung von Lichter", Kategorie.ONLINETESTS, modul_1)
-
-#         db.session.commit()
 
 # Dummy User für Tests:
 # @app.before_request

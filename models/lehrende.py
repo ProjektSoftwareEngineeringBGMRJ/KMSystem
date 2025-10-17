@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING # vermeidet Zirkelimporte
 
 if TYPE_CHECKING: # Import nur für Typprüfung
     from models.meldung import Meldung
-    #from models.modul import Modul, modul_lehrende
 
 class Lehrende(Benutzer):
     __tablename__ = "lehrende"
@@ -69,7 +68,6 @@ class Lehrende(Benutzer):
         
         db.session.add(kommentar)
         db.session.commit()
-        #meldung.kommentare.append(kommentar)
         
     def get_eigene_meldungen(self) -> list["Meldung"]:
         meldungen: list[Meldung] = []

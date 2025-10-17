@@ -43,8 +43,7 @@ class Studierende(Benutzer): # erbt von Oberklasse
     
     def erstelle_meldung(self, beschreibung:str, kategorie:Kategorie, modul:Modul) -> Meldung:
         meldung = Meldung(beschreibung=beschreibung, kategorie=kategorie, ersteller=self, modul=modul) # Als Ersteller wird mit self Objekt "Studierene" übergeben
-        #self.meldungen.append(meldung) # Liste pflegen
-        #modul.meldungen.append(meldung) # Modul aktualisieren
+    
         db.session.add(meldung)
         db.session.commit()
         return meldung
@@ -56,7 +55,6 @@ class Studierende(Benutzer): # erbt von Oberklasse
         
         antwort = Kommentar(
             text = text,
-            #lehrende=
             meldung = kommentar.meldung,
             sichtbarkeit = Sichtbarkeit.PRIVAT,
             verfasser = self.name,  # oder self.email

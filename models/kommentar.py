@@ -25,6 +25,7 @@ class Kommentar(db.Model):
     text = db.Column(db.String(500), nullable=False)
     zeitstempel = db.Column(db.DateTime, default=datetime.now, nullable=False)
     sichtbarkeit = db.Column(db.Enum(Sichtbarkeit), nullable=False)
+    verfasser = db.Column(db.String(100), nullable=False)  # z. B. Name oder email
     
     # Beziehungen
     
@@ -43,10 +44,6 @@ class Kommentar(db.Model):
         )
     meldung = db.relationship("Meldung", back_populates="kommentare")
 
-    # Antwort auf Kommentare
-    # anzeigen: kommentar.antwort_auf.text
-    # iterieren: kommentar.antworten
-##############################################################
     antwort_auf_id = db.Column(
         db.Integer, 
         db.ForeignKey("kommentar.id"), 
@@ -57,10 +54,7 @@ class Kommentar(db.Model):
         remote_side="Kommentar.id", 
         backref="antworten"
         )
-    
-    verfasser = db.Column(db.String(100), nullable=False)  # z. B. Name oder E-Mail
-####################################################################
-    # Konstruktor
+
     def __init__( 
         self, 
         text:str, 

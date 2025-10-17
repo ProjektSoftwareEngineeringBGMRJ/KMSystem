@@ -1,6 +1,5 @@
-from models.datenbank import db
-from sqlalchemy.ext.declarative import declared_attr
 # Klasse: Benutzer, vererbt an: Studierende, Lehrende, Admin
+from models.datenbank import db
 from abc import abstractmethod #, ABC
 from flask_login import UserMixin # Flask-Login
 from werkzeug.security import generate_password_hash, check_password_hash # Passwort als Hash
@@ -14,9 +13,6 @@ class Benutzer(db.Model, UserMixin ):#, ABC):
     email = db.Column(db.String(120), unique=True, nullable=False)
     passwort_hash = db.Column(db.String(200), nullable=False)
     
-    #@declared_attr
-    #def type(cls):
-    #    return db.Column(db.String(50))
     type = db.Column(db.String(50))
     
     __mapper_args__ = {
