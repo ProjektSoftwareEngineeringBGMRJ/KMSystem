@@ -457,8 +457,14 @@ def modul_aktion():
         flash("Keine Berechtigung.")
         return redirect(url_for("uebersicht"))
 
+    modul_id_raw = request.form.get("modul_id")
+    # Sind Module vorhanden?
+    if not modul_id_raw:
+        flash ("Bitte zuerst Module anlegen.")
+        return redirect(url_for("nutzer_verwalten"))
+    
     lehrende_id = int(request.form.get("lehrende_id"))
-    modul_id = int(request.form.get("modul_id"))
+    modul_id = int(modul_id_raw)
     aktion = request.form.get("aktion")
 
     lehrende = Lehrende.query.get(lehrende_id)
@@ -468,21 +474,21 @@ def modul_aktion():
         flash("Lehrende oder Modul nicht gefunden.")
         return redirect(url_for("nutzer_verwalten"))
 
-    try:
-        if aktion == "zuweisen":
-            if current_user.modul_zuweisen(modul, lehrende):
-                flash(f"Modul \"{modul.titel}\" wurde \"{lehrende.name}\" zugewiesen.")
-            else:
-                flash("Modul bereits zugewiesen.")
-        elif aktion == "entziehen":
-            if current_user.modul_entziehen(modul, lehrende):
-                flash(f"Modul \"{modul.titel}\" wurde \"{lehrende.name}\" entzogen.")
-            else:
-                flash("Modul war nicht zugewiesen.")
+    #try:
+    if aktion == "zuweisen":
+        if current_user.modul_zuweisen(modul, lehrende):
+            flash(f"Modul \"{modul.titel}\" wurde \"{lehrende.name}\" zugewiesen.")
         else:
-            flash("Ungültige Aktion.")
-    except ValueError as e:
-        flash(str(e))
+            flash("Modul bereits zugewiesen.")
+    elif aktion == "entziehen":
+        if current_user.modul_entziehen(modul, lehrende):
+            flash(f"Modul \"{modul.titel}\" wurde \"{lehrende.name}\" entzogen.")
+        else:
+            flash("Modul war nicht zugewiesen.")
+    else:
+        flash("Ungültige Aktion.")
+    # except ValueError as e:
+    #     flash(str(e))
 
     return redirect(url_for("nutzer_verwalten"))
 

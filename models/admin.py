@@ -58,8 +58,8 @@ class Admin(Benutzer):
         #   flash(f"Modul '{modul.titel}' wurde gelöscht.")
     
     def modul_zuweisen(self, modul: "Modul", lehrende: "Lehrende"):
-        if modul is None:
-            raise ValueError("Bitte erst Module anlegen.") # wenn noch kein Modul vorhanden
+        # if modul is None:
+        #     raise ValueError("Bitte erst Module anlegen.") # wenn noch kein Modul vorhanden
             
         if lehrende in modul.lehrende:
             return False # wenn bereits zugewiesen
@@ -71,8 +71,8 @@ class Admin(Benutzer):
     
     
     def modul_entziehen(self, modul: "Modul", lehrende: "Lehrende"):
-        if modul is None:
-            raise ValueError("Bitte erst Module anlegen.") # wenn noch kein Modul vorhanden
+        # if modul is None:
+        #     raise ValueError("Bitte erst Module anlegen.") # wenn noch kein Modul vorhanden
         
         if lehrende not in modul.lehrende:
             return False # wenn bereits zugewiesen
