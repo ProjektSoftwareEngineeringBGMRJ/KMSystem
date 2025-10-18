@@ -22,6 +22,9 @@ KMSystem/
 ├── datenbank.py           # SQLAlchemy-Initialisierung
 └── README.md              # Projektbeschreibung
 ```
+Die Datenbank wird direkt über `db.create_all()` aus den SQLAlchemy-Modellen erzeugt. 
+Es wird kein Migrationsframework verwendet.
+
 
 ## Rollen und Zugriff
 | Rolle	| Zugriff auf Meldungen | Zusatzfunktionen |

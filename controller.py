@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash # insall
-from flask_migrate import Migrate
+#from flask_migrate import Migrate
 from models.datenbank import db
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 
@@ -34,7 +34,7 @@ app.secret_key = "irgendein_geheimer_schlüssel_123"
 
 db.init_app(app)
 
-migrate = Migrate(app, db)
+#migrate = Migrate(app, db)
 
 # Login Manager
 login_manager = LoginManager()
