@@ -95,7 +95,7 @@ def login():
     if request.method == "POST":
         email = request.form["email"]
         passwort = request.form["passwort"]
-        user = Benutzer.query.filter_by(email=email).first()
+        user = Benutzer.query.filter_by(email=email).first() #direkte SQL-Abfrage
         if user and user.check_passwort(passwort):
             login_user(user)
             flash(f"Login erfolgreich als {user.type}.")
@@ -174,8 +174,8 @@ def uebersicht():
 def meldung_anzeigen(meldungs_id):
     # später Datenbank
     # admin.get_alle_meldungen() -> list[Meldung]:
-    meldung = next((m for m in db.session.query(Meldung).all() if m.id == meldungs_id), None)
-    
+    #meldung = next((m for m in db.session.query(Meldung).all() if m.id == meldungs_id), None)
+    meldung = Meldung.query.filter_by(id=meldungs_id).first() # direkte SQL-Abfrage
     if not meldung:
         pass
         
@@ -189,7 +189,8 @@ def meldung_anzeigen(meldungs_id):
 @login_required
 def status_aendern(meldungs_id:int):
     
-    meldung = next((m for m in db.session.query(Meldung).all() if m.id == meldungs_id), None)
+    #meldung = next((m for m in db.session.query(Meldung).all() if m.id == meldungs_id), None)
+    meldung = Meldung.query.filter_by(id=meldungs_id).first() # direkte SQL-Abfrage
     if not meldung:
         return redirect(url_for("uebersicht"))
     
@@ -221,7 +222,7 @@ def status_aendern(meldungs_id:int):
             
                 # nur Status ändern
                 else:
-                    db.session.commit() # In Datenbank schreiben (sonst in add_kommentar)
+                    db.session.commit() # in Datenbank schreiben (sonst in add_kommentar)
                     flash(f"Status ohne Kommentar zu \"{neuer_status.value}\" gewechselt.")
             
             # Status nicht ändern
@@ -257,7 +258,7 @@ def meldung_erstellen():
 
         # Modul und Kategorie aus Enum (oder Datenbank) holen
         #modul = next((m for m in db.session.query(Modul).all() if m.titel == modul_titel), None)
-        modul = db.session.query(Modul).filter_by(titel=modul_titel).first()
+        modul = db.session.query(Modul).filter_by(titel=modul_titel).first() # direkte SQL-Abfrage
         kategorie = Kategorie[kategorie_name]
         
         #meldungs_id = len(admin.get_alle_meldungen()) + 1
@@ -318,7 +319,7 @@ def benutzer_speichern():
     passwort = request.form.get("passwort")
 
     # prüfen ob E-Mail schon existiert
-    if db.session.query(Benutzer).filter_by(email=email).first():
+    if db.session.query(Benutzer).filter_by(email=email).first(): # direkte SQL-Abfrage
         flash("Benutzer mit dieser Email existiert bereits.")
         return redirect(url_for("benutzer_erstellen"))
 
