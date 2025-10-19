@@ -221,6 +221,7 @@ def status_aendern(meldungs_id:int):
             
                 # nur Status ändern
                 else:
+                    db.session.commit() # In Datenbank schreiben (sonst in add_kommentar)
                     flash(f"Status ohne Kommentar zu \"{neuer_status.value}\" gewechselt.")
             
             # Status nicht ändern
