@@ -18,7 +18,7 @@
         {% endfor %}
     </select><br><br>
 
-    <label for="kommentar"><strong>Kommentar zur Änderung:</strong></label><br>
+    <label for="kommentar"><strong>Kommentar zur Meldung:</strong></label><br>
 
     <label for="sichtbarkeit">Sichtbarkeit:</label>
     <select name="sichtbarkeit" id="sichtbarkeit">
@@ -28,7 +28,7 @@
             </option>
         {% endfor %}
     </select><br>
-    <textarea name="kommentar" id="kommentar" rows="3" cols="40">{{ eingegebener_kommentar }}</textarea><br>
+    <textarea name="kommentar" id="kommentar" rows="3" cols="40" placeholder="Sie dürfen auch ohne Statuswechsel Kommentieren.">{{ eingegebener_kommentar }}</textarea><br>
 
     {# Status nicht gültig -> Fehlermeltung #}
     {% if fehlermeldung %}
