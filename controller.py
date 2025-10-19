@@ -209,7 +209,7 @@ def status_aendern(meldungs_id:int):
     
     try:
         if meldung.modul not in current_user.module:
-            raise PermissionError("Dies ist nur für eigene Module möglich.")
+            raise PermissionError("Dies ist nur für Meldungen eigener Module möglich.")
         else:
             # Statuswechsel: offen -> in Bearbeitung -> abgeschlossen
             if neuer_status in erlaubte_wechsel[meldung.status]:
