@@ -171,11 +171,12 @@ def uebersicht():
     
 @app.route("/meldung/<int:meldungs_id>")
 @login_required
-def meldung_anzeigen(meldungs_id):
+def meldung_anzeigen(meldungs_id): # Read-Operation (R in CRUD)
     # später Datenbank
     # admin.get_alle_meldungen() -> list[Meldung]:
     #meldung = next((m for m in db.session.query(Meldung).all() if m.id == meldungs_id), None)
     meldung = Meldung.query.filter_by(id=meldungs_id).first() # direkte SQL-Abfrage
+    # entspricht: SELECT * FROM meldung WHERE id = :meldungs_id LIMIT 1;
     if not meldung:
         pass
         
@@ -187,19 +188,20 @@ def meldung_anzeigen(meldungs_id):
 
 @app.route("/meldung/<int:meldungs_id>/status_aendern", methods=["POST"])
 @login_required
-def status_aendern(meldungs_id:int):
+def status_aendern(meldungs_id:int): # Update-Operation (U in CRUD)
     
     #meldung = next((m for m in db.session.query(Meldung).all() if m.id == meldungs_id), None)
-    meldung = Meldung.query.filter_by(id=meldungs_id).first() # direkte SQL-Abfrage
+    meldung = Meldung.query.filter_by(id=meldungs_id).first() # direkte SQL-Abfrage: Read-Operation (R in CRUD)
     if not meldung:
         return redirect(url_for("uebersicht"))
     
-    neuer_status_name = request.form.get("status") # holt Wert aus Formular
-    kommentar_text = request.form.get("kommentar")
-    sichtbarkeit_name = request.form.get("sichtbarkeit")
+    # Werte aus Formular holen
+    neuer_status_name = request.form.get("status") # neuer Staus
+    kommentar_text = request.form.get("kommentar") # optional
+    sichtbarkeit_name = request.form.get("sichtbarkeit") # Enum
     sichtbarkeit = Sichtbarkeit[sichtbarkeit_name]
     
-            
+    # Statuslogik: Erlaubte Übergänge        
     neuer_status = Status[neuer_status_name]
     erlaubte_wechsel = {
         Status.OFFEN: [Status.BEARBEITUNG],
@@ -207,6 +209,7 @@ def status_aendern(meldungs_id:int):
         Status.GESCHLOSSEN: []
     }
     
+    # Kombinierte Aktionen
     try:
         if meldung.modul not in current_user.module:
             raise PermissionError("Dies ist nur für Meldungen eigener Module möglich.")
@@ -244,7 +247,7 @@ def status_aendern(meldungs_id:int):
     except PermissionError as e:
         flash(f"{e}")
         
-    # erzeugt URL
+    # zurück zur Detailansicht
     return redirect(url_for("meldung_anzeigen", meldungs_id = meldungs_id))
     
 @app.route("/meldung/neu", methods=["GET", "POST"])

@@ -14,13 +14,31 @@ Ein webbasiertes System zum Melden von Fehlern, Verbesserungsvorschlägen und Er
 ## Projektstruktur
 ```plaintext
 KMSystem/
-│
-├── controller.py          # Routing und Rollenlogik
-├── models/                # Datenbankmodelle (Benutzer, Modul, Meldung, etc.)
-├── templates/             # HTML-Templates (Übersicht, Formulare, Verwaltung)
-├── static/                # CSS und JS-Dateien
-├── datenbank.py           # SQLAlchemy-Initialisierung
-└── README.md              # Projektbeschreibung
+├── instance/                # SQLite-Datenbank
+|   └── kmsyststem.db
+├── models/                  # alle SQLAlchemy-Datenmodelle (Benutzer, Modul, Meldung, etc.)
+│   ├── benutzer.py          # 
+|   ├── admin.py             # 
+|   ├── lehrende.py          # 
+|   ├── studierende.py       # 
+|   ├── meldung.py           # 
+│   ├── kommentar.py         # 
+│   ├── modul.py             # 
+│   └── enums.py             # 
+├── templates/           # Jinja2-HTML-Templates für Benutzeroberfläche (Übersicht, Formulare, Verwaltung)
+│   ├── benutzer_erstellen.html
+|   ├── login.html
+|   ├── meldung_detail.html
+|   ├── meldung_formular.html
+|   ├── module_verwalten.html
+|   ├── nutzerverwaltung.html
+│   └── uebersicht.html
+├── (static/              # CSS, JS, Bilder - optional)
+├── controller.py        # Flask-Routen und Logik
+├── Procfile             # Für Deployment auf Render
+├── README.md            # Projektdokumentation
+├── requirements.txt     # alle Abhängigkeiten
+└── setup_admin.py       # Initialisierung der Datenbank und eines Admins
 ```
 Die Datenbank wird direkt über `db.create_all()` aus den SQLAlchemy-Modellen erzeugt. 
 Es wird kein Migrationsframework verwendet.
