@@ -58,6 +58,7 @@ class Studierende(Benutzer): # erbt von Oberklasse
             meldung = kommentar.meldung,
             sichtbarkeit = Sichtbarkeit.PRIVAT,
             verfasser = self.name,  # oder self.email
+            lehrende = None,
             antwort_auf = kommentar
         )
         

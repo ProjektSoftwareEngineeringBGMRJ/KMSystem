@@ -18,29 +18,28 @@ class Kommentar(db.Model):
     zeitstempel = db.Column(db.DateTime, default=datetime.now, nullable=False)
     sichtbarkeit = db.Column(db.Enum(Sichtbarkeit), nullable=False)
     verfasser = db.Column(db.String(100), nullable=False)  # z. B. Name oder email
-    
-    # Beziehungen
-    
     # beim löschen von Lehrendem mit löschen
     lehrende_id = db.Column(
         db.Integer, 
         db.ForeignKey("lehrende.id", ondelete="CASCADE"), 
         nullable=True # -> optional: Studierende dürfen Kommenare ohne speichern
         )
-    lehrende = db.relationship("Lehrende", back_populates="kommentare")
-    
     meldung_id = db.Column(
         db.Integer, 
         db.ForeignKey("meldung.id", ondelete="CASCADE"),
         nullable=False
         )
-    meldung = db.relationship("Meldung", back_populates="kommentare")
-
     antwort_auf_id = db.Column(
         db.Integer, 
         db.ForeignKey("kommentar.id"), 
         nullable=True
         )
+    
+    # Beziehungen
+    lehrende = db.relationship("Lehrende", back_populates="kommentare")
+    
+    meldung = db.relationship("Meldung", back_populates="kommentare")
+
     antwort_auf = db.relationship(
         "Kommentar", 
         remote_side="Kommentar.id", 

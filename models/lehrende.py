@@ -59,11 +59,11 @@ class Lehrende(Benutzer):
         
         kommentar = Kommentar(
             text = text, 
-            #lehrende = self,
             meldung = meldung,
             sichtbarkeit = sichtbarkeit,
+            verfasser = self.name, # oder email
             lehrende = self,
-            verfasser = self.name # oder email
+            antwort_auf = None
         )
         
         db.session.add(kommentar)

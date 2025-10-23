@@ -12,7 +12,6 @@ class Benutzer(db.Model, UserMixin ):#, ABC):
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     passwort_hash = db.Column(db.String(200), nullable=False)
-    
     type = db.Column(db.String(50))
     
     __mapper_args__ = {

@@ -1,11 +1,4 @@
 from models.datenbank import db
-#from models.enums import Kategorie
-#from models.lehrende import Lehrende
-#from models.meldung import Meldung
-#from typing import TYPE_CHECKING # vermeidet Zirkelimporte
-
-# if TYPE_CHECKING: # Import nur für Typprüfung
-#     from models.lehrende import Lehrende
 
 modul_lehrende = db.Table("modul_lehrende",
                           db.Column(

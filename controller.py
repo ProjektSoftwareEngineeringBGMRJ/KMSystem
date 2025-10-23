@@ -1,6 +1,5 @@
-from flask import Flask, render_template, request, redirect, url_for, flash # insall
-#from flask_migrate import Migrate
-from models.datenbank import db
+from flask import Flask, render_template, request, redirect, url_for, flash # insallieren
+from models.datenbank import db #  -> SQLAlchemy()
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 
 from models.meldung import Meldung
@@ -47,29 +46,28 @@ login_manager.login_view = "login"
 def load_user(user_id):
     return Benutzer.query.get(int(user_id)) # SQLAlchemy lädt richtige Subklasse (Vererbung)
 
+# Initialisierung:
 
-# Admin in die Datenbank bringen (wenn leer): Einmal "App-URL/setup-admin" aufrufen. 
-#from models.admin import Admin
-# from flask import jsonify
+    # Erster Start: (einmal ausführen)
+    # with app.app_context():
+    # #     #db.drop_all() # Alle Tabellen löschen
+    #     db.create_all() # Datenbank erstellen -> alle Tabellen aus Models
 
-# @app.route("/setup-admin")
-# def setup_admin():
-#     if not Admin.query.filter_by(email="admin@example.org").first():
-#         admin = Admin(name="Admin", email="admin@example.org", passwort="admin123")
-#         db.session.add(admin)
-#         db.session.commit()
-#         return jsonify({"status": "Admin erstellt."})
-#     return jsonify({"status": "Admin existiert bereits."})
+    # Admin in die Datenbank bringen (wenn leer): Einmal "App-URL/setup-admin" aufrufen. 
+    #from models.admin import Admin
+    # from flask import jsonify
 
-
-# Erster Start: (einmal ausführen)
-# with app.app_context():
-# #     #db.drop_all() # Alle Tabellen löschen
-#     db.create_all() # Datenbank erstellen -> alle Tabellen aus Models
-
+    # @app.route("/setup-admin")
+    # def setup_admin():
+    #     if not Admin.query.filter_by(email="admin@example.org").first():
+    #         admin = Admin(name="Admin", email="admin@example.org", passwort="admin123")
+    #         db.session.add(admin)
+    #         db.session.commit()
+    #         return jsonify({"status": "Admin erstellt."})
+    #     return jsonify({"status": "Admin existiert bereits."})
 
 # Dummy User für Tests:
-# @app.before_request
+# @app.before_request # vor jedem request ausführen
 # def setze_dummy_user():
 #     global current_user
     
@@ -250,7 +248,7 @@ def status_aendern(meldungs_id:int): # Update-Operation (U in CRUD)
     # zurück zur Detailansicht
     return redirect(url_for("meldung_anzeigen", meldungs_id = meldungs_id))
     
-@app.route("/meldung/neu", methods=["GET", "POST"])
+@app.route("/meldung/neu", methods=["GET", "POST"]) # CREATE-Operation (C in CRUD)
 @login_required
 def meldung_erstellen():
     if request.method == "POST":
@@ -267,7 +265,7 @@ def meldung_erstellen():
         #meldungs_id = len(admin.get_alle_meldungen()) + 1
         
         try:
-            #neue_meldung = 
+            # neue Meldung erzeugen (wird in erstelle_meldung in Datenbank geschrieben)
             current_user.erstelle_meldung(beschreibung, kategorie, modul)
             flash(" Meldung erfolgreich erstellt. ")
             return redirect(url_for("uebersicht"))
