@@ -56,7 +56,7 @@ Es wird kein Migrationsframework verwendet.
 | ----- | --------------------- | ---------------- |
 | Studierende | Eigene oder alle lesen (umschaltbar) | Meldung erstellen, auf Kommentare eigener Meldungen antworten |
 | Lehrende | Meldungen eigener/ aller Module lesen | Kommentieren und Status ändern eigener Meldungen |
-| Admin | Alle Meldungen, Kommentare und Antworten lesen | Module erstellen/ löschen, Module zuweisen, Benutzer hinzufügen/ löschen |
+| Admin | Alle Meldungen, Kommentare und Antworten lesen | Module verwalten, Benutzer verwalten |
 
 ## Projekt starten (lokal)
 ```bash
