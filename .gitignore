@@ -1,5 +1,23 @@
+# Bytecode-Dateien
 __pycache__/
-*.pyc
+*.py[cod]
+
+# Jupyter-Notebooks
+.ipynb_checkpoints/
+
+# Lokale Datenbank
 instance/
+*.db
+
+# Umgebungskonfigurationen
 .env
-kmsystem.db
+*.sqlite3
+
+# Editor-spezifisch
+.vscode/
+.idea/
+
+# Sonstiges
+*.log
+*.bak
+*.swp
