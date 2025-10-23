@@ -16,7 +16,8 @@ Ein webbasiertes System zum Melden von Fehlern, Verbesserungsvorschlägen und Er
 KMSystem/
 ├── instance/                # SQLite-Datenbank
 |   └── kmsyststem.db
-├── models/                  # alle SQLAlchemy-Datenmodelle (Benutzer, Modul, Meldung, etc.)
+├── models/                  # alle SQLAlchemy-Datenmodelle
+│   ├── __init__.py          # definiert Verzeichnis als Python-Paket  
 │   ├── benutzer.py          # 
 |   ├── admin.py             # 
 |   ├── lehrende.py          # 
@@ -25,7 +26,7 @@ KMSystem/
 │   ├── kommentar.py         # 
 │   ├── modul.py             # 
 │   └── enums.py             # 
-├── templates/           # Jinja2-HTML-Templates für Benutzeroberfläche (Übersicht, Formulare, Verwaltung)
+├── templates/               # Jinja2-HTML-Dateien für Benutzeroberfläche
 │   ├── benutzer_erstellen.html
 |   ├── login.html
 |   ├── meldung_detail.html
@@ -33,13 +34,19 @@ KMSystem/
 |   ├── module_verwalten.html
 |   ├── nutzerverwaltung.html
 │   └── uebersicht.html
-├── (static/              # CSS, JS, Bilder - optional)
+├── (static/             # CSS, JS, Bilder - optional)
 ├── controller.py        # Flask-Routen und Logik
 ├── Procfile             # Für Deployment auf Render
 ├── README.md            # Projektdokumentation
 ├── requirements.txt     # alle Abhängigkeiten
 └── setup_admin.py       # Initialisierung der Datenbank und eines Admins
 ```
+Die Projektstruktur von `KMSystem` ist modular und übersichtlich aufgebaut. 
+Die Datenmodelle befinden sich im Ordner `models/`, die Templates im Ordner `templates/`, und die zentrale Logik in `controller.py`. 
+Die Datenbank wird im Ordner `instance/` gespeichert. 
+Ein separates Skript `setup_admin.py` dient zur Initialisierung eines ersten Admin-Benutzers. 
+Die `requirements.txt` enthält alle notwendigen Abhängigkeiten, und ein `Procfile` ermöglicht das Deployment auf Plattformen wie Render.
+
 Die Datenbank wird direkt über `db.create_all()` aus den SQLAlchemy-Modellen erzeugt. 
 Es wird kein Migrationsframework verwendet.
 
