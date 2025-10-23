@@ -62,4 +62,28 @@ Es wird kein Migrationsframework verwendet.
 ```bash
 git clone https://github.com/moechtegern90/KMSystem.git
 cd KMSystem
+
+Virtuelle Umgebung - optional, aber empfohlen:
+python -m venv venv
+source venv/bin/activate # auf macOS/Linux
+venv\Scripts\activate # auf Windows
+(Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass)
+
+pip install -r requirements.txt
+
+python setup_admin.py
+
+#flask run
+flask --app=controller.py run
+
+
+git clone https://github.com/moechtegern90/KMSystem.git
+cd KMSystem
+python -m venv venv
+source venv/bin/activate        # macOS/Linux
+venv\Scripts\activate           # Windows
+pip install -r requirements.txt
+export FLASK_APP=controller.py
+export FLASK_ENV=development
+python init_db.py               # einmalig zur DB-Erzeugung
 flask run

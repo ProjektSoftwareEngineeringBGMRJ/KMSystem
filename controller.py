@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash # insallieren
 from models.datenbank import db #  -> SQLAlchemy()
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-
+from flask_sqlalchemy import SQLAlchemy #####
 from models.meldung import Meldung
 from models.enums import Kategorie, Status, Sichtbarkeit, Benutzer_rolle
 from models.benutzer import Benutzer
@@ -15,18 +15,22 @@ from models.kommentar import Kommentar
 import os # für PostgreSQL
 
 app = Flask(__name__)
-print(type(app))
 
+if os.getenv("FLASK_ENV") == "production":
+    app.config.from_object("config_prod") 
+else:
+    app.config.from_object("config_local")
 
+db = SQLAlchemy(app)
 #db_url = "sqlite:///kmsystem.db" # Lokale URL
-db_url = os.getenv("DATABASE_URL") # Render: PostgreSQL
+#db_url = os.getenv("DATABASE_URL") # Render: PostgreSQL
 
 
-app.config["SQLALCHEMY_DATABASE_URI"] = db_url
+#app.config["SQLALCHEMY_DATABASE_URI"] = db_url
 
-print("Datenbank-URL:", db_url) # debug (daten verschwinden bei deploy, wenn PostgreSQL nicht verwendet)
+#print("Datenbank-URL:", db_url) # debug (daten verschwinden bei deploy, wenn PostgreSQL nicht verwendet)
 
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+#app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # aus .env-Datei oder Umgebungsvariablen laden
 app.secret_key = "irgendein_geheimer_schlüssel_123" 
