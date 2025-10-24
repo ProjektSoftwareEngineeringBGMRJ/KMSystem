@@ -16,21 +16,17 @@ import os # für PostgreSQL
 
 app = Flask(__name__)
 
-if os.getenv("FLASK_ENV") == "production":
-    app.config.from_object("config_prod") 
-else:
-    app.config.from_object("config_local")
 
-db = SQLAlchemy(app)
+#db = SQLAlchemy(app)
+
+# DB auswählen
 #db_url = "sqlite:///kmsystem.db" # Lokale URL
-#db_url = os.getenv("DATABASE_URL") # Render: PostgreSQL
+db_url = os.getenv("DATABASE_URL") # Render: PostgreSQL
+app.config["SQLALCHEMY_DATABASE_URI"] = db_url
 
+print("Datenbank-URL:", db_url) # debug (daten verschwinden bei deploy, wenn PostgreSQL nicht verwendet)
 
-#app.config["SQLALCHEMY_DATABASE_URI"] = db_url
-
-#print("Datenbank-URL:", db_url) # debug (daten verschwinden bei deploy, wenn PostgreSQL nicht verwendet)
-
-#app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # aus .env-Datei oder Umgebungsvariablen laden
 app.secret_key = "irgendein_geheimer_schlüssel_123" 
@@ -52,23 +48,23 @@ def load_user(user_id):
 
 # Initialisierung:
 
-    # Erster Start: (einmal ausführen)
-    # with app.app_context():
-    # #     #db.drop_all() # Alle Tabellen löschen
-    #     db.create_all() # Datenbank erstellen -> alle Tabellen aus Models
+# Erster Start: (einmal ausführen)
+# with app.app_context():
+# #     #db.drop_all() # Alle Tabellen löschen
+#     db.create_all() # Datenbank erstellen -> alle Tabellen aus Models
 
-    # Admin in die Datenbank bringen (wenn leer): Einmal "App-URL/setup-admin" aufrufen. 
-    #from models.admin import Admin
-    # from flask import jsonify
 
-    # @app.route("/setup-admin")
-    # def setup_admin():
-    #     if not Admin.query.filter_by(email="admin@example.org").first():
-    #         admin = Admin(name="Admin", email="admin@example.org", passwort="admin123")
-    #         db.session.add(admin)
-    #         db.session.commit()
-    #         return jsonify({"status": "Admin erstellt."})
-    #     return jsonify({"status": "Admin existiert bereits."})
+# Admin in die Datenbank bringen (wenn leer): Einmal "App-URL/setup-admin" aufrufen. 
+from flask import jsonify
+
+@app.route("/setup-admin")
+def setup_admin():
+    if not Admin.query.filter_by(email="admin@example.org").first():
+        admin = Admin(name="Admin", email="admin@example.org", passwort="admin123")
+        db.session.add(admin)
+        db.session.commit()
+        return jsonify({"status": "Admin erstellt."})
+    return jsonify({"status": "Admin existiert bereits."})
 
 # Dummy User für Tests:
 # @app.before_request # vor jedem request ausführen
