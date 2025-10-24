@@ -1,2 +1,2 @@
-SQLALCHEMY_DATABASE_URI = "sqlite:///instance/kmsystem.db"
+SQLALCHEMY_DATABASE_URI = "sqlite:///kmsystem.db"
 SQLALCHEMY_TRACK_MODIFICATIONS = False
