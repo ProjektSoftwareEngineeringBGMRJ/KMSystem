@@ -60,30 +60,78 @@ Es wird kein Migrationsframework verwendet.
 
 ## Projekt starten (lokal)
 ```bash
-git clone https://github.com/moechtegern90/KMSystem.git
+# Windows:
+Win+r -> cmd eingeben # Commandline öffnen
+
+# in cmd:
+cd documents/uni/ # Beispiel: zu Pfad, wo installiert werden soll navigieren
+mkdir KMStest # neuen, leeren Ordner an dem Ort anlegen
+dir # prüfen, ob Ordner existiert
+cd KMStest # in erstellten Ordner navigieren
+
+git clone https://github.com/moechtegern90/KMSystem.git # lädt Programm herunter
 cd KMSystem
+python -m venv venv             # Virtuelle Umgebung installieren (empfohlen)
 
-Virtuelle Umgebung - optional, aber empfohlen:
-python -m venv venv
-source venv/bin/activate # auf macOS/Linux
-venv\Scripts\activate # auf Windows
-(Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass)
-
-pip install -r requirements.txt
-
-python setup_admin.py
-
-#flask run
-flask --app=controller.py run
-
-
-git clone https://github.com/moechtegern90/KMSystem.git
-cd KMSystem
-python -m venv venv
 source venv/bin/activate        # macOS/Linux
+
 venv\Scripts\activate           # Windows
-pip install -r requirements.txt
-export FLASK_APP=controller.py
-export FLASK_ENV=development
+# wenn Ausführung von Skripts auf System deaktiviert ist:
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass 
+# dann vorherigen Befehl wiederholen
+
+pip install -r requirements.txt # Abhängigkeitren installieren
+
 python init_db.py               # einmalig zur DB-Erzeugung
-flask run
+flask --app=controller run      # App sarten
+
+# Aufrufen im Browser:
+http://127.0.0.1:5000/setup-admin # Admin beim ersten Start initialisieren (email: admin@example.org, pw: admin123)
+
+http://127.0.0.1:5000/ # Login aufrufen und beim ersten Start als Admin anmelden 
+
+
+
+
+## Voraussetzungen für die Installation und Ausführung
+
+### Systemvoraussetzungen
+- Windows-Betriebssystem (Anleitung basiert auf Windows-Konsole)
+- Schreibrechte im Zielverzeichnis (z. B. `documents/uni/`)
+- Internetzugang für GitHub-Zugriff
+
+### Vorinstallierte Software
+- [x] **Python 3.x** (empfohlen: ≥ 3.8)
+    # prüfen, ob Python installiert und im PATH verfügbar ist: 
+    python --version
+    # falls nicht installiert:
+    https://www.python.org/downloads/ # -> Installer .exe herunterladen
+        # Wichtig: Beim Setup unbedingt die Option „Add Python to PATH“ aktivieren.
+
+- [x] **Git** (für `git clone`)
+
+### Python-Setup
+- Modul `venv` verfügbar (Standard ab Python 3.3)
+- `pip` funktioniert und hat Zugriff auf PyPI
+- Datei `requirements.txt` vorhanden und korrekt
+
+### Rechteverwaltung
+- Falls `venv\Scripts\activate` blockiert ist:
+  - PowerShell-Befehl:  
+    `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass`
+
+### Anwendungsspezifisch
+- Repository: `https://github.com/moechtegern90/KMSystem.git`
+- Datei `init_db.py` vorhanden und funktionsfähig
+- Flask korrekt installiert und konfiguriert
+- Datei `controller.py` existiert und enthält die Flask-App
+- Port 5000 ist lokal erreichbar
+
+### Erster Start
+- Admin-Initialisierung über:  
+  `http://127.0.0.1:5000/setup-admin`  
+  *(Login: admin@example.org / Passwort: admin123)*
+
+- Login über:  
+  `http://127.0.0.1:5000/`
+
