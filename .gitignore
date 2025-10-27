@@ -8,6 +8,7 @@ __pycache__/
 # Lokale Datenbank
 instance/
 *.db
+migrations/
 
 # Umgebungskonfigurationen
 .env
