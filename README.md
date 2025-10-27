@@ -58,6 +58,8 @@ Es wird kein Migrationsframework verwendet.
 | Lehrende | Meldungen eigener/ aller Module lesen | Kommentieren und Status ändern eigener Meldungen |
 | Admin | Alle Meldungen, Kommentare und Antworten lesen | Module verwalten, Benutzer verwalten |
 
+
+
 ## Projekt starten (lokal)
 ```bash
 # Windows:
@@ -89,9 +91,7 @@ flask --app=controller run      # App sarten
 http://127.0.0.1:5000/setup-admin # Admin beim ersten Start initialisieren (email: admin@example.org, pw: admin123)
 
 http://127.0.0.1:5000/ # Login aufrufen und beim ersten Start als Admin anmelden 
-
-
-
+```
 
 ## Voraussetzungen für die Installation und Ausführung
 
@@ -100,38 +100,26 @@ http://127.0.0.1:5000/ # Login aufrufen und beim ersten Start als Admin anmelden
 - Schreibrechte im Zielverzeichnis (z. B. `documents/uni/`)
 - Internetzugang für GitHub-Zugriff
 
-### Vorinstallierte Software
+### Nötige Vorinstallierte Software:
 - [x] **Python 3.x** (empfohlen: ≥ 3.8)
     # prüfen, ob Python installiert und im PATH verfügbar ist: 
     python --version
-    # falls nicht installiert:
-    https://www.python.org/downloads/ # -> Installer .exe herunterladen
-        # Wichtig: Beim Setup unbedingt die Option „Add Python to PATH“ aktivieren.
+    # falls nicht vorhanden: Python installieren:
+        https://www.python.org/downloads/ # -> Installer .exe herunterladen
+            # Wichtig: 
+            # Beim Setup unbedingt die Option „Add Python to PATH“ aktivieren.
+        python --version # -> erneut prüfen
+    
+    # Pip prüfen:
+    pip --version 
+    # falls nicht vorhanden: installieren
+        python -m pip install --upgrade pip
 
 - [x] **Git** (für `git clone`)
+    # prüfen, ob Git vorhanden ist:
+    git --version
+    # falls nicht vorhanden: installieren
+        https://git-scm.com/downloads # -> Installer ausführen
 
-### Python-Setup
-- Modul `venv` verfügbar (Standard ab Python 3.3)
-- `pip` funktioniert und hat Zugriff auf PyPI
-- Datei `requirements.txt` vorhanden und korrekt
 
-### Rechteverwaltung
-- Falls `venv\Scripts\activate` blockiert ist:
-  - PowerShell-Befehl:  
-    `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass`
-
-### Anwendungsspezifisch
-- Repository: `https://github.com/moechtegern90/KMSystem.git`
-- Datei `init_db.py` vorhanden und funktionsfähig
-- Flask korrekt installiert und konfiguriert
-- Datei `controller.py` existiert und enthält die Flask-App
-- Port 5000 ist lokal erreichbar
-
-### Erster Start
-- Admin-Initialisierung über:  
-  `http://127.0.0.1:5000/setup-admin`  
-  *(Login: admin@example.org / Passwort: admin123)*
-
-- Login über:  
-  `http://127.0.0.1:5000/`
 
