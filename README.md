@@ -75,7 +75,7 @@ git clone https://github.com/moechtegern90/KMSystem.git # lädt Programm herunte
 cd KMSystem
 python -m venv venv             # Virtuelle Umgebung installieren (empfohlen)
 
-source venv/bin/activate        # macOS/Linux
+(source venv/bin/activate        # macOS/Linux)
 
 venv\Scripts\activate           # Windows
 # wenn Ausführung von Skripts auf System deaktiviert ist:
@@ -106,12 +106,12 @@ http://127.0.0.1:5000/ # Login aufrufen und beim ersten Start als Admin anmelden
     python --version
 
     ##### falls nicht vorhanden: Python installieren:
-        https://www.python.org/downloads/ <br>
+        https://www.python.org/downloads/ 
         
-        - Installer .exe herunterladen
-        - Beim Setup unbedingt die Option „Add Python to PATH“ aktivieren.
-        - erneut prüfen:
-        python --version
+    - Installer .exe herunterladen
+    - Beim Setup unbedingt die Option „Add Python to PATH“ aktivieren.
+    - erneut prüfen:
+    python --version
     
     #### Pip prüfen:
         pip --version
@@ -126,7 +126,7 @@ http://127.0.0.1:5000/ # Login aufrufen und beim ersten Start als Admin anmelden
     ##### falls nicht vorhanden: installieren
         https://git-scm.com/downloads <br>
         
-        -> Installer ausführen
+    -> Installer ausführen
 
 
 
