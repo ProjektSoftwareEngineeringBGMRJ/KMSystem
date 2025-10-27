@@ -102,23 +102,25 @@ http://127.0.0.1:5000/ # Login aufrufen und beim ersten Start als Admin anmelden
 
 ### Nötige Vorinstallierte Software:
 - [x] **Python 3.x** (empfohlen: ≥ 3.8)
-    # prüfen, ob Python installiert und im PATH verfügbar ist: 
+    #### prüfen, ob Python installiert und im PATH verfügbar ist: 
     python --version
-    # falls nicht vorhanden: Python installieren:
-        https://www.python.org/downloads/ # -> Installer .exe herunterladen
-            # Wichtig: 
-            # Beim Setup unbedingt die Option „Add Python to PATH“ aktivieren.
-        python --version # -> erneut prüfen
+    ##### falls nicht vorhanden: Python installieren:
+        https://www.python.org/downloads/
+        
+        - Installer .exe herunterladen
+        - Beim Setup unbedingt die Option „Add Python to PATH“ aktivieren.
+        - erneut prüfen:
+        python --version
     
-    # Pip prüfen:
+    #### Pip prüfen:
     pip --version 
-    # falls nicht vorhanden: installieren
+    ##### falls nicht vorhanden: installieren
         python -m pip install --upgrade pip
 
 - [x] **Git** (für `git clone`)
-    # prüfen, ob Git vorhanden ist:
+    #### prüfen, ob Git vorhanden ist:
     git --version
-    # falls nicht vorhanden: installieren
+    ##### falls nicht vorhanden: installieren
         https://git-scm.com/downloads # -> Installer ausführen
 
 
