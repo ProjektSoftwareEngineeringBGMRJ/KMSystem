@@ -113,15 +113,19 @@ http://127.0.0.1:5000/ # Login aufrufen und beim ersten Start als Admin anmelden
         python --version
     
     #### Pip prüfen:
-    pip --version 
+        pip --version
+
     ##### falls nicht vorhanden: installieren
         python -m pip install --upgrade pip
 
 - [x] **Git** (für `git clone`)
     #### prüfen, ob Git vorhanden ist:
     git --version
+
     ##### falls nicht vorhanden: installieren
-        https://git-scm.com/downloads # -> Installer ausführen
+        https://git-scm.com/downloads 
+        
+        -> Installer ausführen
 
 
 
