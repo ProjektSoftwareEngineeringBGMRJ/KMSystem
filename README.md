@@ -18,14 +18,14 @@ KMSystem/
 |   └── kmsyststem.db
 ├── models/                  # alle SQLAlchemy-Datenmodelle
 │   ├── __init__.py          # definiert Verzeichnis als Python-Paket  
-│   ├── benutzer.py          # 
-|   ├── admin.py             # 
-|   ├── lehrende.py          # 
-|   ├── studierende.py       # 
-|   ├── meldung.py           # 
-│   ├── kommentar.py         # 
-│   ├── modul.py             # 
-│   └── enums.py             # 
+│   ├── benutzer.py          # Basisklasse für Benutzer (gemeinsame Attribute und Methoden)
+|   ├── admin.py             # Klasse Admin, erbt von Benutzer
+|   ├── lehrende.py          # Klasse Lehrende, erbt von Benutzer
+|   ├── studierende.py       # Klasse Studierende, erbt von Benutzer
+|   ├── meldung.py           # Datenmodell für Meldungen
+│   ├── kommentar.py         # Datenmodell für Kommentare zu Meldungen
+│   ├── modul.py             # Datenmodell für Module (Zuordnung von Meldungen und Lehrenden)
+│   └── enums.py             # Definition von Enums (z. B. Rollen, Statuswerte)
 ├── templates/               # Jinja2-HTML-Dateien für Benutzeroberfläche
 │   ├── benutzer_erstellen.html
 |   ├── login.html
