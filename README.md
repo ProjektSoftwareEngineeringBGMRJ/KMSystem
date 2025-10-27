@@ -31,9 +31,7 @@ KMSystem/
 |   ├── login.html               # Login-Seite für alle Rollen
 |   ├── meldung_detail.html      # Detailansicht einer Meldung inkl. Kommentare
 |   ├── meldung_formular.html    # Formular zum Erstellen einer Meldung
-
 |   ├── module_verwalten.html    # Oberfläche für Admins zur Verwaltung von Modulen
-
 |   ├── nutzerverwaltung.html    # Oberfläche für Admins zur Verwaltung von Benutzern
 │   └── uebersicht.html          # Übersicht aller Meldungen (rollenabhängig gefiltert)
 ├── (static/             # CSS, JS, Bilder - optional)
