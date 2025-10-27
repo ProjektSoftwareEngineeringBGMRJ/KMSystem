@@ -27,13 +27,15 @@ KMSystem/
 │   ├── modul.py             # Datenmodell für Module (Zuordnung von Meldungen und Lehrenden)
 │   └── enums.py             # Definition von Auflistzungen (z. B. Rollen, Statuswerte)
 ├── templates/               # Jinja2-HTML-Dateien für Benutzeroberfläche
-│   ├── benutzer_erstellen.html
-|   ├── login.html
-|   ├── meldung_detail.html
-|   ├── meldung_formular.html
-|   ├── module_verwalten.html
-|   ├── nutzerverwaltung.html
-│   └── uebersicht.html
+│   ├── benutzer_erstellen.html  # Formular zur Erstellung neuer Benutzer
+|   ├── login.html               # Login-Seite für alle Rollen
+|   ├── meldung_detail.html      # Detailansicht einer Meldung inkl. Kommentare
+|   ├── meldung_formular.html    # Formular zum Erstellen einer Meldung
+
+|   ├── module_verwalten.html    # Oberfläche für Admins zur Verwaltung von Modulen
+
+|   ├── nutzerverwaltung.html    # Oberfläche für Admins zur Verwaltung von Benutzern
+│   └── uebersicht.html          # Übersicht aller Meldungen (rollenabhängig gefiltert)
 ├── (static/             # CSS, JS, Bilder - optional)
 ├── controller.py        # Flask-Routen und Logik
 ├── Procfile             # Für Deployment auf Render
