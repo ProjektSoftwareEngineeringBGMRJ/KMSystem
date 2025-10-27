@@ -75,7 +75,8 @@ git clone https://github.com/moechtegern90/KMSystem.git # lädt Programm herunte
 cd KMSystem
 python -m venv venv             # Virtuelle Umgebung installieren (empfohlen)
 
-(source venv/bin/activate        # macOS/Linux)
+# macOS/Linux:
+source venv/bin/activate        
 
 venv\Scripts\activate           # Windows
 # wenn Ausführung von Skripts auf System deaktiviert ist:
@@ -128,5 +129,22 @@ http://127.0.0.1:5000/ # Login aufrufen und beim ersten Start als Admin anmelden
         
     -> Installer ausführen
 
+
+## Troubleshooting
+
+- **`python` wird nicht gefunden**  
+  → Prüfen, ob Python installiert ist und beim Setup „Add Python to PATH“ aktiviert wurde.  
+  → Alternativ `py --version` oder `python3 --version` ausprobieren.
+
+- **`flask` wird nicht gefunden**  
+  → Sicherstellen, dass die virtuelle Umgebung aktiv ist.  
+  → Alternativ: `python -m flask --app=controller run`.
+
+- **Fehler bei `pip install -r requirements.txt`**  
+  → `pip install --upgrade pip` ausführen und erneut versuchen.
+
+- **Port 5000 bereits belegt**  
+  → Anwendung mit anderem Port starten:  
+    `flask --app=controller run -p 5001`
 
 
