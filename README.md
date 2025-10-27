@@ -25,7 +25,7 @@ KMSystem/
 |   ├── meldung.py           # Datenmodell für Meldungen
 │   ├── kommentar.py         # Datenmodell für Kommentare zu Meldungen
 │   ├── modul.py             # Datenmodell für Module (Zuordnung von Meldungen und Lehrenden)
-│   └── enums.py             # Definition von Enums (z. B. Rollen, Statuswerte)
+│   └── enums.py             # Definition von Auflistzungen (z. B. Rollen, Statuswerte)
 ├── templates/               # Jinja2-HTML-Dateien für Benutzeroberfläche
 │   ├── benutzer_erstellen.html
 |   ├── login.html
