@@ -68,7 +68,7 @@ def setup_admin():
         db.session.add(admin)
         db.session.commit()
         return jsonify({"status": "Admin erstellt."})
-    return jsonify({"status": "Admin existiert bereits."})
+    return jsonify({"status": "Admin existiert bereits. \nLogin unter http://127.0.0.1:5000/: \nE-Mail: admin@example.org \nPW: admin123"})
 
 # Dummy User für Tests:
 # @app.before_request # vor jedem request ausführen

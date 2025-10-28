@@ -88,10 +88,10 @@ pip install -r requirements.txt # Abhängigkeitren installieren
 python init_db.py               # einmalig zur DB-Erzeugung
 flask --app=controller run      # App sarten
 
-# Aufrufen im Browser:
-http://127.0.0.1:5000/setup-admin # Admin beim ersten Start initialisieren (email: admin@example.org, pw: admin123)
+# Aufrufen im Browser (URL, die in cmd angezeigt wird) z.B.:
+http://127.0.0.1:5000/setup-admin # Admin beim ersten Start initialisieren 
 
-http://127.0.0.1:5000/ # Login aufrufen und beim ersten Start als Admin anmelden 
+http://127.0.0.1:5000/ # Login aufrufen und beim ersten Start als Admin anmelden (email: admin@example.org, pw: admin123)
 ```
 
 ## Voraussetzungen für die Installation und Ausführung
