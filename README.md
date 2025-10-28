@@ -34,7 +34,7 @@ KMSystem/
 |   ├── module_verwalten.html    # Oberfläche für Admins zur Verwaltung von Modulen
 |   ├── nutzerverwaltung.html    # Oberfläche für Admins zur Verwaltung von Benutzern
 │   └── uebersicht.html          # Übersicht aller Meldungen (rollenabhängig gefiltert)
-├── (static/             # CSS, JS, Bilder - optional)
+├── static/              # (CSS, JS, Bilder - optional, bisher leer)
 ├── controller.py        # Flask-Routen und Logik
 ├── Procfile             # Für Deployment auf Render
 ├── README.md            # Projektdokumentation
@@ -80,7 +80,7 @@ source venv/bin/activate
 
 venv\Scripts\activate           # Windows
 # wenn Ausführung von Skripts auf System deaktiviert ist:
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass 
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass # erlaubt Skripte für die eine Session
 # dann vorherigen Befehl wiederholen
 
 pip install -r requirements.txt # Abhängigkeitren installieren
