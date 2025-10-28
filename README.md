@@ -91,7 +91,8 @@ flask --app=controller run      # App sarten
 # Aufrufen im Browser (URL, die in cmd angezeigt wird) z.B.:
 http://127.0.0.1:5000/setup-admin # Admin beim ersten Start initialisieren 
 
-http://127.0.0.1:5000/ # Login aufrufen und beim ersten Start als Admin anmelden (email: admin@example.org, pw: admin123)
+http://127.0.0.1:5000/ # Login aufrufen und als Admin anmelden (email: admin@example.org, pw: admin123)
+-> Als Admin können Module und User erstellt werden.
 ```
 
 ## Voraussetzungen für die Installation und Ausführung
