@@ -11,7 +11,7 @@ from models.lehrende import Lehrende
 from models.modul import Modul
 from models.rollen_liste import get_rolle_klasse
 from models.kommentar import Kommentar
-
+from flask import jsonify # für Nachricht bei Route /setup-admin
 import os # für PostgreSQL
 
 app = Flask(__name__)
@@ -21,15 +21,22 @@ app = Flask(__name__)
 
 # DB auswählen
 #db_url = "sqlite:///kmsystem.db" # Lokale URL
-db_url = os.getenv("DATABASE_URL") # Render: PostgreSQL
+#db_url = os.getenv("DATABASE_URL") # Render: PostgreSQL
+
+
+# URL der Datenbank suchen
+db_url = os.getenv("DATABASE_URL") # Umgebungsvariable von Render
+if db_url is None: # Prüfen ob System nicht auf Render läuft
+    # lokale installation: SQLite verwenden
+    db_url = "sqlite:///kmsystem.db"
+
 app.config["SQLALCHEMY_DATABASE_URI"] = db_url
-
-print("Datenbank-URL:", db_url) # debug (daten verschwinden bei deploy, wenn PostgreSQL nicht verwendet)
-
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    
+print("Datenbank-URL:", db_url) # debug (verwendete Datenbank)
 
 # aus .env-Datei oder Umgebungsvariablen laden
-app.secret_key = "irgendein_geheimer_schlüssel_123" 
+app.secret_key = "irgendein_geheimer_schlüssel_123" # Secret Key (besser aus Umgebungsvariablen laden)
 
 db.init_app(app)
 
@@ -41,10 +48,9 @@ login_manager.init_app(app)
 login_manager.login_view = "login"
 
 
-
 @login_manager.user_loader
 def load_user(user_id):
-    return Benutzer.query.get(int(user_id)) # SQLAlchemy lädt richtige Subklasse (Vererbung)
+    return Benutzer.query.get(int(user_id)) # SQLAlchemy lädt richtige Unterklasse (Vererbung)
 
 # Initialisierung:
 
@@ -55,8 +61,6 @@ def load_user(user_id):
 
 
 # Admin in die Datenbank bringen (wenn leer): Einmal "App-URL/setup-admin" aufrufen. 
-from flask import jsonify
-
 @app.route("/setup-admin")
 def setup_admin():
     if not Admin.query.filter_by(email="admin@example.org").first():
