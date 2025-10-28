@@ -93,6 +93,9 @@ http://127.0.0.1:5000/setup-admin # Admin beim ersten Start initialisieren
 
 http://127.0.0.1:5000/ # Login aufrufen und als Admin anmelden (email: admin@example.org, pw: admin123)
 -> Als Admin können Module und User erstellt werden.
+
+# Schließen der App:
+In cmd: Strg+c
 ```
 
 ## Voraussetzungen für die Installation und Ausführung
