@@ -3,7 +3,7 @@
 <form method="post">
     <label>Titel:</label>
     <input type="text" name="titel" required><br>
-    {#
+    {# evtl. erweitern
     <label>Semester:</label>
     <input type="text" name="semester"><br>
     <label>Beschreibung:</label>
@@ -40,5 +40,5 @@
   {% endif %}
 {% endwith %}
 
-<!-- zurrück zur Übersicht navigieren -->
+<!-- zurück zur Übersicht navigieren -->
 <a href="{{ url_for('uebersicht') }}">← Zurück zur Übersicht</a>

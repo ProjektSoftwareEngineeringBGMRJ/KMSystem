@@ -4,6 +4,7 @@
     <button type="submit">➕ Benutzer hinzufügen</button>
 </form>
 
+<!-- Alle Benutzer als Tabelle anzeigen -->
 <table border="1" cellpadding="6">
     <tr>
         <th>ID</th>
@@ -18,6 +19,7 @@
         <td>{{ benutzer.name }}</td>
         <td>{{ benutzer.email }}</td>
         <td>
+            <!-- Bei Lehrenden zugewiesene Module anzeigen  -->
             {% if benutzer.__class__.__name__ == "Lehrende" %}
                 Lehrende für:<br>
                 {% for modul in benutzer.module %}
@@ -28,11 +30,13 @@
             {% endif %}
         </td>
         <td>
+            <!-- Button zum Löschen eines Benutzers -->
             <form method="post" action="{{ url_for('benutzer_loeschen') }}">
                 <input type="hidden" name="benutzer_id" value="{{ benutzer.id }}">
                 <button type="submit" onclick="return confirm('Benutzer wirklich löschen?')">Benutzer Löschen</button>
             </form>
 
+            <!-- Bei Lehrenden Modul-Menü und Button "zuweisen" und "entziehen" anzeigen -->
             {% if benutzer.__class__.__name__ == "Lehrende" %}
                 <form method="post" action="{{ url_for('modul_aktion') }}">
                     <input type="hidden" name="lehrende_id" value="{{ benutzer.id }}">
@@ -54,6 +58,7 @@
     {% endfor %}
 </table>
 
+<!-- Flash-Meldungen anzeigen -->
 {% with messages = get_flashed_messages() %}
     {% if messages %}
         <div style="background-color: #fff8dc; border: 1px solid #daa520; padding: 0.5em; border-radius: 4px;">

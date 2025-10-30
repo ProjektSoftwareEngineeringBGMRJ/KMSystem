@@ -60,19 +60,22 @@
 {% if user.get_sichtbare_kommentare(meldung) %}
     <ul> 
         {% for kommentar in  user.get_sichtbare_kommentare(meldung) %}
+            <!-- Nur zeigen, wenn Lehrender schon kommentiert hat -->
             {% if kommentar.lehrende != None %}    
                 <li>
                     <strong>{{ kommentar.zeitstempel.strftime('%d.%m.%Y %H:%M') }}</strong>, 
                     Sichtbarkeit: {{kommentar.sichtbarkeit.value}} - von {{kommentar.lehrende.name}}: 
                     <p>{{kommentar.text}}</p>
 
+                    <!-- Bei Ersteller (Klasse Studierende) Textfeld für Antowort zeigen -->
                     {% if user.__class__.__name__ == "Studierende" and user.id == meldung.ersteller.id %}
                         <form method="post" action="{{ url_for('antwort_speichern', kommentar_id=kommentar.id) }}">
                             <textarea name="antwort_text" rows="2" cols="40" placeholder="Antwort schreiben..."></textarea><br>
                             <button type="submit" onclick="return confirm('Antwort wirlich hinzufügen?')">Antwort senden</button>
                         </form>
                     {% endif %}
-
+                    
+                    <!-- Wenn Antworten von Studierendem vorhanden: als Liste zeigen -->
                     {% if kommentar.antworten %}
                         <ul>
                             {% for antwort in kommentar.antworten %}
@@ -93,5 +96,4 @@
 {% endif %}
 
 <!-- zurrück zur Übersicht navigieren -->
-<!-- url_for('uebersicht') -->
 <a href="{{ url_for('uebersicht') }}">← Zurück zur Übersicht</a>
