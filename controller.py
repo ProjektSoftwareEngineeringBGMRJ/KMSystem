@@ -367,7 +367,8 @@ def benutzer_loeschen():
                 db.session.delete(benutzer)
                 db.session.commit()
         elif(benutzer.equals(current_user)):
-            flash("Nicht erlaubt sich selber zu löschen!") 
+            flash("Nicht erlaubt sich selber zu löschen!")
+            return redirect(url_for("nutzer_verwalten")) 
         else:
             # Alle Meldungen und Kommentare des Benutzers löschen
             #for meldung in benutzer.meldungen:
