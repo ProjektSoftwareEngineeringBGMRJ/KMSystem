@@ -11,8 +11,8 @@ from models.modul import Modul
 from models.rollen_liste import get_rolle_klasse
 from models.kommentar import Kommentar
 from flask import jsonify # für Nachricht bei Route /setup-admin
-import os # für PostgreSQL
-from dotenv import load_dotenv
+import os
+#from dotenv import load_dotenv
 
 app = Flask(__name__)
 
@@ -24,14 +24,15 @@ app = Flask(__name__)
 if os.getenv("RENDER") == "true":
     db_url = os.getenv("DATABASE_URL") # Render-DB (PostgreSQL)
 else:
-    db_url = os.environ.get("DATABASE_URL_LOCAL") # lokale DB-URL aus .env Datei
+    db_url = "sqlite:///kmsystem.db" # -> lokale installation: SQLite verwenden
 
 app.config["SQLALCHEMY_DATABASE_URI"] = db_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False 
 print("Datenbank-URL:", db_url) # debug (verwendete Datenbank)
 
-load_dotenv()
-app.secret_key = os.environ.get("SECRET_KEY")
+#load_dotenv()
+#app.secret_key = os.environ.get("SECRET_KEY")
+app.secret_key = "irgendein_geheimer_schlüssel_1234"
 
 db.init_app(app)
 
@@ -47,8 +48,10 @@ def load_user(user_id):
 # Admin in die Datenbank bringen (wenn leer): Einmal "App-URL/setup-admin" aufrufen. 
 @app.route("/setup-admin")
 def setup_admin():
-    admin_email = os.getenv("ADMIN_EMAIL")
-    admin_passwort = os.getenv("ADMIN_PASSWORT")
+    #admin_email = os.getenv("ADMIN_EMAIL") # aus .env
+    #admin_passwort = os.getenv("ADMIN_PASSWORT") # aus .env
+    admin_email = "admin@example.org" 
+    admin_passwort = "admin123"
     if not Admin.query.filter_by(email=admin_email).first():
         admin = Admin(name="Admin", email=admin_email, passwort=admin_passwort)
         db.session.add(admin)
