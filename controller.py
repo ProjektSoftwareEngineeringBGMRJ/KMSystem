@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash # insallieren
 from models.datenbank import db #  -> SQLAlchemy()
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from flask_sqlalchemy import SQLAlchemy #####
+#from flask_sqlalchemy import SQLAlchemy #####
 from models.meldung import Meldung
 from models.enums import Kategorie, Status, Sichtbarkeit, Benutzer_rolle
 from models.benutzer import Benutzer
@@ -16,49 +16,27 @@ import os # für PostgreSQL
 
 app = Flask(__name__)
 
-
-#db = SQLAlchemy(app)
-
-# DB auswählen
-#db_url = "sqlite:///kmsystem.db" # Lokale URL
-#db_url = os.getenv("DATABASE_URL") # Render: PostgreSQL
-
-
 # URL der Datenbank suchen
 db_url = os.getenv("DATABASE_URL") # Umgebungsvariable von Render
-if db_url is None: # Prüfen ob System nicht auf Render läuft
-    # lokale installation: SQLite verwenden
-    db_url = "sqlite:///kmsystem.db"
+if db_url is None: # -> System läuft nicht auf Render
+    db_url = "sqlite:///kmsystem.db" # -> lokale installation: SQLite verwenden
 
 app.config["SQLALCHEMY_DATABASE_URI"] = db_url
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False 
 print("Datenbank-URL:", db_url) # debug (verwendete Datenbank)
 
-# aus .env-Datei oder Umgebungsvariablen laden
-app.secret_key = "irgendein_geheimer_schlüssel_123" # Secret Key (besser aus Umgebungsvariablen laden)
+app.secret_key = "irgendein_geheimer_schlüssel_123" # ändern: aus .env-Datei oder Umgebungsvariablen laden
 
 db.init_app(app)
-
-#migrate = Migrate(app, db)
 
 # Login Manager
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 
-
 @login_manager.user_loader
 def load_user(user_id):
     return Benutzer.query.get(int(user_id)) # SQLAlchemy lädt richtige Unterklasse (Vererbung)
-
-# Initialisierung:
-
-# Erster Start: (einmal ausführen)
-# with app.app_context():
-# #     #db.drop_all() # Alle Tabellen löschen
-#     db.create_all() # Datenbank erstellen -> alle Tabellen aus Models
-
 
 # Admin in die Datenbank bringen (wenn leer): Einmal "App-URL/setup-admin" aufrufen. 
 @app.route("/setup-admin")
@@ -70,7 +48,7 @@ def setup_admin():
         return jsonify({"status": "Admin erstellt."})
     return jsonify({"status": "Admin existiert bereits. Login unter http://127.0.0.1:5000/ -> E-Mail: admin@example.org, PW: admin123"})
 
-# Dummy User für Tests:
+# ALT: Dummy User für Tests:
 # @app.before_request # vor jedem request ausführen
 # def setze_dummy_user():
 #     global current_user
@@ -116,12 +94,6 @@ def logout():
 @app.route("/uebersicht") # GET-Anfrage <form method="get" action="/uebersicht">
 @login_required
 def uebersicht():
-    
-    # für Session-Login
-    #if not current_user:
-    #    flash("Kein Benutzer eingeloggt.")
-    #    return redirect(url_for("login"))
-
     # Parameter aus Filter-Anfrage: 
     # holen von Werten aus HTML-Formular (z.B. aus Feld name="modul")
     alle_meldungen = request.args.get("alle_meldungen") == "true" # anfangs eigene Meldungen zeigen
@@ -129,7 +101,7 @@ def uebersicht():
     selected_status = request.args.get("status") or None    
     selected_kategorie = request.args.get("kategorie") or None
     
-    # abhängig von Button ""
+    # abhängig von Button
     if isinstance(current_user, Studierende):
         # Liste mit allen Modulen
         module = db.session.query(Modul).all()
@@ -174,14 +146,10 @@ def uebersicht():
 @app.route("/meldung/<int:meldungs_id>")
 @login_required
 def meldung_anzeigen(meldungs_id): # Read-Operation (R in CRUD)
-    # später Datenbank
-    # admin.get_alle_meldungen() -> list[Meldung]:
-    #meldung = next((m for m in db.session.query(Meldung).all() if m.id == meldungs_id), None)
-    meldung = Meldung.query.filter_by(id=meldungs_id).first() # direkte SQL-Abfrage
-    # entspricht: SELECT * FROM meldung WHERE id = :meldungs_id LIMIT 1;
+    meldung = Meldung.query.filter_by(id=meldungs_id).first() # direkte SQL-Abfrage, entspricht: SELECT * FROM meldung WHERE id = :meldungs_id LIMIT 1;
     if not meldung:
         pass
-        
+    
     return render_template("meldung_detail.html", 
                            meldung=meldung, 
                            user=current_user,
@@ -191,8 +159,6 @@ def meldung_anzeigen(meldungs_id): # Read-Operation (R in CRUD)
 @app.route("/meldung/<int:meldungs_id>/status_aendern", methods=["POST"])
 @login_required
 def status_aendern(meldungs_id:int): # Update-Operation (U in CRUD)
-    
-    #meldung = next((m for m in db.session.query(Meldung).all() if m.id == meldungs_id), None)
     meldung = Meldung.query.filter_by(id=meldungs_id).first() # direkte SQL-Abfrage: Read-Operation (R in CRUD)
     if not meldung:
         return redirect(url_for("uebersicht"))
@@ -211,41 +177,37 @@ def status_aendern(meldungs_id:int): # Update-Operation (U in CRUD)
         Status.GESCHLOSSEN: []
     }
     
-    # Kombinierte Aktionen
+    # Kombinierte Aktionen aus Status ändern + Kommentar 
     try:
         if meldung.modul not in current_user.module:
             raise PermissionError("Dies ist nur für Meldungen eigener Module möglich.")
         else:
-            # Statuswechsel: offen -> in Bearbeitung -> abgeschlossen
-            if neuer_status in erlaubte_wechsel[meldung.status]:
-                meldung.status = neuer_status # Setter von Meldung nutzen
+            if neuer_status in erlaubte_wechsel[meldung.status]: # Statuswechsel: offen -> in Bearbeitung -> abgeschlossen
+                meldung.status = neuer_status
                 
                 # Status ändern und kommentieren
                 if kommentar_text.strip():
                     current_user.add_kommentar(meldung, kommentar_text.strip(), sichtbarkeit)
                     flash(f"Neuen {sichtbarkeit.value}en Kommentar hinzugefügt und Status zu \"{neuer_status.value}\" gewechselt.")
-            
+                
                 # nur Status ändern
                 else:
                     db.session.commit() # in Datenbank schreiben (sonst in add_kommentar)
                     flash(f"Status ohne Kommentar zu \"{neuer_status.value}\" gewechselt.")
-            
-            # Status nicht ändern
-            elif neuer_status == meldung.status:
-            
+                    
+            elif neuer_status == meldung.status: # Status nicht ändern
+                
                 # Nur Kommentieren
                 if kommentar_text.strip():
                     current_user.add_kommentar(meldung, kommentar_text.strip(), sichtbarkeit)
                     flash(f"Neuen {sichtbarkeit.value}en Kommentar ohne Statuswechsel hinzugefügt.")
-                
                 else: 
                     flash("Status nicht gewechselt.")
-                #return redirect(url_for("meldung_anzeigen", meldungs_id = meldungs_id))
             
             else:
                 flash(f"Statuswechsel von \"{meldung.status.value}\" zu \"{neuer_status.value}\" ist nicht erlaubt.")
     
-    # von add_kommentar (Lehrende)
+    # Error von add_kommentar (Lehrende)
     except PermissionError as e:
         flash(f"{e}")
         
@@ -256,25 +218,25 @@ def status_aendern(meldungs_id:int): # Update-Operation (U in CRUD)
 @login_required
 def meldung_erstellen():
     if request.method == "POST":
+        
         # holen von Werten aus HTML-Formular
         modul_titel = request.form.get("modul")
         kategorie_name = request.form.get("kategorie")
         beschreibung = request.form.get("beschreibung")
 
         # Modul und Kategorie aus Enum (oder Datenbank) holen
-        #modul = next((m for m in db.session.query(Modul).all() if m.titel == modul_titel), None)
         modul = db.session.query(Modul).filter_by(titel=modul_titel).first() # direkte SQL-Abfrage
         kategorie = Kategorie[kategorie_name]
-        
-        #meldungs_id = len(admin.get_alle_meldungen()) + 1
         
         try:
             # neue Meldung erzeugen (wird in erstelle_meldung in Datenbank geschrieben)
             current_user.erstelle_meldung(beschreibung, kategorie, modul)
             flash(" Meldung erfolgreich erstellt. ")
             return redirect(url_for("uebersicht"))
+        
         except Exception as e:
             flash(f"Fehler beim Erstellen der Meldung: {e}")
+            
             # Rückgabe bei Fehler
             return render_template("meldung_formular.html",
                                     module = db.session.query(Modul).all(),
@@ -326,7 +288,7 @@ def benutzer_speichern():
     rolle_enum = Benutzer_rolle[rolle]
     passwort = request.form.get("passwort")
 
-    # prüfen ob E-Mail schon existiert
+    # prüfen ob E-Mail bereits existiert
     if db.session.query(Benutzer).filter_by(email=email).first(): # direkte SQL-Abfrage
         flash("Benutzer mit dieser Email existiert bereits.")
         return redirect(url_for("benutzer_erstellen"))
@@ -371,7 +333,6 @@ def benutzer_loeschen():
                 db.session.commit()
                 flash(f"Benutzer {benutzer.name} gelöscht.")
         else:            
-            # Benutzer löschen
             db.session.delete(benutzer)
             db.session.commit()
             flash(f"Benutzer {benutzer.name} gelöscht.")
@@ -387,22 +348,14 @@ def module_verwalten():
         flash("Keine Berechtigung.")
         return redirect(url_for("uebersicht"))
     
-    from models.modul import Modul
-    
-    if request.method == "POST":
-        # Modul erstellen
+    # Modul erstellen
+    if request.method == "POST":    
         titel = request.form.get("titel")
-        # evtl. weitere (z.B. beschreibung)...
-        
-        #neues_modul = Modul(titel=titel)
-        #db.session.add(neues_modul)
-        #db.session.commit()
         try:
             current_user.erstelle_modul(titel=titel)
             flash(f"Modul \"{titel}\" wurde erfolgreich erstellt.")
         except ValueError as e:
             flash(f"Fehler: {e}")    
-        
         
     alle_module = Modul.query.all()
     return render_template("module_verwalten.html", module=alle_module)
@@ -434,7 +387,8 @@ def modul_aktion():
         return redirect(url_for("uebersicht"))
 
     modul_id_raw = request.form.get("modul_id")
-    # Sind Module vorhanden?
+    
+    # Prüfen ob Module vorhanden sind
     if not modul_id_raw:
         flash ("Bitte zuerst Module anlegen.")
         return redirect(url_for("nutzer_verwalten"))
@@ -450,7 +404,6 @@ def modul_aktion():
         flash("Lehrende oder Modul nicht gefunden.")
         return redirect(url_for("nutzer_verwalten"))
 
-    #try:
     if aktion == "zuweisen":
         if current_user.modul_zuweisen(modul, lehrende):
             flash(f"Modul \"{modul.titel}\" wurde \"{lehrende.name}\" zugewiesen.")
@@ -463,8 +416,6 @@ def modul_aktion():
             flash("Modul war nicht zugewiesen.")
     else:
         flash("Ungültige Aktion.")
-    # except ValueError as e:
-    #     flash(str(e))
 
     return redirect(url_for("nutzer_verwalten"))
 
