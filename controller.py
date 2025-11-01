@@ -131,9 +131,9 @@ def uebersicht():
     
     # abhängig von Button ""
     if isinstance(current_user, Studierende):
-        # List mit allen Modulen
+        # Liste mit allen Modulen
         module = db.session.query(Modul).all()
-        # alle_meldungen flase: nur eigene zeigen 
+        # alle_meldungen false: nur eigene zeigen 
         meldungen = db.session.query(Meldung).all() if alle_meldungen else current_user.meldungen#.all()
     elif isinstance(current_user, Lehrende):
         if alle_meldungen:
@@ -320,7 +320,7 @@ def benutzer_speichern():
     name = request.form.get("name")
     email = request.form.get("email")
     rolle = request.form.get("rolle")
-    rolle_enum = Benutzer_rolle(rolle)
+    rolle_enum = Benutzer_rolle[rolle]
     passwort = request.form.get("passwort")
 
     # prüfen ob E-Mail schon existiert
@@ -339,6 +339,8 @@ def benutzer_speichern():
         db.session.add(neuer_benutzer)
         db.session.commit()
         flash(f"Benutzer {name} als {rolle} hinzugefügt.")
+    else:
+        flash("Benutzer hinzufügen fehlgeschlagen.")
 
     return redirect(url_for("nutzer_verwalten"))
 

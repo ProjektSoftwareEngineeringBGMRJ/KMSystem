@@ -1,10 +1,11 @@
 from enum import Enum
 
-# Zugriff: 
+# Zugriff z.B.: 
 # from models.enums import Sichtbarkeit
 # Als parameter übergeben: Sichtbarkeit.PRIVAT
 # String erhalten: sichtbarkeit.value
- 
+
+
 class Sichtbarkeit(Enum):
     ÖFFENTLICH = "öffentlich"
     PRIVAT = "privat"
