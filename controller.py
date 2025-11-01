@@ -363,12 +363,13 @@ def benutzer_loeschen():
             if anzahl_admins <= 1:    
                 flash("Mindestens ein Admin muss erhalten bleiben.")
                 return redirect(url_for("nutzer_verwalten"))
-            elif(benutzer.equals(current_user)):
+            elif(benutzer.id == current_user.id):
                 flash("Nicht erlaubt sich selber zu löschen!")
                 return redirect(url_for("nutzer_verwalten")) 
             else:
                 db.session.delete(benutzer)
                 db.session.commit()
+                flash(f"Benutzer {benutzer.name} gelöscht.")
         else:
             # Alle Meldungen und Kommentare des Benutzers löschen
             #for meldung in benutzer.meldungen:
