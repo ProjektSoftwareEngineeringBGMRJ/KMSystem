@@ -1,7 +1,6 @@
-from flask import Flask, render_template, request, redirect, url_for, flash # insallieren
+from flask import Flask, render_template, request, redirect, url_for, flash
 from models.datenbank import db #  -> SQLAlchemy()
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-#from flask_sqlalchemy import SQLAlchemy #####
 from models.meldung import Meldung
 from models.enums import Kategorie, Status, Sichtbarkeit, Benutzer_rolle
 from models.benutzer import Benutzer
@@ -13,19 +12,26 @@ from models.rollen_liste import get_rolle_klasse
 from models.kommentar import Kommentar
 from flask import jsonify # für Nachricht bei Route /setup-admin
 import os # für PostgreSQL
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 
 # URL der Datenbank suchen
-db_url = os.getenv("DATABASE_URL") # Umgebungsvariable von Render
-if db_url is None: # -> System läuft nicht auf Render
-    db_url = "sqlite:///kmsystem.db" # -> lokale installation: SQLite verwenden
+#db_url = os.getenv("DATABASE_URL") # Umgebungsvariable von Render
+#if db_url is None: # -> System läuft nicht auf Render
+#    db_url = "sqlite:///kmsystem.db" # -> lokale installation: SQLite verwenden
+
+if os.getenv("RENDER") == "true":
+    db_url = os.getenv("DATABASE_URL") # Render-DB (PostgreSQL)
+else:
+    db_url = os.environ.get("DATABASE_URL_LOCAL") # lokale DB-URL aus .env Datei
 
 app.config["SQLALCHEMY_DATABASE_URI"] = db_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False 
 print("Datenbank-URL:", db_url) # debug (verwendete Datenbank)
 
-app.secret_key = "irgendein_geheimer_schlüssel_123" # ändern: aus .env-Datei oder Umgebungsvariablen laden
+load_dotenv()
+app.secret_key = os.environ.get("SECRET_KEY")
 
 db.init_app(app)
 
@@ -36,37 +42,22 @@ login_manager.login_view = "login"
 
 @login_manager.user_loader
 def load_user(user_id):
-    return Benutzer.query.get(int(user_id)) # SQLAlchemy lädt richtige Unterklasse (Vererbung)
+    return Benutzer.query.get(int(user_id)) # SQLAlchemy lädt richtige Unterklasse von Benutzer
 
 # Admin in die Datenbank bringen (wenn leer): Einmal "App-URL/setup-admin" aufrufen. 
 @app.route("/setup-admin")
 def setup_admin():
-    if not Admin.query.filter_by(email="admin@example.org").first():
-        admin = Admin(name="Admin", email="admin@example.org", passwort="admin123")
+    admin_email = os.getenv("ADMIN_EMAIL")
+    admin_passwort = os.getenv("ADMIN_PASSWORT")
+    if not Admin.query.filter_by(email=admin_email).first():
+        admin = Admin(name="Admin", email=admin_email, passwort=admin_passwort)
         db.session.add(admin)
         db.session.commit()
         return jsonify({"status": "Admin erstellt."})
-    return jsonify({"status": "Admin existiert bereits. Login unter http://127.0.0.1:5000/ -> E-Mail: admin@example.org, PW: admin123"})
-
-# ALT: Dummy User für Tests:
-# @app.before_request # vor jedem request ausführen
-# def setze_dummy_user():
-#     global current_user
-    
-#     #current_user = Lehrende.query.first()
-    
-#     #current_user = Lehrende.query.filter_by(name="Prof1").first()
-    
-#     #current_user = Studierende.query.first()
-#     #current_user = Studierende.query.filter_by(name="Studi1").first()
-    
-#     current_user = Admin.query.first()  # später: Session-basiert
-
+    return jsonify({"status": "Admin existiert bereits. Login unter http://127.0.0.1:5000/"})
 
 # Controller: @app.route(...) reagiert auf HTTP-Anfragen: 
-
-# bei Aufruf von https://kmsystem.onrender.com/ zu login weiterleiten
-@app.route("/")
+@app.route("/") # bei Aufruf von https://kmsystem.onrender.com/ zu login weiterleiten
 def index():
     return redirect("/login") # Startseite
 
