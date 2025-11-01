@@ -5,7 +5,7 @@ from typing import Type
 from models.benutzer import Benutzer
 from models.enums import Benutzer_rolle
 
-# Mapping von Enum → Klassenobjekt 
+# Mapping von Enum → Klassenobjekt der Benutzerklasse
 __rolle_klasse_map = {
     Benutzer_rolle.STUDIERENDE: Studierende,
     Benutzer_rolle.LEHRENDE: Lehrende,

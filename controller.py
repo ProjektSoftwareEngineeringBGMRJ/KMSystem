@@ -335,13 +335,13 @@ def benutzer_speichern():
         flash("Passwort muss mindestens 6 Zeichen lang sein.")
         return redirect(url_for("benutzer_erstellen"))
 
+    # Mapping von Enum → Klassenobjekt (in models/rollen_liste.py)
     neue_rolle_klasse = get_rolle_klasse(rolle_enum)
     if neue_rolle_klasse:
         neuer_benutzer = neue_rolle_klasse(name, email, passwort)
-        #current_user.get_alle_benutzer().append(neuer_benutzer)
         db.session.add(neuer_benutzer)
         db.session.commit()
-        flash(f"Benutzer {name} als {rolle} hinzugefügt.")
+        flash(f"Benutzer {name} als {rolle_enum.name} hinzugefügt.")
     else:
         flash("Benutzer hinzufügen fehlgeschlagen.")
 
@@ -364,20 +364,13 @@ def benutzer_loeschen():
                 flash("Mindestens ein Admin muss erhalten bleiben.")
                 return redirect(url_for("nutzer_verwalten"))
             elif(benutzer.id == current_user.id):
-                flash("Nicht erlaubt sich selber zu löschen!")
+                flash("Nicht erlaubt, sich selbst zu löschen!")
                 return redirect(url_for("nutzer_verwalten")) 
             else:
                 db.session.delete(benutzer)
                 db.session.commit()
                 flash(f"Benutzer {benutzer.name} gelöscht.")
-        else:
-            # Alle Meldungen und Kommentare des Benutzers löschen
-            #for meldung in benutzer.meldungen:
-            #    db.session.delete(meldung)
-            #
-            #for kommentar in benutzer.kommentare:
-            #    db.session.delete(kommentar)
-            
+        else:            
             # Benutzer löschen
             db.session.delete(benutzer)
             db.session.commit()
@@ -386,21 +379,6 @@ def benutzer_loeschen():
         flash("Benutzer nicht gefunden.")
 
     return redirect(url_for("nutzer_verwalten"))
-
-
-    # Alle Meldungen und Kommentare des Benutzers löschen
-    #for meldung in benutzer.meldungen:
-    #    db.session.delete(meldung)
-    #
-    #for kommentar in benutzer.kommentare:
-    #    db.session.delete(kommentar)
-    #
-    #db.session.delete(benutzer)
-    #db.session.commit()
-    #
-    # in Benutzer-Modell müssen dafür Backrefs definiert sein: 
-    #meldungen = db.relationship("Meldung", backref="ersteller", cascade="all, delete-orphan")
-    #kommentare = db.relationship("Kommentar", backref="autor", cascade="all, delete-orphan")
 
 @app.route("/module_verwalten", methods=["GET", "POST"])
 @login_required
