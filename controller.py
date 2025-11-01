@@ -309,7 +309,10 @@ def nutzer_verwalten():
 def benutzer_erstellen():
     if not isinstance(current_user, Admin):
         return redirect(url_for("uebersicht"))
-    return render_template("benutzer_erstellen.html", user=current_user)
+    return render_template("benutzer_erstellen.html", 
+                           user=current_user, 
+                           rolle_enum = Benutzer_rolle
+                           )
 
 @app.route("/benutzer_speichern", methods=["POST"])
 @login_required
