@@ -341,7 +341,7 @@ def benutzer_speichern():
         neuer_benutzer = neue_rolle_klasse(name, email, passwort)
         db.session.add(neuer_benutzer)
         db.session.commit()
-        flash(f"Benutzer {name} als {rolle_enum.name} hinzugefügt.")
+        flash(f"Benutzer {name} als {rolle_enum.value} hinzugefügt.")
     else:
         flash("Benutzer hinzufügen fehlgeschlagen.")
 
