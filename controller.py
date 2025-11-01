@@ -12,17 +12,11 @@ from models.rollen_liste import get_rolle_klasse
 from models.kommentar import Kommentar
 from flask import jsonify # für Nachricht bei Route /setup-admin
 import os
-#from dotenv import load_dotenv
 
 app = Flask(__name__)
 
-# URL der Datenbank suchen
-#db_url = os.getenv("DATABASE_URL") # Umgebungsvariable von Render
-#if db_url is None: # -> System läuft nicht auf Render
-#    db_url = "sqlite:///kmsystem.db" # -> lokale installation: SQLite verwenden
-
 if os.getenv("RENDER") == "true":
-    db_url = os.getenv("DATABASE_URL") # Render-DB (PostgreSQL)
+    db_url = os.getenv("DATABASE_URL") # Render-DB (Umgebungsvariable auf Render)
 else:
     db_url = "sqlite:///kmsystem.db" # -> lokale installation: SQLite verwenden
 
@@ -30,9 +24,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = db_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False 
 print("Datenbank-URL:", db_url) # debug (verwendete Datenbank)
 
-#load_dotenv()
-#app.secret_key = os.environ.get("SECRET_KEY")
-app.secret_key = "irgendein_geheimer_schlüssel_1234"
+app.secret_key = "irgendein_geheimer_schlüssel_123" # unsicher! sollte in .env
 
 db.init_app(app)
 
@@ -45,13 +37,12 @@ login_manager.login_view = "login"
 def load_user(user_id):
     return Benutzer.query.get(int(user_id)) # SQLAlchemy lädt richtige Unterklasse von Benutzer
 
-# Admin in die Datenbank bringen (wenn leer): Einmal "App-URL/setup-admin" aufrufen. 
-@app.route("/setup-admin")
+
+# Controller: @app.route(...) reagiert auf HTTP-Anfragen:
+@app.route("/setup-admin") # Admin in die Datenbank bringen (wenn leer): Einmal "App-URL/setup-admin" aufrufen. 
 def setup_admin():
-    #admin_email = os.getenv("ADMIN_EMAIL") # aus .env
-    #admin_passwort = os.getenv("ADMIN_PASSWORT") # aus .env
-    admin_email = "admin@example.org" 
-    admin_passwort = "admin123"
+    admin_email = "admin@example.org" # sollte in .env
+    admin_passwort = "admin123" # sollte in .env
     if not Admin.query.filter_by(email=admin_email).first():
         admin = Admin(name="Admin", email=admin_email, passwort=admin_passwort)
         db.session.add(admin)
@@ -59,7 +50,6 @@ def setup_admin():
         return jsonify({"status": "Admin erstellt."})
     return jsonify({"status": "Admin existiert bereits. Login unter http://127.0.0.1:5000/"})
 
-# Controller: @app.route(...) reagiert auf HTTP-Anfragen: 
 @app.route("/") # bei Aufruf von https://kmsystem.onrender.com/ zu login weiterleiten
 def index():
     return redirect("/login") # Startseite
@@ -85,13 +75,12 @@ def logout():
     return redirect(url_for("login"))
 
 # Übersichtsseite (acd Übersicht anzeigen)
-@app.route("/uebersicht") # GET-Anfrage <form method="get" action="/uebersicht">
+@app.route("/uebersicht") # GET-Anfrage in Template: <form method="get" action="/uebersicht">
 @login_required
 def uebersicht():
     # Parameter aus Filter-Anfrage: 
-    # holen von Werten aus HTML-Formular (z.B. aus Feld name="modul")
     alle_meldungen = request.args.get("alle_meldungen") == "true" # anfangs eigene Meldungen zeigen
-    selected_modul = request.args.get("modul") or None 
+    selected_modul = request.args.get("modul") or None # holen von Werten aus HTML-Formular (z.B. aus Feld name="modul")
     selected_status = request.args.get("status") or None    
     selected_kategorie = request.args.get("kategorie") or None
     
