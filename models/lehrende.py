@@ -52,7 +52,7 @@ class Lehrende(Benutzer):
                 sichtbare.append(kommentar)
         return sichtbare
 
-    def add_kommentar(self, meldung:"Meldung", text:str, sichtbarkeit:Sichtbarkeit = Sichtbarkeit.PRIVAT):
+    def add_kommentar(self, meldung:"Meldung", text:str, sichtbarkeit:Sichtbarkeit = Sichtbarkeit.PRIVAT) -> Kommentar:
         # Prüfen, ob das Modul der Meldung vom Lehrenden betreut wird
         if meldung.modul not in self.module:
             raise PermissionError("Dies ist nur für eigene Module möglich.")
@@ -61,13 +61,11 @@ class Lehrende(Benutzer):
             text = text, 
             meldung = meldung,
             sichtbarkeit = sichtbarkeit,
-            verfasser = self.name, # oder email
+            verfasser = self.name,
             lehrende = self,
             antwort_auf = None
         )
-        
-        db.session.add(kommentar)
-        db.session.commit()
+        return kommentar
         
     def get_eigene_meldungen(self) -> list["Meldung"]:
         meldungen: list[Meldung] = []

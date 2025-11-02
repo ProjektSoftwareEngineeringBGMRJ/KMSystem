@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
-from models.datenbank import db #  -> SQLAlchemy()
+from flask import jsonify # für Nachricht bei Route /setup-admin
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from models.datenbank import db #  -> SQLAlchemy()
 from models.meldung import Meldung
 from models.enums import Kategorie, Status, Sichtbarkeit, Benutzer_rolle
 from models.benutzer import Benutzer
@@ -9,9 +10,8 @@ from models.studierende import Studierende
 from models.lehrende import Lehrende
 from models.modul import Modul
 from models.rollen_liste import get_rolle_klasse
-from models.kommentar import Kommentar
-from flask import jsonify # für Nachricht bei Route /setup-admin
 import os
+from models.kommentar import Kommentar
 
 app = Flask(__name__)
 
@@ -128,8 +128,12 @@ def uebersicht():
     
 @app.route("/meldung/<int:meldungs_id>")
 @login_required
-def meldung_anzeigen(meldungs_id): # Read-Operation (R in CRUD)
-    meldung = Meldung.query.filter_by(id=meldungs_id).first() # direkte SQL-Abfrage, entspricht: SELECT * FROM meldung WHERE id = :meldungs_id LIMIT 1;
+def meldung_anzeigen(meldungs_id):
+    '''
+    Read-Operation einer Meldung (R in CRUD):
+    Direkte SQL-Abfrage, entspricht: SELECT * FROM meldung WHERE id = :meldungs_id LIMIT 1;
+    '''
+    meldung = Meldung.query.filter_by(id=meldungs_id).first() 
     if not meldung:
         pass
     
@@ -141,8 +145,14 @@ def meldung_anzeigen(meldungs_id): # Read-Operation (R in CRUD)
 
 @app.route("/meldung/<int:meldungs_id>/status_aendern", methods=["POST"])
 @login_required
-def status_aendern(meldungs_id:int): # Update-Operation (U in CRUD)
-    meldung = Meldung.query.filter_by(id=meldungs_id).first() # direkte SQL-Abfrage: Read-Operation (R in CRUD)
+def status_aendern(meldungs_id:int):
+    '''
+    Update-Operation des Meldungsstatus (U in CRUD):
+    Holt Status, Kommentar, Sichtbarkeit aus HTML-Formular,
+    Schreibt geänderten Status in DB, ruft add_kommentar() von Lehrende auf.
+    Nur für Lehrende. Checkt, ob Meldung zu zugewiesenen Modulen gehört.
+    '''
+    meldung = Meldung.query.filter_by(id=meldungs_id).first()
     if not meldung:
         return redirect(url_for("uebersicht"))
     
@@ -160,35 +170,37 @@ def status_aendern(meldungs_id:int): # Update-Operation (U in CRUD)
         Status.GESCHLOSSEN: []
     }
     
-    # Kombinierte Aktionen aus Status ändern + Kommentar 
+    # Kombinierte Aktionen aus Status ändern + Kommentar
     try:
         if meldung.modul not in current_user.module:
             raise PermissionError("Dies ist nur für Meldungen eigener Module möglich.")
-        else:
-            if neuer_status in erlaubte_wechsel[meldung.status]: # Statuswechsel: offen -> in Bearbeitung -> abgeschlossen
-                meldung.status = neuer_status
-                
-                # Status ändern und kommentieren
-                if kommentar_text.strip():
-                    current_user.add_kommentar(meldung, kommentar_text.strip(), sichtbarkeit)
-                    flash(f"Neuen {sichtbarkeit.value}en Kommentar hinzugefügt und Status zu \"{neuer_status.value}\" gewechselt.")
-                
-                # nur Status ändern
-                else:
-                    db.session.commit() # in Datenbank schreiben (sonst in add_kommentar)
-                    flash(f"Status ohne Kommentar zu \"{neuer_status.value}\" gewechselt.")
-                    
-            elif neuer_status == meldung.status: # Status nicht ändern
-                
-                # Nur Kommentieren
-                if kommentar_text.strip():
-                    current_user.add_kommentar(meldung, kommentar_text.strip(), sichtbarkeit)
-                    flash(f"Neuen {sichtbarkeit.value}en Kommentar ohne Statuswechsel hinzugefügt.")
-                else: 
-                    flash("Status nicht gewechselt.")
+        
+        if neuer_status in erlaubte_wechsel[meldung.status]: # Statuswechsel: offen -> in Bearbeitung -> abgeschlossen
+            meldung.status = neuer_status
             
+            # Status ändern und kommentieren
+            if kommentar_text.strip():
+                db.session.add(current_user.add_kommentar(meldung, kommentar_text.strip(), sichtbarkeit))
+                db.session.commit()
+                flash(f"Neuen {sichtbarkeit.value}en Kommentar hinzugefügt und Status zu \"{neuer_status.value}\" gewechselt.")
+            
+            # nur Status ändern
             else:
-                flash(f"Statuswechsel von \"{meldung.status.value}\" zu \"{neuer_status.value}\" ist nicht erlaubt.")
+                db.session.commit() # in Datenbank schreiben
+                flash(f"Status ohne Kommentar zu \"{neuer_status.value}\" gewechselt.")
+                
+        elif neuer_status == meldung.status: # Status nicht ändern
+            
+            # Nur Kommentieren
+            if kommentar_text.strip():
+                db.session.add(current_user.add_kommentar(meldung, kommentar_text.strip(), sichtbarkeit))
+                db.session.commit()
+                flash(f"Neuen {sichtbarkeit.value}en Kommentar ohne Statuswechsel hinzugefügt.")
+            else:
+                flash("Status nicht gewechselt.")
+        
+        else:
+            flash(f"Statuswechsel von \"{meldung.status.value}\" zu \"{neuer_status.value}\" ist nicht erlaubt.")
     
     # Error von add_kommentar (Lehrende)
     except PermissionError as e:
