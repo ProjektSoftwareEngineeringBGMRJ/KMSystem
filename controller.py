@@ -35,14 +35,24 @@ login_manager.login_view = "login"
 
 @login_manager.user_loader
 def load_user(user_id):
-    return Benutzer.query.get(int(user_id)) # SQLAlchemy lädt richtige Unterklasse von Benutzer
+    '''
+    Laden des Benutzers beim Login
+    SQLAlchemy lädt richtige Unterklasse von Benutzer
+    '''
+    return Benutzer.query.get(int(user_id))
 
 
 # Controller: @app.route(...) reagiert auf HTTP-Anfragen:
-@app.route("/setup-admin") # Admin in die Datenbank bringen (wenn leer): Einmal "App-URL/setup-admin" aufrufen. 
+@app.route("/setup-admin") 
 def setup_admin():
-    admin_email = "admin@example.org" # sollte in .env
-    admin_passwort = "admin123" # sollte in .env
+    '''
+    Bringt einen Admin in die Datenbank (wenn leer): 
+    Einmal "App-URL/setup-admin" aufrufen.
+    Login Daten sollten in .env-Datei, 
+    sind aber für mögliche lokale Installation (git pull) hardgecodet.
+    '''
+    admin_email = "admin@example.org"
+    admin_passwort = "admin123"
     if not Admin.query.filter_by(email=admin_email).first():
         admin = Admin(name="Admin", email=admin_email, passwort=admin_passwort)
         db.session.add(admin)
@@ -50,12 +60,20 @@ def setup_admin():
         return jsonify({"status": "Admin erstellt."})
     return jsonify({"status": "Admin existiert bereits. Login unter http://127.0.0.1:5000/"})
 
-@app.route("/") # bei Aufruf von https://kmsystem.onrender.com/ zu login weiterleiten
+@app.route("/")
 def index():
-    return redirect("/login") # Startseite
+    '''
+    Leitet zur Loginseite als Startseite
+    '''
+    return redirect("/login")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    '''
+    Benutzer wird anhand email aus Datenbank gesucht 
+    und check_passwort() von Benutzer aufgerufen.
+    Wenn TRUE zurückgegeben wird, wird zur Übersichtsseite weitergeleitet. 
+    '''
     if request.method == "POST":
         email = request.form["email"]
         passwort = request.form["passwort"]
@@ -70,15 +88,20 @@ def login():
 
 @app.route("/logout")
 def logout():
+    '''
+    Logout und weiterleiten zur Login-Seite
+    '''
     logout_user()
     flash("Erfolgreich ausgeloggt.")
     return redirect(url_for("login"))
 
-# Übersichtsseite (acd Übersicht anzeigen)
-@app.route("/uebersicht") # GET-Anfrage in Template: <form method="get" action="/uebersicht">
+@app.route("/uebersicht")
 @login_required
 def uebersicht():
-    # Parameter aus Filter-Anfrage: 
+    '''
+    Übersichtsseite (acd Übersicht anzeigen)
+    '''
+    # Parameter aus Filter-Anfrage:
     alle_meldungen = request.args.get("alle_meldungen") == "true" # anfangs eigene Meldungen zeigen
     selected_modul = request.args.get("modul") or None # holen von Werten aus HTML-Formular (z.B. aus Feld name="modul")
     selected_status = request.args.get("status") or None    
@@ -209,9 +232,13 @@ def status_aendern(meldungs_id:int):
     # zurück zur Detailansicht
     return redirect(url_for("meldung_anzeigen", meldungs_id = meldungs_id))
     
-@app.route("/meldung/neu", methods=["GET", "POST"]) # CREATE-Operation (C in CRUD)
+@app.route("/meldung/neu", methods=["GET", "POST"])
 @login_required
 def meldung_erstellen():
+    '''
+    CREATE-Operation (C in CRUD):
+    Erstellt eine neue Meldung zu einem Modul
+    '''
     if request.method == "POST":
         
         # holen von Werten aus HTML-Formular
