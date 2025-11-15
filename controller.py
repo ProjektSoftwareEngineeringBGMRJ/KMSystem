@@ -41,7 +41,11 @@ def load_user(user_id):
     '''
     return Benutzer.query.get(int(user_id))
 
-
+@app.route("/setup-db")
+def setup_db():
+    from init_db import init_db
+    init_db()
+    
 # Controller: @app.route(...) reagiert auf HTTP-Anfragen:
 @app.route("/setup-admin") 
 def setup_admin():
