@@ -372,14 +372,11 @@ def benutzer_loeschen():
             if benutzer.id == current_user.id:
                 flash("Nicht erlaubt, sich selbst zu löschen!")
                 return redirect(url_for("nutzer_verwalten"))
-            
+
         db.session.delete(benutzer)
         db.session.commit()
         flash(f"Benutzer {benutzer.name} gelöscht.")
-        # else:
-        #     db.session.delete(benutzer)
-        #     db.session.commit()
-        #     flash(f"Benutzer {benutzer.name} gelöscht.")
+
     else:
         flash("Benutzer nicht gefunden.")
 
@@ -388,55 +385,67 @@ def benutzer_loeschen():
 @app.route("/module_verwalten", methods=["GET", "POST"])
 @login_required
 def module_verwalten():
+    '''
+    Funktion für Admin:
+    Erstellen von Modulen
+    '''
     if not isinstance(current_user, Admin):
         flash("Keine Berechtigung.")
         return redirect(url_for("uebersicht"))
-    
+
     # Modul erstellen
-    if request.method == "POST":    
+    if request.method == "POST":
         titel = request.form.get("titel")
         try:
             current_user.erstelle_modul(titel=titel)
             flash(f"Modul \"{titel}\" wurde erfolgreich erstellt.")
         except ValueError as e:
-            flash(f"Fehler: {e}")    
-        
+            flash(f"Fehler: {e}")
+
     alle_module = Modul.query.all()
     return render_template("module_verwalten.html", module=alle_module)
 
 @app.route("/modul_loeschen", methods=["POST"])
 @login_required
 def modul_loeschen():
+    '''
+    Funktion für Admin:
+    Löschen von Modulen
+    '''
     if not isinstance(current_user, Admin):
         flash("Keine Berechtigung.")
         return redirect(url_for("uebersicht"))
-    
+
     modul_id = int(request.form.get("modul_id"))
     modul = Modul.query.get(modul_id)
-    
+
     if modul:
         db.session.delete(modul)
         db.session.commit()
         flash(f"Modul \"{modul.titel}\" gelöscht")
     else:
         flash("Modul nicht gefunden.")
-        
+
     return redirect(url_for("module_verwalten"))
 
 @app.route("/modul_aktion", methods=["POST"])
 @login_required
 def modul_aktion():
+    '''
+    Funktion für Admin:
+    Lehrenden Module Zuweisen oder Entziehen
+    '''
     if not isinstance(current_user, Admin):
         flash("Keine Berechtigung.")
         return redirect(url_for("uebersicht"))
 
     modul_id_raw = request.form.get("modul_id")
-    
+
     # Prüfen ob Module vorhanden sind
     if not modul_id_raw:
         flash ("Bitte zuerst Module anlegen.")
         return redirect(url_for("nutzer_verwalten"))
-    
+
     lehrende_id = int(request.form.get("lehrende_id"))
     modul_id = int(modul_id_raw)
     aktion = request.form.get("aktion")
@@ -466,10 +475,14 @@ def modul_aktion():
 @app.route("/antwort_speichern/<int:kommentar_id>", methods=["POST"])
 @login_required
 def antwort_speichern(kommentar_id):
+    '''
+    Funktion für Studierende:
+    Als Melder kann auf Kommentare von Lehrenden geantwortet werden
+    '''
     kommentar = Kommentar.query.get_or_404(kommentar_id)
 
     if not isinstance(current_user, Studierende) or current_user.id != kommentar.meldung.ersteller.id:
-        flash("Nur Melder darf  antworten.")
+        flash("Nur Melder darf antworten.")
         return redirect(url_for("meldung_anzeigen", meldungs_id=kommentar.meldung.id))
 
     antwort_text = request.form.get("antwort_text", "").strip()
