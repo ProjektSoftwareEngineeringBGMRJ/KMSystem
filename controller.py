@@ -114,14 +114,14 @@ def uebersicht():
     selected_modul = request.args.get("modul") or None # holen von Werten aus HTML-Formular (z.B. aus Feld name="modul")
     selected_status = request.args.get("status") or None
     selected_kategorie = request.args.get("kategorie") or None
-  
+
+    module = [Modul]
     # abhängig von Button
     if isinstance(current_user, Studierende):
         # Liste mit allen Modulen
         module = db.session.query(Modul).all()
         # alle_meldungen false: nur eigene zeigen
-        meldungen = db.session.query(Meldung).all() if alle_meldungen else current_user.meldungen#.all()
-    elif isinstance(current_user, Lehrende):
+        meldungen = db.session.query(Meldung).all() if alle_meldungen else current_user.meldungen
         if alle_meldungen:
             # alle module anzeigen
             module = db.session.query(Modul).all()
@@ -134,9 +134,8 @@ def uebersicht():
         # Liste mit allen Modulen
         module = db.session.query(Modul).all()
         # Alle Meldungen aller Module zeigen (Methode von Admin)
-        meldungen = current_user.get_alle_meldungen() 
-        #meldungen = admin.get_alle_meldungen() if alle_meldungen else current_user.get_eigene_meldungen()
-   
+        meldungen = current_user.get_alle_meldungen()
+
     #Filter
     if selected_modul:
         meldungen = [m for m in meldungen if m.modul.titel == selected_modul]
@@ -156,7 +155,7 @@ def uebersicht():
         selected_status = selected_status,
         selected_kategorie = selected_kategorie
     )
-   
+
 @app.route("/meldung/<int:meldungs_id>")
 @login_required
 def meldung_anzeigen(meldungs_id):
@@ -164,12 +163,12 @@ def meldung_anzeigen(meldungs_id):
     Read-Operation einer Meldung (R in CRUD):
     Direkte SQL-Abfrage, entspricht: SELECT * FROM meldung WHERE id = :meldungs_id LIMIT 1;
     '''
-    meldung = Meldung.query.filter_by(id=meldungs_id).first() 
+    meldung = Meldung.query.filter_by(id=meldungs_id).first()
     if not meldung:
         pass
-    
-    return render_template("meldung_detail.html", 
-                           meldung=meldung, 
+
+    return render_template("meldung_detail.html",
+                           meldung=meldung,
                            user=current_user,
                            status_enum = Status,
                            sichtbarkeit_enum = Sichtbarkeit)
@@ -186,42 +185,43 @@ def status_aendern(meldungs_id:int):
     meldung = Meldung.query.filter_by(id=meldungs_id).first()
     if not meldung:
         return redirect(url_for("uebersicht"))
-    
+
     # Werte aus Formular holen
     neuer_status_name = request.form.get("status") # neuer Staus
     kommentar_text = request.form.get("kommentar") # optional
     sichtbarkeit_name = request.form.get("sichtbarkeit") # Enum
     sichtbarkeit = Sichtbarkeit[sichtbarkeit_name]
-    
-    # Statuslogik: Erlaubte Übergänge        
+
+    # Statuslogik: Erlaubte Übergänge
     neuer_status = Status[neuer_status_name]
     erlaubte_wechsel = {
         Status.OFFEN: [Status.BEARBEITUNG],
         Status.BEARBEITUNG: [Status.GESCHLOSSEN],
         Status.GESCHLOSSEN: []
     }
-    
+
     # Kombinierte Aktionen aus Status ändern + Kommentar
     try:
         if meldung.modul not in current_user.module:
             raise PermissionError("Dies ist nur für Meldungen eigener Module möglich.")
-        
-        if neuer_status in erlaubte_wechsel[meldung.status]: # Statuswechsel: offen -> in Bearbeitung -> abgeschlossen
+
+        # Statuswechsel: offen -> in Bearbeitung -> abgeschlossen
+        if neuer_status in erlaubte_wechsel[meldung.status]:
             meldung.status = neuer_status
-            
+
             # Status ändern und kommentieren
             if kommentar_text.strip():
                 db.session.add(current_user.add_kommentar(meldung, kommentar_text.strip(), sichtbarkeit))
                 db.session.commit()
                 flash(f"Neuen {sichtbarkeit.value}en Kommentar hinzugefügt und Status zu \"{neuer_status.value}\" gewechselt.")
-            
+
             # nur Status ändern
             else:
                 db.session.commit() # in Datenbank schreiben
                 flash(f"Status ohne Kommentar zu \"{neuer_status.value}\" gewechselt.")
-                
+
         elif neuer_status == meldung.status: # Status nicht ändern
-            
+
             # Nur Kommentieren
             if kommentar_text.strip():
                 db.session.add(current_user.add_kommentar(meldung, kommentar_text.strip(), sichtbarkeit))
@@ -229,17 +229,17 @@ def status_aendern(meldungs_id:int):
                 flash(f"Neuen {sichtbarkeit.value}en Kommentar ohne Statuswechsel hinzugefügt.")
             else:
                 flash("Status nicht gewechselt.")
-        
+
         else:
             flash(f"Statuswechsel von \"{meldung.status.value}\" zu \"{neuer_status.value}\" ist nicht erlaubt.")
-    
+
     # Error von add_kommentar (Lehrende)
     except PermissionError as e:
         flash(f"{e}")
-        
+
     # zurück zur Detailansicht
     return redirect(url_for("meldung_anzeigen", meldungs_id = meldungs_id))
-    
+
 @app.route("/meldung/neu", methods=["GET", "POST"])
 @login_required
 def meldung_erstellen():
@@ -248,7 +248,7 @@ def meldung_erstellen():
     Erstellt eine neue Meldung zu einem Modul
     '''
     if request.method == "POST":
-        
+
         # holen von Werten aus HTML-Formular
         modul_titel = request.form.get("modul")
         kategorie_name = request.form.get("kategorie")
@@ -257,16 +257,16 @@ def meldung_erstellen():
         # Modul und Kategorie aus Enum (oder Datenbank) holen
         modul = db.session.query(Modul).filter_by(titel=modul_titel).first() # direkte SQL-Abfrage
         kategorie = Kategorie[kategorie_name]
-        
+
         try:
             # neue Meldung erzeugen (wird in erstelle_meldung in Datenbank geschrieben)
             current_user.erstelle_meldung(beschreibung, kategorie, modul)
             flash(" Meldung erfolgreich erstellt. ")
             return redirect(url_for("uebersicht"))
-        
+
         except Exception as e:
             flash(f"Fehler beim Erstellen der Meldung: {e}")
-            
+
             # Rückgabe bei Fehler
             return render_template("meldung_formular.html",
                                     module = db.session.query(Modul).all(),
@@ -275,15 +275,18 @@ def meldung_erstellen():
                                     selected_modul = modul_titel,
                                     selected_kategorie = kategorie_name
                                     )
-        
+
     return render_template("meldung_formular.html",
                            module = db.session.query(Modul).all(),
                            kategorie_enum = Kategorie
                            )
-    
+
 @app.route("/nutzerverwaltung", methods=["GET", "POST"])
 @login_required
 def nutzer_verwalten():
+    '''
+    Funktion für Admin 
+    '''
     if not isinstance(current_user, Admin):
         return redirect(url_for("uebersicht"))
     
@@ -299,16 +302,23 @@ def nutzer_verwalten():
 @app.route("/benutzer_erstellen", methods=["GET"])
 @login_required
 def benutzer_erstellen():
+    '''
+    Funktion für Admin 
+    '''
     if not isinstance(current_user, Admin):
         return redirect(url_for("uebersicht"))
-    return render_template("benutzer_erstellen.html", 
-                           user=current_user, 
+    return render_template("benutzer_erstellen.html",
+                           user = current_user,
                            rolle_enum = Benutzer_rolle
                            )
 
 @app.route("/benutzer_speichern", methods=["POST"])
 @login_required
 def benutzer_speichern():
+    '''
+    Funktion für Admin:
+    Erstellen eines neuen Nutzers
+    '''
     if not isinstance(current_user, Admin):
         return redirect(url_for("uebersicht"))
 
@@ -342,6 +352,10 @@ def benutzer_speichern():
 @app.route("/benutzer_loeschen", methods=["POST"])
 @login_required
 def benutzer_loeschen():
+    '''
+    Funktion für Admin:
+    Löschen eines Benutzers
+    '''
     if not isinstance(current_user, Admin):
         flash("Keine Berechtigung.")
         return redirect(url_for("uebersicht"))
@@ -352,20 +366,20 @@ def benutzer_loeschen():
     if benutzer:
         if isinstance(benutzer, Admin):
             anzahl_admins = Admin.query.count()
-            if anzahl_admins <= 1:    
+            if anzahl_admins <= 1:
                 flash("Mindestens ein Admin muss erhalten bleiben.")
                 return redirect(url_for("nutzer_verwalten"))
-            elif(benutzer.id == current_user.id):
+            if benutzer.id == current_user.id:
                 flash("Nicht erlaubt, sich selbst zu löschen!")
-                return redirect(url_for("nutzer_verwalten")) 
-            else:
-                db.session.delete(benutzer)
-                db.session.commit()
-                flash(f"Benutzer {benutzer.name} gelöscht.")
-        else:            
-            db.session.delete(benutzer)
-            db.session.commit()
-            flash(f"Benutzer {benutzer.name} gelöscht.")
+                return redirect(url_for("nutzer_verwalten"))
+            
+        db.session.delete(benutzer)
+        db.session.commit()
+        flash(f"Benutzer {benutzer.name} gelöscht.")
+        # else:
+        #     db.session.delete(benutzer)
+        #     db.session.commit()
+        #     flash(f"Benutzer {benutzer.name} gelöscht.")
     else:
         flash("Benutzer nicht gefunden.")
 
