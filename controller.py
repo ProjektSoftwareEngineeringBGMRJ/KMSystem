@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask import jsonify # für Nachricht bei Route /setup-admin
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
@@ -10,19 +11,18 @@ from models.studierende import Studierende
 from models.lehrende import Lehrende
 from models.modul import Modul
 from models.rollen_liste import get_rolle_klasse
-import os
 from models.kommentar import Kommentar
 
 app = Flask(__name__)
 
 if os.getenv("RENDER") == "true":
-    db_url = os.getenv("DATABASE_URL") # Render-DB (Umgebungsvariable auf Render)
+    DB_URL = os.getenv("DATABASE_URL") # Render-DB (Umgebungsvariable auf Render)
 else:
-    db_url = "sqlite:///kmsystem.db" # -> lokale installation: SQLite verwenden
+    DB_URL = "sqlite:///kmsystem.db" # -> lokale installation: SQLite verwenden
 
-app.config["SQLALCHEMY_DATABASE_URI"] = db_url
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False 
-print("Datenbank-URL:", db_url) # debug (verwendete Datenbank)
+app.config["SQLALCHEMY_DATABASE_URI"] = DB_URL
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+print("Datenbank-URL:", DB_URL) # debug (verwendete Datenbank)
 
 app.secret_key = "irgendein_geheimer_schlüssel_123" # unsicher! sollte in .env
 
@@ -43,9 +43,13 @@ def load_user(user_id):
 
 @app.route("/setup-db")
 def setup_db():
+    '''
+    Initialisiert Datenbank
+    '''
     from init_db import init_db
     init_db()
-    
+    return jsonify({"Datenbank wurde initialisiert."})
+
 # Controller: @app.route(...) reagiert auf HTTP-Anfragen:
 @app.route("/setup-admin") 
 def setup_admin():
@@ -108,14 +112,14 @@ def uebersicht():
     # Parameter aus Filter-Anfrage:
     alle_meldungen = request.args.get("alle_meldungen") == "true" # anfangs eigene Meldungen zeigen
     selected_modul = request.args.get("modul") or None # holen von Werten aus HTML-Formular (z.B. aus Feld name="modul")
-    selected_status = request.args.get("status") or None    
+    selected_status = request.args.get("status") or None
     selected_kategorie = request.args.get("kategorie") or None
-    
+  
     # abhängig von Button
     if isinstance(current_user, Studierende):
         # Liste mit allen Modulen
         module = db.session.query(Modul).all()
-        # alle_meldungen false: nur eigene zeigen 
+        # alle_meldungen false: nur eigene zeigen
         meldungen = db.session.query(Meldung).all() if alle_meldungen else current_user.meldungen#.all()
     elif isinstance(current_user, Lehrende):
         if alle_meldungen:
@@ -132,7 +136,7 @@ def uebersicht():
         # Alle Meldungen aller Module zeigen (Methode von Admin)
         meldungen = current_user.get_alle_meldungen() 
         #meldungen = admin.get_alle_meldungen() if alle_meldungen else current_user.get_eigene_meldungen()
-    
+   
     #Filter
     if selected_modul:
         meldungen = [m for m in meldungen if m.modul.titel == selected_modul]
@@ -140,19 +144,19 @@ def uebersicht():
         meldungen = [m for m in meldungen if m.status.name == selected_status]
     if selected_kategorie:
         meldungen = [m for m in meldungen if m.kategorie.name == selected_kategorie]
-    
+
     return render_template("uebersicht.html",
         user = current_user,
         meldungen = meldungen,
         alle_meldungen = alle_meldungen,
         module = module,
         status_enum = Status,
-        kategorie_enum = Kategorie, 
+        kategorie_enum = Kategorie,
         selected_modul = selected_modul,
         selected_status = selected_status,
         selected_kategorie = selected_kategorie
     )
-    
+   
 @app.route("/meldung/<int:meldungs_id>")
 @login_required
 def meldung_anzeigen(meldungs_id):
