@@ -110,7 +110,7 @@ def uebersicht():
     Übersichtsseite (acd Übersicht anzeigen)
     '''
     # Parameter aus Filter-Anfrage:
-    alle_meldungen = request.args.get("alle_meldungen") == "true" # anfangs eigene Meldungen zeigen
+    alle_meldungen = request.args.get("alle_meldungen") == "true" # Boolean: anfangs eigene Meldungen zeigen
     selected_modul = request.args.get("modul") or None # holen von Werten aus HTML-Formular (z.B. aus Feld name="modul")
     selected_status = request.args.get("status") or None
     selected_kategorie = request.args.get("kategorie") or None
@@ -285,7 +285,8 @@ def meldung_erstellen():
 @login_required
 def nutzer_verwalten():
     '''
-    Funktion für Admin 
+    Funktion für Admin:
+    Anzeigen der Nutzerverwaltung 
     '''
     if not isinstance(current_user, Admin):
         return redirect(url_for("uebersicht"))
@@ -303,7 +304,8 @@ def nutzer_verwalten():
 @login_required
 def benutzer_erstellen():
     '''
-    Funktion für Admin 
+    Funktion für Admin:
+    Anzeigen von Formular zum erstellen eines neuen Benutzers 
     '''
     if not isinstance(current_user, Admin):
         return redirect(url_for("uebersicht"))
