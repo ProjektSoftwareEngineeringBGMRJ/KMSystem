@@ -133,7 +133,7 @@ def logout():
 def uebersicht():
     '''
     Übersichtsseite:
-    - Zeigt Meldungen abhängig von Benutzerrolle (Studierende, Admin).
+    - Zeigt Meldungen abhängig von Benutzerrolle (Studierende, Lehrende, Admin).
     - Unterstützt Filterung nach Modul, Status und Kategorie.
     - Parameter werden aus GET-Request übernommen.
     '''
@@ -144,12 +144,14 @@ def uebersicht():
     selected_kategorie = request.args.get("kategorie") or None
 
     module = [Modul]
-    
+    meldungen = [Meldung]
+
     # Rollenabhängige Logik
     if isinstance(current_user, Studierende):
         module = db.session.query(Modul).all()
         meldungen = db.session.query(Meldung).all() if alle_meldungen else current_user.meldungen
-        
+
+    elif isinstance(current_user, Lehrende):
         if alle_meldungen:
             module = db.session.query(Modul).all()
         else:
@@ -341,7 +343,7 @@ def benutzer_erstellen():
     '''
     if not isinstance(current_user, Admin):
         return redirect(url_for("uebersicht"))
-    
+
     return render_template("benutzer_erstellen.html",
         user = current_user,
         rolle_enum = Benutzer_rolle
