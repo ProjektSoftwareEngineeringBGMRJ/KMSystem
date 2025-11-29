@@ -1,35 +1,48 @@
 <h2>Modulverwaltung</h2>
 
+{# Formular zum Erstellen eines neuen Moduls #}
 <form method="post">
     <label>Titel:</label>
     <input type="text" name="titel" required><br>
-    {# evtl. erweitern
+    
+    {# Erweiterungsmöglichkeiten: Semester und Beschreibung (derzeit auskommentiert) #}
+    {#
     <label>Semester:</label>
     <input type="text" name="semester"><br>
     <label>Beschreibung:</label>
     <textarea name="beschreibung"></textarea><br>
     #}
+
     <button type="submit">Modul erstellen</button>
 </form>
 
 <hr>
 
 <h3>Bestehende Module</h3>
+
+{# Liste aller vorhandenen Module #}
 <ul>
     {% for modul in module %}
         <li>
-            <strong>{{ modul.titel }}</strong> {#({{ modul.semester }})<br>
-            {{ modul.beschreibung }}<br>#}
+            <strong>{{ modul.titel }}</strong> 
+            
+            {# Optional: Semester und Beschreibung anzeigen (derzeit auskommentiert) #}
+            {# ({{ modul.semester }})<br>
+            {{ modul.beschreibung }}<br> #}
+
+            {# Button zum Löschen eines Moduls (POST-Request an modul_loeschen) #}
             <form method="post" action="{{ url_for('modul_loeschen') }}">
                 <input type="hidden" name="modul_id" value="{{ modul.id }}">
                 <button type="submit">Modul löschen</button>
             </form>
         </li>
     {% else %}
+        {# Hinweis, wenn keine Module vorhanden sind #}
         <li>Keine Module vorhanden.</li>
     {% endfor %}
 </ul>
 
+{# Flash-Messages: Systemhinweise (z. B. Erfolg oder Fehler) #}
 {% with messages = get_flashed_messages() %}
   {% if messages %}
     <div style="background-color: #e0ffe0; border: 1px solid #0a0; padding: 0.5em; border-radius: 4px;">
@@ -40,5 +53,5 @@
   {% endif %}
 {% endwith %}
 
-<!-- zurück zur Übersicht navigieren -->
+{# Navigation zurück zur Übersicht #}
 <a href="{{ url_for('uebersicht') }}">← Zurück zur Übersicht</a>

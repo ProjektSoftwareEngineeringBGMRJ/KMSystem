@@ -6,16 +6,22 @@
 </head>
 <body>
     <h2>Login</h2>
+
+    {# Formular für Benutzer-Login (POST-Request) #}
     <form method="POST">
+        {# Eingabefeld: E-Mail-Adresse #}
         <label for="email">E-Mail:</label><br>
         <input type="email" name="email" required><br><br>
 
+        {# Eingabefeld: Passwort #}
         <label for="passwort">Passwort:</label><br>
         <input type="password" name="passwort" required><br><br>
 
+        {# Button zum Absenden des Formulars #}
         <button type="submit">Einloggen</button>
     </form>
 
+    {# Flash-Messages: Fehlermeldungen oder Hinweise beim Login #}
     {% with messages = get_flashed_messages() %}
       {% if messages %}
         <ul style="color: red;">

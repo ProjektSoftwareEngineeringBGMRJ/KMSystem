@@ -1,10 +1,11 @@
 <h2>Nutzerverwaltung</h2>
 
+{# Button: neuen Benutzer hinzufügen (führt zu benutzer_erstellen) #}
 <form method="get" action="{{ url_for('benutzer_erstellen') }}">
     <button type="submit">➕ Benutzer hinzufügen</button>
 </form>
 
-<!-- Alle Benutzer als Tabelle anzeigen -->
+{# Tabelle: Übersicht aller Benutzer im System #}
 <table border="1" cellpadding="6">
     <tr>
         <th>ID</th>
@@ -13,34 +14,38 @@
         <th>Rolle</th>
         <th>Aktion</th>
     </tr>
+
+    {# Iteration über alle Benutzer in der Liste #}
     {% for benutzer in benutzer_liste %}
     <tr>
         <td>{{ benutzer.id }}</td>
         <td>{{ benutzer.name }}</td>
         <td>{{ benutzer.email }}</td>
         <td>
-            <!-- Bei Lehrenden zugewiesene Module anzeigen  -->
+            {# Wenn Benutzer ein Lehrender ist: zugewiesene Module anzeigen #}
             {% if benutzer.__class__.__name__ == "Lehrende" %}
                 Lehrende für:<br>
                 {% for modul in benutzer.module %}
                     {{modul.titel}}{% if not loop.last %}, <br>{% endif %}
                 {% endfor %}
             {% else %}
+                {# Für andere Rollen: nur Rollenname anzeigen #}
                 {{ benutzer.__class__.__name__ }}
             {% endif %}
         </td>
         <td>
-            <!-- Button zum Löschen eines Benutzers -->
+            {# Button: Benutzer löschen (POST-Request an benutzer_loeschen) #}
             <form method="post" action="{{ url_for('benutzer_loeschen') }}">
                 <input type="hidden" name="benutzer_id" value="{{ benutzer.id }}">
                 <button type="submit" onclick="return confirm('Benutzer wirklich löschen?')">Benutzer Löschen</button>
             </form>
 
-            <!-- Bei Lehrenden Modul-Menü und Button "zuweisen" und "entziehen" anzeigen -->
+            {# Zusatzaktionen für Lehrende: Modul zuweisen oder entziehen #}
             {% if benutzer.__class__.__name__ == "Lehrende" %}
                 <form method="post" action="{{ url_for('modul_aktion') }}">
                     <input type="hidden" name="lehrende_id" value="{{ benutzer.id }}">
                     
+                    {# Dropdown: Modul auswählen #}
                     <select name="modul_id">
                         <option value="">-- Modul auswählen --</option>
                         {% for modul in module %}
@@ -48,6 +53,7 @@
                         {% endfor %}
                     </select>
 
+                    {# Buttons für Aktionen: Modul zuweisen oder entziehen #}
                     <button type="submit" name="aktion" value="zuweisen">Modul zuweisen</button>
                     <button type="submit" name="aktion" value="entziehen">Modul entziehen</button>
                 </form>
@@ -58,7 +64,7 @@
     {% endfor %}
 </table>
 
-<!-- Flash-Meldungen anzeigen -->
+{# Flash-Meldungen: Systemhinweise (z. B. Erfolg oder Fehler) #}
 {% with messages = get_flashed_messages() %}
     {% if messages %}
         <div style="background-color: #fff8dc; border: 1px solid #daa520; padding: 0.5em; border-radius: 4px;">
@@ -69,5 +75,5 @@
     {% endif %}
 {% endwith %}
 
-<!-- zurrück zur Übersicht navigieren -->
+{# Navigation zurück zur Übersicht #}
 <a href="{{ url_for('uebersicht') }}">← Zurück zur Übersicht</a>

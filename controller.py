@@ -1,3 +1,9 @@
+'''
+Controller-Modul der Flask-App.
+- Initialisiert Datenbank und Login-Manager
+- Definiert Setup-Routen für DB und Admin
+- Enthält zentrale @app.route-Definitionen
+'''
 import os
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask import jsonify # für Nachricht bei Route /setup-admin
@@ -13,22 +19,23 @@ from models.modul import Modul
 from models.rollen_liste import get_rolle_klasse
 from models.kommentar import Kommentar
 
+# ===================== App-Konfiguration =====================
 app = Flask(__name__)
 
 if os.getenv("RENDER") == "true":
-    DB_URL = os.getenv("DATABASE_URL") # Render-DB (Umgebungsvariable auf Render)
+    DB_URL = os.getenv("DATABASE_URL") # Render-DB (Produktivumgebung)
 else:
-    DB_URL = "sqlite:///kmsystem.db" # -> lokale installation: SQLite verwenden
+    DB_URL = "sqlite:///kmsystem.db" # -> lokale installation: SQLite
 
 app.config["SQLALCHEMY_DATABASE_URI"] = DB_URL
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-print("Datenbank-URL:", DB_URL) # debug (verwendete Datenbank)
+print("Datenbank-URL:", DB_URL) # Debug-Ausgabe
 
-app.secret_key = "irgendein_geheimer_schlüssel_123" # unsicher! sollte in .env
+app.secret_key = "irgendein_geheimer_schlüssel_123" # sollte in .env liegen
 
 db.init_app(app)
 
-# Login Manager
+# ===================== Login Manager =====================
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
@@ -36,31 +43,34 @@ login_manager.login_view = "login"
 @login_manager.user_loader
 def load_user(user_id):
     '''
-    Laden des Benutzers beim Login
-    SQLAlchemy lädt richtige Unterklasse von Benutzer
+    Lädt den Benutzer beim Login.
+    SQLAlchemy erkennt automatisch die richtige Unterklasse (Admin, Studierende, Lehrende).
     '''
     return Benutzer.query.get(int(user_id))
 
+# ===================== Setup-Routen =====================
 @app.route("/setup-db")
 def setup_db():
     '''
-    Initialisiert Datenbank
+    Initialisiert die Datenbank.
+    Ruft init_db() auf und gibt eine JSON-Bestätigung zurück.
     '''
     from init_db import init_db
     init_db()
     return jsonify({"Datenbank wurde initialisiert."})
 
 # Controller: @app.route(...) reagiert auf HTTP-Anfragen:
-@app.route("/setup-admin") 
+@app.route("/setup-admin")
 def setup_admin():
     '''
-    Bringt einen Admin in die Datenbank (wenn leer): 
-    Einmal "App-URL/setup-admin" aufrufen.
-    Login Daten sollten in .env-Datei, 
-    sind aber für mögliche lokale Installation (git pull) hardgecodet.
+    Erstellt einen Admin-Benutzer, falls noch keiner existiert.
+    - Einmalig über "App-URL/setup-admin" aufrufen.
+    - Login-Daten sollten in einer .env-Datei liegen,
+      sind hier aber für lokale Installation hardcodiert.
     '''
     admin_email = "admin@example.org"
     admin_passwort = "admin123"
+
     if not Admin.query.filter_by(email=admin_email).first():
         admin = Admin(name="Admin", email=admin_email, passwort=admin_passwort)
         db.session.add(admin)
@@ -68,46 +78,64 @@ def setup_admin():
         return jsonify({"status": "Admin erstellt."})
     return jsonify({"status": "Admin existiert bereits. Login unter http://127.0.0.1:5000/"})
 
+
+# ===================== Index- und Login-Routen =====================
 @app.route("/")
 def index():
     '''
-    Leitet zur Loginseite als Startseite
+    Startseite: leitet direkt zur Login-Seite weiter.
     '''
     return redirect("/login")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     '''
-    Benutzer wird anhand email aus Datenbank gesucht 
-    und check_passwort() von Benutzer aufgerufen.
-    Wenn TRUE zurückgegeben wird, wird zur Übersichtsseite weitergeleitet. 
+    Login-Routine:
+    - Benutzer wird anhand der E-Mail aus der Datenbank gesucht.
+    - Passwort wird mit check_passwort() geprüft.
+    - Bei Erfolg: Weiterleitung zur Übersichtsseite.
+    - Bei Misserfolg: Fehlermeldung über Flash.
     '''
     if request.method == "POST":
         email = request.form["email"]
         passwort = request.form["passwort"]
-        user = Benutzer.query.filter_by(email=email).first() #direkte SQL-Abfrage
+        
+        # Direkte SQL-Abfrage nach Benutzer
+        user = Benutzer.query.filter_by(email=email).first()
+        
         if user and user.check_passwort(passwort):
             login_user(user)
             flash(f"Login erfolgreich als {user.type}.")
             return redirect(url_for("uebersicht"))
-        else:
-            flash("Login fehlgeschlagen")
+
+        flash("Login fehlgeschlagen")
+
     return render_template("login.html")
 
+
+# ===================== Logout =====================
 @app.route("/logout")
 def logout():
     '''
-    Logout und weiterleiten zur Login-Seite
+    Logout-Routine:
+    - Meldet den aktuellen Benutzer ab.
+    - Gibt eine Flash-Meldung aus.
+    - Leitet zurück zur Login-Seite.
     '''
     logout_user()
     flash("Erfolgreich ausgeloggt.")
     return redirect(url_for("login"))
 
+
+# ===================== Übersicht =====================
 @app.route("/uebersicht")
 @login_required
 def uebersicht():
     '''
-    Übersichtsseite (acd Übersicht anzeigen)
+    Übersichtsseite:
+    - Zeigt Meldungen abhängig von Benutzerrolle (Studierende, Admin).
+    - Unterstützt Filterung nach Modul, Status und Kategorie.
+    - Parameter werden aus GET-Request übernommen.
     '''
     # Parameter aus Filter-Anfrage:
     alle_meldungen = request.args.get("alle_meldungen") == "true" # Boolean: anfangs eigene Meldungen zeigen
@@ -116,27 +144,24 @@ def uebersicht():
     selected_kategorie = request.args.get("kategorie") or None
 
     module = [Modul]
-    # abhängig von Button
+    
+    # Rollenabhängige Logik
     if isinstance(current_user, Studierende):
-        # Liste mit allen Modulen
         module = db.session.query(Modul).all()
-        # alle_meldungen false: nur eigene zeigen
         meldungen = db.session.query(Meldung).all() if alle_meldungen else current_user.meldungen
+        
         if alle_meldungen:
-            # alle module anzeigen
             module = db.session.query(Modul).all()
         else:
-            # zugewiesene Module des Lehrenden zeigen
             module = current_user.module
-        # alle_meldungen flase: nur Meldungen eigener Module zeigen  
+
         meldungen = db.session.query(Meldung).all() if alle_meldungen else current_user.get_eigene_meldungen()
+
     elif isinstance(current_user, Admin):
-        # Liste mit allen Modulen
         module = db.session.query(Modul).all()
-        # Alle Meldungen aller Module zeigen (Methode von Admin)
         meldungen = current_user.get_alle_meldungen()
 
-    #Filter
+    # Filter anwenden
     if selected_modul:
         meldungen = [m for m in meldungen if m.modul.titel == selected_modul]
     if selected_status:
@@ -156,31 +181,39 @@ def uebersicht():
         selected_kategorie = selected_kategorie
     )
 
+
+# ===================== Meldung anzeigen =====================
 @app.route("/meldung/<int:meldungs_id>")
 @login_required
 def meldung_anzeigen(meldungs_id):
     '''
-    Read-Operation einer Meldung (R in CRUD):
-    Direkte SQL-Abfrage, entspricht: SELECT * FROM meldung WHERE id = :meldungs_id LIMIT 1;
+    Detailansicht einer Meldung (Read-Operation in CRUD):
+    - Holt Meldung per SQL-Abfrage anhand ID.
+    - Rendert Detailtemplate mit Status- und Sichtbarkeits-Enums.
     '''
     meldung = Meldung.query.filter_by(id=meldungs_id).first()
     if not meldung:
+        # Optional: Fehlerbehandlung oder Redirect
         pass
 
     return render_template("meldung_detail.html",
-                           meldung=meldung,
-                           user=current_user,
-                           status_enum = Status,
-                           sichtbarkeit_enum = Sichtbarkeit)
+        meldung=meldung,
+        user=current_user,
+        status_enum = Status,
+        sichtbarkeit_enum = Sichtbarkeit
+    )
 
+
+# ===================== Status ändern =====================
 @app.route("/meldung/<int:meldungs_id>/status_aendern", methods=["POST"])
 @login_required
 def status_aendern(meldungs_id:int):
     '''
-    Update-Operation des Meldungsstatus (U in CRUD):
-    Holt Status, Kommentar, Sichtbarkeit aus HTML-Formular,
-    Schreibt geänderten Status in DB, ruft add_kommentar() von Lehrende auf.
-    Nur für Lehrende. Checkt, ob Meldung zu zugewiesenen Modulen gehört.
+    Update-Operation des Meldungsstatus (Update in CRUD):
+    - Holt Status, Kommentar und Sichtbarkeit aus Formular.
+    - Prüft erlaubte Statuswechsel.
+    - Fügt optional Kommentar hinzu.
+    - Nur für Lehrende, und nur für Meldungen eigener Module.
     '''
     meldung = Meldung.query.filter_by(id=meldungs_id).first()
     if not meldung:
@@ -205,23 +238,19 @@ def status_aendern(meldungs_id:int):
         if meldung.modul not in current_user.module:
             raise PermissionError("Dies ist nur für Meldungen eigener Module möglich.")
 
-        # Statuswechsel: offen -> in Bearbeitung -> abgeschlossen
+        # Statuswechsel mit optionalem Kommentar
         if neuer_status in erlaubte_wechsel[meldung.status]:
             meldung.status = neuer_status
 
-            # Status ändern und kommentieren
             if kommentar_text.strip():
                 db.session.add(current_user.add_kommentar(meldung, kommentar_text.strip(), sichtbarkeit))
                 db.session.commit()
                 flash(f"Neuen {sichtbarkeit.value}en Kommentar hinzugefügt und Status zu \"{neuer_status.value}\" gewechselt.")
-
-            # nur Status ändern
             else:
                 db.session.commit() # in Datenbank schreiben
                 flash(f"Status ohne Kommentar zu \"{neuer_status.value}\" gewechselt.")
 
-        elif neuer_status == meldung.status: # Status nicht ändern
-
+        elif neuer_status == meldung.status:
             # Nur Kommentieren
             if kommentar_text.strip():
                 db.session.add(current_user.add_kommentar(meldung, kommentar_text.strip(), sichtbarkeit))
@@ -233,93 +262,100 @@ def status_aendern(meldungs_id:int):
         else:
             flash(f"Statuswechsel von \"{meldung.status.value}\" zu \"{neuer_status.value}\" ist nicht erlaubt.")
 
-    # Error von add_kommentar (Lehrende)
     except PermissionError as e:
         flash(f"{e}")
 
-    # zurück zur Detailansicht
     return redirect(url_for("meldung_anzeigen", meldungs_id = meldungs_id))
 
+
+# ===================== Meldung erstellen =====================
 @app.route("/meldung/neu", methods=["GET", "POST"])
 @login_required
 def meldung_erstellen():
     '''
     CREATE-Operation (C in CRUD):
-    Erstellt eine neue Meldung zu einem Modul
+    - Erstellt eine neue Meldung zu einem Modul.
+    - Holt Werte aus Formular (Modul, Kategorie, Beschreibung).
+    - Speichert Meldung über current_user.erstelle_meldung().
+    - Bei Fehler: Formular mit Fehlermeldung erneut anzeigen.
     '''
     if request.method == "POST":
-
-        # holen von Werten aus HTML-Formular
         modul_titel = request.form.get("modul")
         kategorie_name = request.form.get("kategorie")
         beschreibung = request.form.get("beschreibung")
 
-        # Modul und Kategorie aus Enum (oder Datenbank) holen
         modul = db.session.query(Modul).filter_by(titel=modul_titel).first() # direkte SQL-Abfrage
         kategorie = Kategorie[kategorie_name]
 
         try:
-            # neue Meldung erzeugen (wird in erstelle_meldung in Datenbank geschrieben)
             current_user.erstelle_meldung(beschreibung, kategorie, modul)
             flash(" Meldung erfolgreich erstellt. ")
             return redirect(url_for("uebersicht"))
-
         except Exception as e:
             flash(f"Fehler beim Erstellen der Meldung: {e}")
-
-            # Rückgabe bei Fehler
+            
             return render_template("meldung_formular.html",
-                                    module = db.session.query(Modul).all(),
-                                    kategorie_enum = Kategorie,
-                                    beschreibung = beschreibung,
-                                    selected_modul = modul_titel,
-                                    selected_kategorie = kategorie_name
-                                    )
+                module = db.session.query(Modul).all(),
+                kategorie_enum = Kategorie,
+                beschreibung = beschreibung,
+                selected_modul = modul_titel,
+                selected_kategorie = kategorie_name
+            )
 
     return render_template("meldung_formular.html",
-                           module = db.session.query(Modul).all(),
-                           kategorie_enum = Kategorie
-                           )
+        module = db.session.query(Modul).all(),
+        kategorie_enum = Kategorie
+    )
 
+
+# ===================== Nutzerverwaltung =====================
 @app.route("/nutzerverwaltung", methods=["GET", "POST"])
 @login_required
 def nutzer_verwalten():
     '''
-    Funktion für Admin:
-    Anzeigen der Nutzerverwaltung 
+    Admin-Funktion:
+    - Zeigt Übersicht aller Benutzer und Module.
+    - Nur für Admins zugänglich.
     '''
     if not isinstance(current_user, Admin):
         return redirect(url_for("uebersicht"))
-    
+
     alle_nutzer = current_user.get_alle_benutzer()
     alle_module = Modul.query.all()
-    
-    return render_template("nutzerverwaltung.html",
-                           user = current_user,
-                           benutzer_liste = alle_nutzer,
-                           module = alle_module
-                           )
 
+    return render_template("nutzerverwaltung.html",
+        user = current_user,
+        benutzer_liste = alle_nutzer,
+        module = alle_module
+    )
+
+
+# ===================== Benutzer erstellen =====================
 @app.route("/benutzer_erstellen", methods=["GET"])
 @login_required
 def benutzer_erstellen():
     '''
-    Funktion für Admin:
-    Anzeigen von Formular zum erstellen eines neuen Benutzers 
+    Admin-Funktion:
+    - Zeigt Formular zum Erstellen eines neuen Benutzers.
+    - Nur für Admins zugänglich.
     '''
     if not isinstance(current_user, Admin):
         return redirect(url_for("uebersicht"))
+    
     return render_template("benutzer_erstellen.html",
-                           user = current_user,
-                           rolle_enum = Benutzer_rolle
-                           )
+        user = current_user,
+        rolle_enum = Benutzer_rolle
+    )
 
 @app.route("/benutzer_speichern", methods=["POST"])
 @login_required
 def benutzer_speichern():
     '''
-    Funktion für Admin:
-    Erstellen eines neuen Nutzers
+    Admin-Funktion:
+    - Speichert neuen Benutzer in der Datenbank.
+    - Prüft E-Mail auf Einzigartigkeit.
+    - Prüft Passwortlänge.
+    - Erstellt Benutzer basierend auf Rolle (Enum → Klasse).
     '''
     if not isinstance(current_user, Admin):
         return redirect(url_for("uebersicht"))
@@ -330,16 +366,17 @@ def benutzer_speichern():
     rolle_enum = Benutzer_rolle[rolle]
     passwort = request.form.get("passwort")
 
-    # prüfen ob E-Mail bereits existiert
+    # Validierung: E-Mail darf nicht doppelt sein
     if db.session.query(Benutzer).filter_by(email=email).first(): # direkte SQL-Abfrage
         flash("Benutzer mit dieser Email existiert bereits.")
         return redirect(url_for("benutzer_erstellen"))
 
+    # Validierung: Passwort muss mindestens 6 Zeichen haben
     if not passwort or len(passwort) < 6:
         flash("Passwort muss mindestens 6 Zeichen lang sein.")
         return redirect(url_for("benutzer_erstellen"))
 
-    # Mapping von Enum → Klassenobjekt (in models/rollen_liste.py)
+    # Mapping von Enum → Klassenobjekt
     neue_rolle_klasse = get_rolle_klasse(rolle_enum)
     if neue_rolle_klasse:
         neuer_benutzer = neue_rolle_klasse(name, email, passwort)
@@ -351,12 +388,17 @@ def benutzer_speichern():
 
     return redirect(url_for("nutzer_verwalten"))
 
+
+# ===================== Benutzer löschen =====================
 @app.route("/benutzer_loeschen", methods=["POST"])
 @login_required
 def benutzer_loeschen():
     '''
-    Funktion für Admin:
-    Löschen eines Benutzers
+    Admin-Funktion:
+    - Löscht einen Benutzer aus der Datenbank.
+    - Prüft Sonderfälle:
+      * Mindestens ein Admin muss erhalten bleiben.
+      * Admin darf sich nicht selbst löschen.
     '''
     if not isinstance(current_user, Admin):
         flash("Keine Berechtigung.")
@@ -378,12 +420,11 @@ def benutzer_loeschen():
         db.session.delete(benutzer)
         db.session.commit()
         flash(f"Benutzer {benutzer.name} gelöscht.")
-
     else:
         flash("Benutzer nicht gefunden.")
 
     return redirect(url_for("nutzer_verwalten"))
-
+################################################################################################
 @app.route("/module_verwalten", methods=["GET", "POST"])
 @login_required
 def module_verwalten():

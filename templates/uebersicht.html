@@ -5,17 +5,20 @@
     <title>Übersichtsseite</title>
 </head>
 <body>
-    {#
-    <p>Debug: User-Klasse={{user.__class__.__name__}}, Modul={{ selected_modul }}, Status={{ selected_status }}, Kategorie={{ selected_kategorie }}, Alle={{ alle_meldungen }}</p>
-    #}
+    {# Debug-Ausgabe (optional, nur für Entwicklung) #}
+    {# <p>Debug: User-Klasse={{user.__class__.__name__}}, Modul={{ selected_modul }}, Status={{ selected_status }}, Kategorie={{ selected_kategorie }}, Alle={{ alle_meldungen }}</p> #}
+
+    {# Logout-Link für alle Benutzer #}
     <a href="{{ url_for('logout') }}">Logout</a>
 
+    {# Button für Studierende: Neue Meldung erstellen #}    
     {% if user.__class__.__name__ == "Studierende" %}
         <form method="get" action="{{ url_for('meldung_erstellen') }}">
             <button type="submit">➕ Neue Meldung erstellen</button>
         </form>
     {% endif %}
 
+    {# Buttons für Admin: Benutzer- und Modulverwaltung #}
     {% if user.__class__.__name__ == "Admin" %}
         <form method="get" action="{{ url_for('nutzer_verwalten') }}">
             <button type="submit"> Benutzer verwalten </button>
@@ -25,10 +28,10 @@
         </form>
     {% endif %}
 
-    <!-- Überschrift mit Name des Users -->
+    {# Überschrift mit Name des eingeloggten Benutzers #}
     <h1> Meldungen von {{ user.name }}</h1>
 
-    <!-- Button: eigene oder alle Meldungen anzeigen -->
+    {# Umschalt-Button: eigene oder alle Meldungen anzeigen (nicht für Admin) #}
     {% if user.__class__.__name__ != "Admin" %}
     <form method="get" action="/uebersicht">
         <input type="hidden" name="modul" value="{{ selected_modul or '' }}">
@@ -45,7 +48,7 @@
     {% endif %}
 
 
-    <!-- filtern nach Modulen, Status, Kategorie -->
+    {# Filterformular: Auswahl nach Modul, Status und Kategorie #}
     <form method="get" action="/uebersicht">
         
         {# Dropdown: alle Module #}
@@ -59,7 +62,7 @@
             {% endfor %}
         </select>
 
-        {# Dropdown: alle Status (enum) #}
+        {# Dropdown: alle Status (Enum) #}
         <label for="status">Status:</label>
         <select name="status" id="status">
             <option value="">-- Alle --</option>
@@ -70,7 +73,7 @@
             {% endfor %}
         </select>
     
-        {# Dropdown: alle Kategorien (enum) #}
+        {# Dropdown: alle Kategorien (Enum) #}
         <label for="kategorie">Kategorie:</label>
         <select name="kategorie" id="kategorie">
             <option value="">-- Alle --</option>
@@ -81,14 +84,14 @@
             {% endfor %}
         </select>
 
+        {# Hidden-Feld: beibehalten des Button-Wertes für eigene/alle Meldungen (nicht für Admin) #}
         {% if user.__class__.__name__ != "Admin" %}
-            {# beibehalten des Button-Wertes: Nur eigene Meldungen anzeigen/ Meldungen von allen anzeigen #}
             <input type="hidden" name="alle_meldungen" value="{% if alle_meldungen %}true{% endif %}">
         {% endif %}
         <button type="submit">🔍 Filter anwenden</button>
     </form>
 
-    <!-- Detailansicht einer Meldung -->
+    {# Liste der Meldungen mit Rollenabhängiger Überschrift #}
     <ul id="navigation">
     <p><strong>
         {% if user.__class__.__name__ == "Lehrende" %}
@@ -99,6 +102,8 @@
             Alle Meldungen:
         {% endif %}
     </strong></p>
+
+    {# Ausgabe der Meldungen oder Hinweis, wenn keine vorhanden sind #}
     {% if meldungen %}
         {% for meldung in meldungen %}
             <li>
@@ -114,6 +119,7 @@
     {% else %}Keine Meldungen vorhanden.{% endif %}
     </ul>
 
+    {# Flash-Messages: Systemmeldungen (z. B. Bestätigungen oder Fehlerhinweise) #}
     {% with messages = get_flashed_messages() %}
         {% if messages %}
             <div style="background-color: #e0ffe0; border: 1px solid #0a0; padding: 0.5em; border-radius: 4px;">

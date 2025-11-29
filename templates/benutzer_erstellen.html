@@ -1,12 +1,17 @@
 <h2>Neuen Benutzer anlegen</h2>
 
+{# Formular zum Anlegen eines neuen Benutzers (POST-Request an benutzer_speichern) #}
 <form method="post" action="{{ url_for('benutzer_speichern') }}">
+    
+    {# Eingabefeld: Name des Benutzers #}
     <label for="name">Name:</label>
     <input type="text" name="name" required><br>
 
+    {# Eingabefeld: E-Mail-Adresse des Benutzers #}
     <label for="email">E-Mail:</label>
     <input type="email" name="email" required><br>
 
+    {# Dropdown: Auswahl der Benutzerrolle (Enum) #}
     <label for="rolle">Rolle:</label>
     <select name="rolle" id="rolle">
         <option value="">-- Bitte auswählen --</option>
@@ -17,13 +22,15 @@
         {% endfor %}
     </select><br><br>
 
+    {# Eingabefeld: Passwort für den Benutzer #}
     <label for="passwort">Passwort:</label>
     <input type="text" name="passwort" required><br>
 
+    {# Button zum Speichern des neuen Benutzers #}
     <button type="submit">Benutzer speichern</button>
 </form>
 
-<!-- flash-Meldungen anzeigen -->
+{# Flash-Messages: Systemhinweise (z. B. Erfolg oder Fehler beim Speichern) #}
 {% with messages = get_flashed_messages() %}
   {% if messages %}
     <div style="background-color: #fff8dc; border: 1px solid #daa520; padding: 0.5em; border-radius: 4px;">
@@ -34,5 +41,5 @@
   {% endif %}
 {% endwith %}
 
-<!-- zurrück zur Übersicht navigieren -->
+{# Navigation zurück zur Nutzerübersicht #}
 <a href="{{ url_for('nutzer_verwalten') }}">← Zurück zur Nutzer-Übersicht</a>
