@@ -143,8 +143,9 @@ def uebersicht():
     selected_status = request.args.get("status") or None
     selected_kategorie = request.args.get("kategorie") or None
 
-    module = [Modul]
-    meldungen = [Meldung]
+    # Initialisierung
+    module = []
+    meldungen = []
 
     # Rollenabhängige Logik
     if isinstance(current_user, Studierende):
@@ -152,11 +153,7 @@ def uebersicht():
         meldungen = db.session.query(Meldung).all() if alle_meldungen else current_user.meldungen
 
     elif isinstance(current_user, Lehrende):
-        if alle_meldungen:
-            module = db.session.query(Modul).all()
-        else:
-            module = current_user.module
-
+        module = db.session.query(Modul).all() if alle_meldungen else current_user.module
         meldungen = db.session.query(Meldung).all() if alle_meldungen else current_user.get_eigene_meldungen()
 
     elif isinstance(current_user, Admin):
