@@ -5,7 +5,6 @@ from models.datenbank import db
 from models.enums import Sichtbarkeit, Kategorie
 from models.meldung import Meldung # wird in erstelle_meldung instanziiert
 
-
 if TYPE_CHECKING: # Import nur für Typprüfung
     from models.modul import Modul
     from models.kommentar import Kommentar
@@ -74,14 +73,15 @@ class Studierende(Benutzer): # erbt von Oberklasse
             Meldung: Die neu erstellte Meldung, gespeichert in der Datenbank.
         '''
         meldung = Meldung(
-            beschreibung=beschreibung, 
-            kategorie=kategorie, 
+            beschreibung=beschreibung,
+            kategorie=kategorie,
             ersteller=self, # Als Ersteller wird mit self Objekt "Studierene" übergeben
             modul=modul
-        ) 
+        )
 
         db.session.add(meldung)
         db.session.commit()
+
         return meldung
 
     # Anworten auf Kommentare

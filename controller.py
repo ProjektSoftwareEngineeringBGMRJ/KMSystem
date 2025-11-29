@@ -18,6 +18,7 @@ from models.lehrende import Lehrende
 from models.modul import Modul
 from models.rollen_liste import get_rolle_klasse
 from models.kommentar import Kommentar
+from sqlalchemy.exc import IntegrityError
 
 # ===================== App-Konfiguration =====================
 app = Flask(__name__)
@@ -290,8 +291,16 @@ def meldung_erstellen():
             current_user.erstelle_meldung(beschreibung, kategorie, modul)
             flash(" Meldung erfolgreich erstellt. ")
             return redirect(url_for("uebersicht"))
+
+        except ValueError as e:
+            flash(f"Ungültige Eingabe: {e}")
+
+        except IntegrityError:
+            db.session.rollback()
+            flash("Fehler: Meldung konnte nicht gespeichert (Integritätsproblem).")    
+
         except Exception as e:
-            flash(f"Fehler beim Erstellen der Meldung: {e}")
+            flash(f"Unerwarteter Fehler: {e}")
 
             return render_template("meldung_formular.html",
                 module = db.session.query(Modul).all(),
