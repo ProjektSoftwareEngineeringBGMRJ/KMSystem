@@ -423,13 +423,16 @@ def benutzer_loeschen():
         flash("Benutzer nicht gefunden.")
 
     return redirect(url_for("nutzer_verwalten"))
-################################################################################################
+
+
+# ===================== Modulverwaltung =====================
 @app.route("/module_verwalten", methods=["GET", "POST"])
 @login_required
 def module_verwalten():
     '''
-    Funktion für Admin:
-    Erstellen von Modulen
+    Admin-Funktion:
+    - Anzeige und Verwaltung von Modulen.
+    - Ermöglicht das Erstellen neuer Module.
     '''
     if not isinstance(current_user, Admin):
         flash("Keine Berechtigung.")
@@ -451,8 +454,9 @@ def module_verwalten():
 @login_required
 def modul_loeschen():
     '''
-    Funktion für Admin:
-    Löschen von Modulen
+    Admin-Funktion:
+    - Löscht ein Modul anhand der ID.
+    - Gibt Feedback über Flash-Meldungen.
     '''
     if not isinstance(current_user, Admin):
         flash("Keine Berechtigung.")
@@ -474,8 +478,9 @@ def modul_loeschen():
 @login_required
 def modul_aktion():
     '''
-    Funktion für Admin:
-    Lehrenden Module Zuweisen oder Entziehen
+    Admin-Funktion:
+    - Weist Lehrenden Module zu oder entzieht sie.
+    - Prüft Eingaben und gibt Feedback über Flash-Meldungen.
     '''
     if not isinstance(current_user, Admin):
         flash("Keine Berechtigung.")
@@ -514,12 +519,15 @@ def modul_aktion():
 
     return redirect(url_for("nutzer_verwalten"))
 
+
+# ===================== Antworten auf Kommentare =====================
 @app.route("/antwort_speichern/<int:kommentar_id>", methods=["POST"])
 @login_required
 def antwort_speichern(kommentar_id):
     '''
-    Funktion für Studierende:
-    Als Melder kann auf Kommentare von Lehrenden geantwortet werden
+    Studierenden-Funktion:
+    - Als Melder kann auf Kommentare von Lehrenden geantwortet werden.
+    - Antwort wird als Kommentar gespeichert (Sichtbarkeit = privat).
     '''
     kommentar = Kommentar.query.get_or_404(kommentar_id)
 
@@ -544,5 +552,7 @@ def antwort_speichern(kommentar_id):
     flash("Antwort gespeichert.")
     return redirect(url_for("meldung_anzeigen", meldungs_id=kommentar.meldung.id))
 
+
+# ===================== App-Start =====================
 if __name__ == "__main__":
     app.run(debug=True)
