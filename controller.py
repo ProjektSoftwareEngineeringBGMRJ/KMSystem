@@ -99,10 +99,10 @@ def login():
     if request.method == "POST":
         email = request.form["email"]
         passwort = request.form["passwort"]
-        
+
         # Direkte SQL-Abfrage nach Benutzer
         user = Benutzer.query.filter_by(email=email).first()
-        
+
         if user and user.check_passwort(passwort):
             login_user(user)
             flash(f"Login erfolgreich als {user.type}.")
@@ -292,7 +292,7 @@ def meldung_erstellen():
             return redirect(url_for("uebersicht"))
         except Exception as e:
             flash(f"Fehler beim Erstellen der Meldung: {e}")
-            
+
             return render_template("meldung_formular.html",
                 module = db.session.query(Modul).all(),
                 kategorie_enum = Kategorie,
