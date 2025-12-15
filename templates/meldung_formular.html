@@ -1,5 +1,16 @@
 <h2>Neue Meldung erstellen</h2>
 
+{# Flash-Messages: Systemhinweise aus dem Controller #}
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div style="background-color:#fff8dc; border:1px solid #daa520; padding:0.5em; border-radius:4px;">
+      {% for msg in messages %}
+        <strong>{{ msg }}</strong>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
 {# Fehlerhinweis: falls eine Fehlermeldung vom Controller übergeben wurde #}
 {% if fehlermeldung %}
     <p style="color: red;"><strong>{{ fehlermeldung }}</strong></p>

@@ -73,9 +73,9 @@ class Lehrende(Benutzer):
         return sichtbare
 
     def add_kommentar(
-        self, 
-        meldung:"Meldung", 
-        text:str, 
+        self,
+        meldung:"Meldung",
+        text:str,
         sichtbarkeit:Sichtbarkeit = Sichtbarkeit.PRIVAT
         ) -> Kommentar:
         '''

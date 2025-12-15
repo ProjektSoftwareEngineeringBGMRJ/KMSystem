@@ -41,7 +41,12 @@
     <button type="submit">Speichern</button>
 </form>
 
-{# Flash-Messages: Systemhinweise für Lehrende #}
+{% else %}
+    {# Für andere Rollen: Status nur anzeigen, nicht bearbeitbar #}
+    <p><strong>Status:</strong> {{ meldung.status.value }}</p>
+{% endif %}
+
+{# Flash-Messages: Systemhinweise #}
 {% with messages = get_flashed_messages() %}
   {% if messages %}
     <div style="background-color: #fff8dc; border: 1px solid #daa520; padding: 0.5em; border-radius: 4px;">
@@ -51,11 +56,6 @@
     </div>
   {% endif %}
 {% endwith %}
-
-{% else %}
-    {# Für andere Rollen: Status nur anzeigen, nicht bearbeitbar #}
-    <p><strong>Status:</strong> {{ meldung.status.value }}</p>
-{% endif %}
 
 {# Weitere Basisinformationen zur Meldung #}
 <p><strong>Beschreibung:</strong> {{ meldung.beschreibung }}</p>

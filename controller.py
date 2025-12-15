@@ -8,6 +8,8 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask import jsonify # für Nachricht bei Route /setup-admin
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy import inspect
 from models.datenbank import db #  -> SQLAlchemy()
 from models.meldung import Meldung
 from models.enums import Kategorie, Status, Sichtbarkeit, Benutzer_rolle
@@ -18,7 +20,7 @@ from models.lehrende import Lehrende
 from models.modul import Modul
 from models.rollen_liste import get_rolle_klasse
 from models.kommentar import Kommentar
-from sqlalchemy.exc import IntegrityError
+
 
 # ===================== App-Konfiguration =====================
 app = Flask(__name__)
@@ -36,6 +38,7 @@ app.secret_key = "irgendein_geheimer_schlüssel_123" # sollte in .env liegen
 
 db.init_app(app)
 
+
 # ===================== Login Manager =====================
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -49,6 +52,7 @@ def load_user(user_id):
     '''
     return Benutzer.query.get(int(user_id))
 
+
 # ===================== Setup-Routen =====================
 @app.route("/setup-db")
 def setup_db():
@@ -56,9 +60,29 @@ def setup_db():
     Initialisiert die Datenbank.
     Ruft init_db() auf und gibt eine JSON-Bestätigung zurück.
     '''
-    from init_db import init_db
-    init_db()
-    return jsonify({"Datenbank wurde initialisiert."})
+    inspector = inspect(db.engine)
+    if not inspector.get_table_names():
+        from init_db import init_db
+        init_db()
+        return jsonify({"status": "Datenbank wurde initialisiert."})
+    return jsonify({"status": "Datenbank bereits initialisiert."})
+
+
+#####################################################################
+@app.route("/del-db")
+def del_db():
+    '''
+    Löscht Datenbank.
+    Ruft delete_db() auf und gibt eine JSON-Bestätigung zurück.
+    Nur für Entwicklungszwecke genutzt, im finalen System nicht vorgesehen!
+    '''
+    inspector = inspect(db.engine)
+    if inspector.get_table_names():
+        from init_db import delete_db
+        delete_db()
+        return jsonify({"status": "Datenbank wurde geloescht."})
+    return jsonify({"status": "Datenbank nicht vorhanden."})
+#####################################################################
 
 # Controller: @app.route(...) reagiert auf HTTP-Anfragen:
 @app.route("/setup-admin")
@@ -69,14 +93,24 @@ def setup_admin():
     - Login-Daten sollten in einer .env-Datei liegen,
       sind hier aber für lokale Installation hardcodiert.
     '''
+    inspector = inspect(db.engine)
+    if not inspector.get_table_names():
+        setup_db()
+
     admin_email = "admin@example.org"
     admin_passwort = "admin123"
 
     if not Admin.query.filter_by(email=admin_email).first():
         admin = Admin(name="Admin", email=admin_email, passwort=admin_passwort)
-        db.session.add(admin)
+        studi = Studierende("Student 1", "s1@s.org", "123456")
+        studii = Studierende("Student 2", "s2@s.org", "123456")
+        lehrende = Lehrende("Tutor", "l1@l.org", "123456")
+        modul = Modul("Testmodul")
+
+        db.session.add_all([admin, studi, studii, lehrende, modul])
         db.session.commit()
         return jsonify({"status": "Admin erstellt."})
+
     return jsonify({"status": "Admin existiert bereits. Login unter http://127.0.0.1:5000/"})
 
 
@@ -139,8 +173,8 @@ def uebersicht():
     - Parameter werden aus GET-Request übernommen.
     '''
     # Parameter aus Filter-Anfrage:
-    alle_meldungen = request.args.get("alle_meldungen") == "true" # Boolean: anfangs eigene Meldungen zeigen
-    selected_modul = request.args.get("modul") or None # holen von Werten aus HTML-Formular (z.B. aus Feld name="modul")
+    alle_meldungen = request.args.get("alle_meldungen") == "true"
+    selected_modul = request.args.get("modul") or None # Werte aus HTML-Formular holen
     selected_status = request.args.get("status") or None
     selected_kategorie = request.args.get("kategorie") or None
 
@@ -155,7 +189,9 @@ def uebersicht():
 
     elif isinstance(current_user, Lehrende):
         module = db.session.query(Modul).all() if alle_meldungen else current_user.module
-        meldungen = db.session.query(Meldung).all() if alle_meldungen else current_user.get_eigene_meldungen()
+        meldungen = db.session.query(
+            Meldung
+        ).all() if alle_meldungen else current_user.get_eigene_meldungen()
 
     elif isinstance(current_user, Admin):
         module = db.session.query(Modul).all()
@@ -168,6 +204,10 @@ def uebersicht():
         meldungen = [m for m in meldungen if m.status.name == selected_status]
     if selected_kategorie:
         meldungen = [m for m in meldungen if m.kategorie.name == selected_kategorie]
+
+    # Keine Meldungen vorhanden
+    if not meldungen:
+        flash("Keine Meldungen vorhanden.")
 
     return render_template("uebersicht.html",
         user = current_user,
@@ -193,8 +233,9 @@ def meldung_anzeigen(meldungs_id):
     '''
     meldung = Meldung.query.filter_by(id=meldungs_id).first()
     if not meldung:
-        # Optional: Fehlerbehandlung oder Redirect
-        pass
+        flash("Das ist nicht erlaubt.")
+        return redirect("/uebersicht")
+        #pass
 
     return render_template("meldung_detail.html",
         meldung=meldung,
@@ -235,15 +276,23 @@ def status_aendern(meldungs_id:int):
 
     # Kombinierte Aktionen aus Status ändern + Kommentar
     try:
-        if meldung.modul not in current_user.module:
-            raise PermissionError("Dies ist nur für Meldungen eigener Module möglich.")
+        if isinstance(current_user, Lehrende):
+            if meldung.modul not in current_user.module:
+                raise PermissionError("Dies ist nur für Meldungen eigener Module möglich.")
+        else:
+            raise PermissionError("Nur Lehrende dürfen den Status ändern.")
 
         # Statuswechsel mit optionalem Kommentar
         if neuer_status in erlaubte_wechsel[meldung.status]:
             meldung.status = neuer_status
 
             if kommentar_text.strip():
-                db.session.add(current_user.add_kommentar(meldung, kommentar_text.strip(), sichtbarkeit))
+                db.session.add(current_user.add_kommentar(
+                    meldung,
+                    kommentar_text.strip(),
+                    sichtbarkeit
+                    )
+                )
                 db.session.commit()
                 flash(f"Neuen {sichtbarkeit.value}en Kommentar hinzugefügt und Status zu \"{neuer_status.value}\" gewechselt.")
             else:
@@ -253,17 +302,21 @@ def status_aendern(meldungs_id:int):
         elif neuer_status == meldung.status:
             # Nur Kommentieren
             if kommentar_text.strip():
-                db.session.add(current_user.add_kommentar(meldung, kommentar_text.strip(), sichtbarkeit))
+                db.session.add(current_user.add_kommentar(
+                    meldung, 
+                    kommentar_text.strip(), 
+                    sichtbarkeit
+                    )
+                )
                 db.session.commit()
                 flash(f"Neuen {sichtbarkeit.value}en Kommentar ohne Statuswechsel hinzugefügt.")
             else:
                 flash("Status nicht gewechselt.")
-
         else:
             flash(f"Statuswechsel von \"{meldung.status.value}\" zu \"{neuer_status.value}\" ist nicht erlaubt.")
 
     except PermissionError as e:
-        flash(f"{e}")
+        flash(str(e))
 
     return redirect(url_for("meldung_anzeigen", meldungs_id = meldungs_id))
 
@@ -282,9 +335,9 @@ def meldung_erstellen():
     if request.method == "POST":
         modul_titel = request.form.get("modul")
         kategorie_name = request.form.get("kategorie")
-        beschreibung = request.form.get("beschreibung")
+        beschreibung = request.form.get("beschreibung", type=str)
 
-        modul = db.session.query(Modul).filter_by(titel=modul_titel).first() # direkte SQL-Abfrage
+        modul = db.session.query(Modul).filter_by(titel=modul_titel).first() # SQL-Abfrage
         kategorie = Kategorie[kategorie_name]
 
         try:
@@ -292,12 +345,9 @@ def meldung_erstellen():
             flash(" Meldung erfolgreich erstellt. ")
             return redirect(url_for("uebersicht"))
 
-        except ValueError as e:
-            flash(f"Ungültige Eingabe: {e}")
-
         except IntegrityError:
             db.session.rollback()
-            flash("Fehler: Meldung konnte nicht gespeichert (Integritätsproblem).")    
+            flash("Fehler: Meldung konnte nicht gespeichert werden (Integritätsproblem).")
 
         except Exception as e:
             flash(f"Unerwarteter Fehler: {e}")
@@ -379,9 +429,9 @@ def benutzer_speichern():
         flash("Benutzer mit dieser Email existiert bereits.")
         return redirect(url_for("benutzer_erstellen"))
 
-    # Validierung: Passwort muss mindestens 6 Zeichen haben
-    if not passwort or len(passwort) < 6:
-        flash("Passwort muss mindestens 6 Zeichen lang sein.")
+    # Validierung: Passwort muss mindestens 7 Zeichen haben
+    if not passwort or len(passwort) < 7:
+        flash("Passwort muss mindestens 7 Zeichen lang sein.")
         return redirect(url_for("benutzer_erstellen"))
 
     # Mapping von Enum → Klassenobjekt
@@ -459,6 +509,7 @@ def module_verwalten():
     alle_module = Modul.query.all()
     return render_template("module_verwalten.html", module=alle_module)
 
+
 @app.route("/modul_loeschen", methods=["POST"])
 @login_required
 def modul_loeschen():
@@ -483,6 +534,7 @@ def modul_loeschen():
 
     return redirect(url_for("module_verwalten"))
 
+
 @app.route("/modul_aktion", methods=["POST"])
 @login_required
 def modul_aktion():
@@ -499,7 +551,10 @@ def modul_aktion():
 
     # Prüfen ob Module vorhanden sind
     if not modul_id_raw:
-        flash ("Bitte zuerst Module anlegen.")
+        if db.session.query(Modul).first() is None:
+            flash ("Bitte zuerst Module anlegen.")
+        else:
+            flash ("Bitte zuerst Modul auswählen.")
         return redirect(url_for("nutzer_verwalten"))
 
     lehrende_id = int(request.form.get("lehrende_id"))

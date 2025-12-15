@@ -4,10 +4,10 @@ from models.benutzer import Benutzer
 from models.datenbank import db
 from models.enums import Sichtbarkeit, Kategorie
 from models.meldung import Meldung # wird in erstelle_meldung instanziiert
+from models.kommentar import Kommentar
 
 if TYPE_CHECKING: # Import nur für Typprüfung
     from models.modul import Modul
-    from models.kommentar import Kommentar
 
 class Studierende(Benutzer): # erbt von Oberklasse
     '''

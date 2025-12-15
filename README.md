@@ -17,7 +17,8 @@ KMSystem/
 ├── instance/                # SQLite-Datenbank
 |   └── kmsyststem.db
 ├── models/                  # alle SQLAlchemy-Datenmodelle
-│   ├── __init__.py          # definiert Verzeichnis als Python-Paket  
+│   ├── __init__.py          # definiert Verzeichnis als Python-Paket
+|   ├── datenbank.py         # Zentrales SQLAlchemy-Datenbankobjekt 
 │   ├── benutzer.py          # Basisklasse für Benutzer (gemeinsame Attribute und Methoden)
 |   ├── admin.py             # Klasse Admin, erbt von Benutzer
 |   ├── lehrende.py          # Klasse Lehrende, erbt von Benutzer
@@ -34,12 +35,16 @@ KMSystem/
 |   ├── module_verwalten.html    # Oberfläche für Admins zur Verwaltung von Modulen
 |   ├── nutzerverwaltung.html    # Oberfläche für Admins zur Verwaltung von Benutzern
 │   └── uebersicht.html          # Übersicht aller Meldungen (rollenabhängig gefiltert)
+├── tests/               # alle Tests mit Pytest 
+|   ├── conftest.py      # Konfigurationsdatei für Pytest
+|   └── test_modul.py    # Tests für Klasse Modul
 ├── static/              # (CSS, JS, Bilder - optional, bisher leer)
 ├── controller.py        # Flask-Routen und Logik
 ├── Procfile             # Für Deployment auf Render
 ├── README.md            # Projektdokumentation
 ├── requirements.txt     # alle Abhängigkeiten
-└── setup_admin.py       # Initialisierung der Datenbank und eines Admins
+├── init_db.py           # Initialisierung der Datenbank
+└── setup_admin.py       # Initialisierung eines Admins
 ```
 Die Projektstruktur von `KMSystem` ist modular und übersichtlich aufgebaut. 
 Die Datenmodelle befinden sich im Ordner `models/`, die Templates im Ordner `templates/`, und die zentrale Logik in `controller.py`. 

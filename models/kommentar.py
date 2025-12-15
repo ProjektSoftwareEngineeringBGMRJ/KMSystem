@@ -35,7 +35,7 @@ class Kommentar(db.Model):
     zeitstempel = db.Column(db.DateTime, default=datetime.now, nullable=False)
     sichtbarkeit = db.Column(db.Enum(Sichtbarkeit), nullable=False)
     verfasser = db.Column(db.String(100), nullable=False)  # z. B. Name oder email
-    
+
     # beim löschen von Lehrendem mit löschen:
     lehrende_id = db.Column(
         db.Integer,

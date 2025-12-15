@@ -27,7 +27,7 @@ class Meldung(db.Model):
     kategorie = db.Column(db.Enum(Kategorie), nullable=False)
     status = db.Column(db.Enum(Status), default=Status.OFFEN, nullable=False)
     zeitstempel = db.Column(db.DateTime, default=datetime.now, nullable=False)
-    
+
     # beim löschen von Studierendem mit löschen:
     ersteller_id = db.Column(
         db.Integer,
