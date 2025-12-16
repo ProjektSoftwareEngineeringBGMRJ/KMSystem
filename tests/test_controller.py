@@ -1048,7 +1048,7 @@ def test_benutzer_speichern_passwort_zu_kurz(client, session):
 
     # Erwartung: Benutzer nicht gespeichert
     #assert session.query(Benutzer).filter_by(email="neu@test.org").first() is None
-    assert session.execute(select(Benutzer).filter_by(email="neu@test.org")).scalars().first is None
+    assert session.execute(select(Benutzer).filter_by(email="neu@test.org")).scalars().first() is None
 
 
 @pytest.mark.integration
