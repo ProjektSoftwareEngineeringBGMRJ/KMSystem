@@ -22,5 +22,5 @@ migrations/
 *.log
 *.bak
 *.swp
-test*.py
+#test*.py
 *.ini
