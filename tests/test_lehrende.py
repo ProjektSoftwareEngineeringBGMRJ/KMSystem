@@ -3,11 +3,11 @@ from models import Lehrende, Modul, Studierende, Meldung, Kommentar, Kategorie, 
 
 @pytest.mark.system
 @pytest.mark.funktion
-@pytest.mark.requirement_F05
+@pytest.mark.requirement_F02
 def test_get_sichtbare_kommentare_oeffentlich(session):
     """
     Testart: Systemtest
-    Testkategorie: Funktional (F-05 Kommentarfunktion)
+    Testkategorie: Funktional (F-02 Meldung anzeigen)
 
     - Prüft, dass öffentliche Kommentare sichtbar sind, wenn die Meldung zu einem Modul gehört,
       das der Lehrende betreut.
@@ -57,14 +57,14 @@ def test_get_sichtbare_kommentare_oeffentlich(session):
 
 @pytest.mark.system
 @pytest.mark.funktion
-@pytest.mark.requirement_F05
+@pytest.mark.requirement_F02
 def test_get_sichtbare_kommentare_privat_lehrende(session):
     """
     Testart: Systemtest
-    Testkategorie: Funktional (F-05 Kommentarfunktion)
+    Testkategorie: Funktional (F-02 Meldung anzeigen)
 
     - Prüft, dass private Kommentare sichtbar sind, wenn die Meldung zu einem Modul gehört,
-      das der Lehrende betreut.
+    das der Lehrende betreut.
     - Erwartung: Liste enthält den privaten Kommentar.
     """
     # Setup: Lehrender betreut Modul
