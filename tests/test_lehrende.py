@@ -22,7 +22,6 @@ def test_get_sichtbare_kommentare_oeffentlich(session):
 
     # Öffentlicher Kommentar von einem anderen Lehrenden
     anderer_lehrender = Lehrende(name="Kollege", email="kollege@example.org", passwort="secret")
-    #anderer_lehrender.module.append(modul)
     kommentar = Kommentar(
         text="Öffentlicher Hinweis",
         meldung=meldung,
@@ -30,6 +29,14 @@ def test_get_sichtbare_kommentare_oeffentlich(session):
         verfasser=anderer_lehrender.name,
         lehrende=anderer_lehrender
         )
+    
+    kommentar_privat = Kommentar(
+        text="Privater Hinweis",
+        meldung=meldung,
+        sichtbarkeit=Sichtbarkeit.PRIVAT,
+        verfasser=anderer_lehrender.name,
+        lehrende=anderer_lehrender
+    )
 
     session.add_all([lehrender, modul, student, meldung, anderer_lehrender, kommentar])
     session.commit()
@@ -38,6 +45,10 @@ def test_get_sichtbare_kommentare_oeffentlich(session):
 
     assert kommentar in sichtbare
     assert sichtbare == [kommentar]
+    assert kommentar_privat not in sichtbare
+    
+    sichtbare_anderer = anderer_lehrender.get_sichtbare_kommentare(meldung)
+    assert kommentar_privat not in sichtbare_anderer
 
 
 @pytest.mark.system
