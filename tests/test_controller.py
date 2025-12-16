@@ -1,9 +1,10 @@
-import pytest
-from models import Modul, Benutzer, Studierende, Lehrende, Admin, Meldung, Kategorie, Sichtbarkeit, Kommentar
 from datetime import datetime
 import importlib
-from controller import load_user #, db #, #Benutzer
+import pytest
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import select
+from models import Modul, Benutzer, Studierende, Lehrende, Admin, Meldung, Kategorie, Sichtbarkeit, Kommentar
+from controller import load_user
 
 @pytest.mark.system
 @pytest.mark.funktion
@@ -422,7 +423,8 @@ def test_antwort_speichern(client, session):
     )
 
     # Lehrenden-Kommentar aus DB holen
-    kommentar = session.query(Kommentar).filter_by(meldung_id=meldung.id).first()
+    kommentar = session.execute(select(Kommentar).filter_by(meldung_id=meldung.id)).scalars().first()
+    # kommentar = session.query(Kommentar).filter_by(meldung_id=meldung.id).first()
     assert kommentar is not None
     assert isinstance(kommentar.zeitstempel, datetime)
     assert kommentar.sichtbarkeit == Sichtbarkeit.PRIVAT
@@ -461,7 +463,8 @@ def test_antwort_speichern(client, session):
         data={
             "antwort_text": ""
             },
-        follow_redirects=True)
+        follow_redirects=True
+    )
     assert response.status_code == 200
 
     session.refresh(kommentar)
