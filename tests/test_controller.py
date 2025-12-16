@@ -426,7 +426,7 @@ def test_antwort_speichern(client, session):
     kommentar = session.execute(
         select(Kommentar).filter_by(meldung_id=meldung.id)
         ).scalars().first()
-    # kommentar = session.query(Kommentar).filter_by(meldung_id=meldung.id).first()
+
     assert kommentar is not None
     assert isinstance(kommentar.zeitstempel, datetime)
     assert kommentar.sichtbarkeit == Sichtbarkeit.PRIVAT
@@ -625,7 +625,6 @@ def test_benutzer_speichern_admin(client, session):
     html = response.data.decode("utf-8")
     assert all(text in html for text in ["Benutzer", "Neu", "als", "hinzugefügt."])
 
-    #assert session.query(Benutzer).filter_by(email="neu@test.org").one()
     assert session.execute(select(Benutzer).filter_by(email="neu@test.org")).scalars().one()
 
 
@@ -666,7 +665,6 @@ def test_benutzer_speichern_nicht_admin_verboten(client, session):
     assert response.status_code == 302
 
     # Erwartung: Benutzer nicht gespeichert
-    #assert session.query(Benutzer).filter_by(email="neu@test.org").first() is None
     assert session.execute(
         select(Benutzer).filter_by(email="neu@test.org")
         ).scalars().first() is None
@@ -707,7 +705,6 @@ def test_benutzer_loeschen_admin(client, session):
     html = response.data.decode("utf-8")
     assert "Benutzer Student gelöscht." in html
     # Student ist entfernt
-    #assert session.query(Studierende).filter_by(email="student@test.org").first() is None
     assert session.execute(
         select(Studierende).filter_by(email="student@test.org")
         ).scalars().first() is None
@@ -750,7 +747,6 @@ def test_benutzer_loeschen_nicht_admin_verboten(client, session):
     html = response.data.decode("utf-8")
     assert "Keine Berechtigung." in html
     # Admin bleibt erhalten
-    #assert session.query(Admin).filter_by(email="admin@test.org").first() is not None
     assert session.execute(
         select(Admin).filter_by(email="admin@test.org")
         ).scalars().first() is not None
@@ -792,7 +788,6 @@ def test_admin_selbst_loeschen_verboten(client, session):
     html = response.data.decode("utf-8")
     assert "Nicht erlaubt, sich selbst zu löschen!" in html
     # Admin bleibt erhalten
-    #assert session.query(Admin).filter_by(email="admin@test.org").first() is not None
     assert session.execute(
         select(Admin).filter_by(email="admin@test.org")
         ).scalars().first() is not None
@@ -833,7 +828,6 @@ def test_letzten_admin_loeschen_verboten(client, session):
     html = response.data.decode("utf-8")
     assert "Mindestens ein Admin muss erhalten bleiben." in html
     # Admin bleibt erhalten
-    #assert session.query(Admin).filter_by(email="admin@test.org").first() is not None
     assert session.execute(
         select(Admin).filter_by(email="admin@test.org")
         ).scalars().first() is not None
@@ -1047,8 +1041,9 @@ def test_benutzer_speichern_passwort_zu_kurz(client, session):
     assert "Passwort muss mindestens 7 Zeichen lang sein." in html
 
     # Erwartung: Benutzer nicht gespeichert
-    #assert session.query(Benutzer).filter_by(email="neu@test.org").first() is None
-    assert session.execute(select(Benutzer).filter_by(email="neu@test.org")).scalars().first() is None
+    assert session.execute(
+        select(Benutzer).filter_by(email="neu@test.org")
+        ).scalars().first() is None
 
 
 @pytest.mark.integration
