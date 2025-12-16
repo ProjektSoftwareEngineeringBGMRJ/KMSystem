@@ -70,7 +70,8 @@ class Lehrende(Benutzer):
             # Kommentare öffentlich oder selbst erstellt
             elif meldung.modul in self.module and kommentar.sichtbarkeit == Sichtbarkeit.PRIVAT: # ÖFFENTLICH
                 sichtbare.append(kommentar)
-            elif kommentar.Sichtbarkeit == Sichtbarkeit.ÖFFENTLICH:
+            # Öffentliche Kommentare fremder Module sichtbar
+            elif kommentar.sichtbarkeit == Sichtbarkeit.ÖFFENTLICH:
                 sichtbare.append(kommentar)
         return sichtbare
 
