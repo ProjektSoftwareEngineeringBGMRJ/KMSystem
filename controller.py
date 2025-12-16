@@ -233,7 +233,6 @@ def meldung_anzeigen(meldungs_id):
     if not meldung:
         flash("Das ist nicht erlaubt.")
         return redirect("/uebersicht")
-        #pass
 
     return render_template("meldung_detail.html",
         meldung=meldung,
