@@ -461,7 +461,8 @@ def benutzer_loeschen():
         return redirect(url_for("uebersicht"))
 
     benutzer_id = int(request.form.get("benutzer_id"))
-    benutzer = db.session.query(Benutzer).get(benutzer_id)
+    benutzer = db.session.get(Benutzer, benutzer_id)
+    #benutzer = db.session.query(Benutzer).get(benutzer_id)
 
     if benutzer:
         if isinstance(benutzer, Admin):
@@ -522,10 +523,7 @@ def modul_loeschen():
 
     modul_id = int(request.form.get("modul_id"))
     modul = db.session.get(Modul, modul_id)
-    #Modul.query.get(modul_id)
-
-    #return Benutzer.query.get(int(user_id))
-    #return db.session.get(Benutzer, int(user_id))
+    # modul = Modul.query.get(modul_id)
 
     if modul:
         db.session.delete(modul)
