@@ -38,7 +38,7 @@ def test_get_sichtbare_kommentare_oeffentlich(session):
         lehrende=anderer_lehrender
     )
 
-    session.add_all([lehrender, modul, student, meldung, anderer_lehrender, kommentar])
+    session.add_all([lehrender, modul, student, meldung, anderer_lehrender, kommentar, kommentar_privat])
     session.commit()
 
     sichtbare = lehrender.get_sichtbare_kommentare(meldung)
