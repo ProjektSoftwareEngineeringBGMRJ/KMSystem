@@ -43,34 +43,33 @@ class Lehrende(Benutzer):
         )
 
 
-    # def __init__(self, name:str, email:str, passwort:str):
-    #     super().__init__(name, email, passwort)
-    #     #self.module = []   # Liste von Modul-Objekten
-
     def get_sichtbare_kommentare(self, meldung:"Meldung") -> list[Kommentar]:
         '''
-        Gibt alle für den Lehrenden sichtbaren Kommentare zu einer Meldung zurück.
+        Gibt alle für diesen Benutzer sichtbaren Kommentare zu einer Meldung zurück.
 
-        Regeln:
+        Regeln (Requirement F-02):
             - Eigene Kommentare sind immer sichtbar.
-            - Öffentliche Kommentare sind sichtbar, wenn die Meldung zu einem Modul gehört,
-              das dieser Lehrende betreut.
+            - Private Kommentare sind sichtbar für:
+                * den Ersteller der Meldung,
+                * Lehrende, die das Modul der Meldung betreuen,
+                * Administratoren.
+            - Öffentliche Kommentare sind für alle sichtbar.
 
         Args:
             meldung (Meldung): Die Meldung, deren Kommentare geprüft werden sollen.
 
         Returns:
-            List[Kommentar]: Liste der sichtbaren Kommentare für diesen Lehrenden.
+            List[Kommentar]: Liste der sichtbaren Kommentare für diesen Benutzer.
         '''
         sichtbare: list[Kommentar] = []
         for kommentar in meldung.kommentare:
             # Eigene Kommentare immer sichtbar
             if kommentar.lehrende == self:
                 sichtbare.append(kommentar)
-            # Kommentare öffentlich oder selbst erstellt
-            elif meldung.modul in self.module and kommentar.sichtbarkeit == Sichtbarkeit.PRIVAT: # ÖFFENTLICH
+            # Private Kommentare sichtbar für Modul-Lehrende
+            elif kommentar.sichtbarkeit == Sichtbarkeit.PRIVAT and meldung.modul in self.module:
                 sichtbare.append(kommentar)
-            # Öffentliche Kommentare fremder Module sichtbar
+            # Öffentliche Kommentare immer sichtbar
             elif kommentar.sichtbarkeit == Sichtbarkeit.ÖFFENTLICH:
                 sichtbare.append(kommentar)
         return sichtbare
