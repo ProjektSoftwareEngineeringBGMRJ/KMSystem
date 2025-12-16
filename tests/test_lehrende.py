@@ -58,6 +58,45 @@ def test_get_sichtbare_kommentare_oeffentlich(session):
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F05
+def test_get_sichtbare_kommentare_privat_lehrende(session):
+    """
+    Testart: Systemtest
+    Testkategorie: Funktional (F-05 Kommentarfunktion)
+
+    - Prüft, dass private Kommentare sichtbar sind, wenn die Meldung zu einem Modul gehört,
+      das der Lehrende betreut.
+    - Erwartung: Liste enthält den privaten Kommentar.
+    """
+    # Setup: Lehrender betreut Modul
+    lehrender = Lehrende(name="Dozent", email="dozent@example.org", passwort="secret")
+    modul = Modul(titel="Testmodul")
+    lehrender.module.append(modul)
+    student = Studierende(name="Student", email="stud@example.org", passwort="secret")
+    meldung = Meldung("Testmeldung", Kategorie.ONLINESKRIPT, student, modul)
+
+    # Privater Kommentar von einem anderen Lehrenden
+    anderer_lehrender = Lehrende(name="Kollege", email="kollege@example.org", passwort="secret")
+    kommentar_privat = Kommentar(
+        text="Privater Hinweis",
+        meldung=meldung,
+        sichtbarkeit=Sichtbarkeit.PRIVAT,
+        verfasser=anderer_lehrender.name,
+        lehrende=anderer_lehrender
+    )
+
+    session.add_all([lehrender, modul, student, meldung, anderer_lehrender, kommentar_privat])
+    session.commit()
+
+    sichtbare = lehrender.get_sichtbare_kommentare(meldung)
+
+    # Erwartung: Lehrender sieht privaten Kommentar, da er das Modul betreut
+    assert kommentar_privat in sichtbare
+
+
+
+@pytest.mark.system
+@pytest.mark.funktion
+@pytest.mark.requirement_F05
 @pytest.mark.requirement_NF07
 def test_add_kommentar_permission_error(session):
     """
