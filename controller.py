@@ -50,7 +50,8 @@ def load_user(user_id):
     Lädt den Benutzer beim Login.
     SQLAlchemy erkennt automatisch die richtige Unterklasse (Admin, Studierende, Lehrende).
     '''
-    return Benutzer.query.get(int(user_id))
+    #return Benutzer.query.get(int(user_id))
+    return db.session.get(Benutzer, int(user_id))
 
 
 # ===================== Setup-Routen =====================
@@ -520,7 +521,11 @@ def modul_loeschen():
         return redirect(url_for("uebersicht"))
 
     modul_id = int(request.form.get("modul_id"))
-    modul = Modul.query.get(modul_id)
+    modul = db.session.get(Modul, modul_id)
+    #Modul.query.get(modul_id)
+
+    #return Benutzer.query.get(int(user_id))
+    #return db.session.get(Benutzer, int(user_id))
 
     if modul:
         db.session.delete(modul)
@@ -558,8 +563,10 @@ def modul_aktion():
     modul_id = int(modul_id_raw)
     aktion = request.form.get("aktion")
 
-    lehrende = Lehrende.query.get(lehrende_id)
-    modul = Modul.query.get(modul_id)
+    lehrende = db.session.get(Lehrende, lehrende_id)
+    # lehrende = Lehrende.query.get(lehrende_id)
+    modul = db.session.get(Modul, modul_id)
+    # modul = Modul.query.get(modul_id)
 
     if not lehrende or not modul:
         flash("Lehrende oder Modul nicht gefunden.")
