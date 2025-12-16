@@ -5,7 +5,7 @@
 <p><strong>Kategorie:</strong> {{ meldung.kategorie.value }}</p>
 
 {# Wenn Benutzer ein Lehrender ist: Status kann bearbeitet werden #}
-{% if user.__class__.__name__ == "Lehrende" %}
+{% if user.__class__.__name__ == "Lehrende" and meldung.modul in user.module %}
 
 {# Formular zum Ändern des Status und Hinzufügen eines Kommentars #}
 <form method="post" action="{{ url_for('status_aendern', meldungs_id=meldung.id) }}">    
