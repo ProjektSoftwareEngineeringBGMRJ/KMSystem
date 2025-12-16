@@ -29,7 +29,15 @@ def test_get_sichtbare_kommentare_oeffentlich(session):
         verfasser=anderer_lehrender.name,
         lehrende=anderer_lehrender
         )
-    
+
+    session.add_all([lehrender, modul, student, meldung, anderer_lehrender, kommentar])
+    session.commit()
+
+    sichtbare = lehrender.get_sichtbare_kommentare(meldung)
+
+    assert kommentar in sichtbare
+    assert sichtbare == [kommentar]
+
     kommentar_privat = Kommentar(
         text="Privater Hinweis",
         meldung=meldung,
@@ -38,17 +46,13 @@ def test_get_sichtbare_kommentare_oeffentlich(session):
         lehrende=anderer_lehrender
     )
 
-    session.add_all([lehrender, modul, student, meldung, anderer_lehrender, kommentar, kommentar_privat])
+    session.add(kommentar_privat)
     session.commit()
 
-    sichtbare = lehrender.get_sichtbare_kommentare(meldung)
-
-    assert kommentar in sichtbare
-    assert sichtbare == [kommentar]
-    assert kommentar_privat not in sichtbare
-    
     sichtbare_anderer = anderer_lehrender.get_sichtbare_kommentare(meldung)
-    assert kommentar_privat not in sichtbare_anderer
+
+    assert kommentar_privat not in sichtbare
+    assert kommentar_privat in sichtbare_anderer
 
 
 @pytest.mark.system
@@ -58,9 +62,11 @@ def test_get_sichtbare_kommentare_oeffentlich(session):
 def test_add_kommentar_permission_error(session):
     """
     Testart: Systemtest
-    Testkategorie: Funktional (F-05 Kommentarfunktion), Sicherheit (NF-07 Rollenbasierte Rechtevergabe)
+    Testkategorie: Funktional (F-05 Kommentarfunktion), 
+                   Sicherheit (NF-07 Rollenbasierte Rechtevergabe)
 
-    - Prüft, dass ein Lehrender keinen Kommentar zu einer Meldung eines fremden Moduls hinzufügen darf.
+    - Prüft, dass ein Lehrender keinen Kommentar zu einer Meldung eines 
+      fremden Moduls hinzufügen darf.
     - Erwartung: PermissionError mit Meldung "Dies ist nur für eigene Module möglich."
     """
     # Lehrender ohne Modulzuordnung
