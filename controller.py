@@ -88,7 +88,7 @@ def del_db():
 @app.route("/setup-admin")
 def setup_admin():
     '''
-    Erstellt einen Admin-Benutzer, falls noch keiner existiert.
+    Erstellt einen Admin und Benutzer, falls noch keiner existiert.
     - Einmalig über "App-URL/setup-admin" aufrufen.
     - Login-Daten sollten in einer .env-Datei liegen,
       sind hier aber für lokale Installation hardcodiert.
@@ -97,21 +97,19 @@ def setup_admin():
     if not inspector.get_table_names():
         setup_db()
 
-    admin_email = "admin@example.org"
-    admin_passwort = "admin123"
-
-    if not Admin.query.filter_by(email=admin_email).first():
-        admin = Admin(name="Admin", email=admin_email, passwort=admin_passwort)
-        studi = Studierende("Student 1", "s1@s.org", "123456")
-        studii = Studierende("Student 2", "s2@s.org", "123456")
-        lehrende = Lehrende("Tutor", "l1@l.org", "123456")
+    if not Admin.query.filter_by(email="admin@example.org").first():
+        admin = Admin("Admin", "admin@example.org", "admin123")
+        student1 = Studierende("Student 1", "s1@example.org", "123456")
+        student2 = Studierende("Student 2", "s2@example.org", "123456")
+        lehrende1 = Lehrende("Tutor 1", "l1@example.org", "123456")
+        lehrende2 = Lehrende("Tutor 2","l2@example.org", "123456")
         modul = Modul("Testmodul")
 
-        db.session.add_all([admin, studi, studii, lehrende, modul])
+        db.session.add_all([admin, student1, student2, lehrende1, lehrende2, modul])
         db.session.commit()
-        return jsonify({"status": "Admin erstellt."})
+        return jsonify({"status": "Admin und Benutzer erstellt."})
 
-    return jsonify({"status": "Admin existiert bereits. Login unter http://127.0.0.1:5000/"})
+    return jsonify({"status": "Admin und Benutzer existieren bereits. Login unter http://127.0.0.1:5000/"})
 
 
 # ===================== Index- und Login-Routen =====================
@@ -303,8 +301,8 @@ def status_aendern(meldungs_id:int):
             # Nur Kommentieren
             if kommentar_text.strip():
                 db.session.add(current_user.add_kommentar(
-                    meldung, 
-                    kommentar_text.strip(), 
+                    meldung,
+                    kommentar_text.strip(),
                     sichtbarkeit
                     )
                 )
@@ -347,7 +345,7 @@ def meldung_erstellen():
 
         except IntegrityError:
             db.session.rollback()
-            flash("Fehler: Meldung konnte nicht gespeichert werden (Integritätsproblem).")
+            flash("Fehler: Meldung konnte nicht gespeichert werden.")
 
         except Exception as e:
             flash(f"Unerwarteter Fehler: {e}")

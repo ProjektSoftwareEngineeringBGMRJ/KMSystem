@@ -68,21 +68,21 @@ class Admin(Benutzer):
         db.session.commit()
         return neues_modul
 
-    def loesche_modul(self, modul: "Modul") -> bool:
-        '''
-        Löscht ein Modul, sofern es keine Meldungen enthält.
+    # def loesche_modul(self, modul: "Modul") -> bool:
+    #     '''
+    #     Löscht ein Modul, sofern es keine Meldungen enthält.
 
-        Args:
-            modul (Modul): Das zu löschende Modul.
+    #     Args:
+    #         modul (Modul): Das zu löschende Modul.
 
-        Returns:
-            bool: True, wenn das Modul gelöscht wurde, False, wenn es noch Meldungen enthält.
-        '''
-        if modul.meldungen:
-            return False
-        db.session.delete(modul)
-        db.session.commit()
-        return True
+    #     Returns:
+    #         bool: True, wenn das Modul gelöscht wurde, False, wenn es noch Meldungen enthält.
+    #     '''
+    #     if modul.meldungen:
+    #         return False
+    #     db.session.delete(modul)
+    #     db.session.commit()
+    #     return True
 
     def modul_zuweisen(self, modul: "Modul", lehrende: "Lehrende") -> bool:
         '''

@@ -19,7 +19,7 @@ class Modul(db.Model):
 
     Attribute:
         id (int): Primärschlüssel zur eindeutigen Identifikation des Moduls.
-        titel (str): Titel bzw. Name des Moduls.
+        titel (str): Name des Moduls.
         meldungen (List[Meldung]): 1:n-Beziehung zu Meldungen, die diesem Modul zugeordnet sind.
         lehrende (List[Lehrende]): n:m-Beziehung zu Lehrenden, die das Modul betreuen.
 

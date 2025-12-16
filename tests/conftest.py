@@ -1,4 +1,3 @@
-#from flask import Flask
 import sys
 import os
 
@@ -46,6 +45,8 @@ def session():
       um Seiteneffekte zwischen Tests zu vermeiden.
     '''
     with app.app_context():
+        db.drop_all()
+        db.engine.dispose()
         db.create_all()
         yield db.session
         db.session.remove()

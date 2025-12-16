@@ -63,6 +63,7 @@ class Benutzer(db.Model, UserMixin):
         '''
         return check_password_hash(self.passwort_hash, passwort)
 
+
     @abstractmethod
     def get_sichtbare_kommentare(self, meldung:Meldung):
         '''

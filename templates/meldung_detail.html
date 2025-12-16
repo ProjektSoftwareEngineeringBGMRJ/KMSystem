@@ -12,7 +12,7 @@
     
     {# Dropdown: Status ändern #}
     <label for="status"><strong>Status ändern:</strong></label>
-    <select name="status" id="status"> {#meldung?#}
+    <select name="status" id="status">
         {% for s in status_enum %}
             <option value="{{ s.name }}" {% if meldung.status.name == s.name %}selected{% endif %}>
                 {{ s.value }}

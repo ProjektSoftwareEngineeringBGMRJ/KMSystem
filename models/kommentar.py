@@ -74,7 +74,7 @@ class Kommentar(db.Model):
         antwort_auf:"Kommentar" = None
         ):
         '''
-        Erstellt einen neuen Kommentar.
+        Erstellt neuen Kommentar.
 
         Args:
             text (str): Inhalt des Kommentars.

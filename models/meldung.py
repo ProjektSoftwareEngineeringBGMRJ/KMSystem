@@ -58,7 +58,7 @@ class Meldung(db.Model):
             beschreibung (str): Beschreibung der Meldung.
             kategorie (Kategorie): Kategorie der Meldung.
             ersteller (Studierende): Der Studierende, der die Meldung erstellt.
-            modul (Modul): Das Modul, dem die Meldung zugeordnet wird.
+            modul (Modul): Modul, dem die Meldung zugeordnet wird.
         '''
         self.beschreibung = beschreibung 
         self.kategorie = kategorie

@@ -92,7 +92,7 @@ class Lehrende(Benutzer):
                 (Standard: PRIVAT).
 
         Returns:
-            Kommentar: Der neu erstellte Kommentar.
+            Kommentar: Neu erstellter Kommentar.
 
         Raises:
             PermissionError: Falls der Lehrende nicht das Modul der Meldung betreut.

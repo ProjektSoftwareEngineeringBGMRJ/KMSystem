@@ -11,6 +11,7 @@
    - Die konkrete Datenbank-URL wird in der Flask-App (controller) konfiguriert.
    - Dieses Objekt muss mit `db.init_app(app)` initialisiert werden.
 '''
+
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()

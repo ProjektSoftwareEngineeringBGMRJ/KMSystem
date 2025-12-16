@@ -46,6 +46,7 @@ def test_modul_meldung_beziehung(session):
         ersteller=student,
         modul=modul
     )
+
     session.add(meldung)
     session.commit()
 

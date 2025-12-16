@@ -22,7 +22,7 @@ class Status(Enum):
     Definiert den Bearbeitungsstatus einer Meldung.
 
     Werte:
-        OFFEN (str): Meldung wurde erstellt und ist noch unbearbeitet.
+        OFFEN (str): Meldung wurde erstellt und ist unbearbeitet.
         BEARBEITUNG (str): Meldung befindet sich in Bearbeitung.
         GESCHLOSSEN (str): Meldung wurde abgeschlossen.
     '''

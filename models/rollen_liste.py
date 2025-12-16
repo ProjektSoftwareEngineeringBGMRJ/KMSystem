@@ -25,7 +25,7 @@ def get_rolle_klasse(rolle:Benutzer_rolle) -> Type[Benutzer]:
         Gibt None zurück, falls die Rolle nicht im Mapping enthalten ist.
 
     Hinweise:
-        - Das Mapping wird über __rolle_klasse_map definiert.
+        - Mapping wird über __rolle_klasse_map definiert.
         - Ermöglicht die dynamische Instanziierung der richtigen Benutzerklasse
           basierend auf der Rolle.
     '''
