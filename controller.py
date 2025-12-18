@@ -169,12 +169,12 @@ def fuenf():
     db.session.commit()
     db.session.add_all([student13, student14, student15, student16, student17, student18, student19, student20, student21, student22])
     db.session.commit()
-    db.session.add_all([student23, student24, student25, student26, student27, student28, student29, student30, student31, student32])
-    db.session.commit()
-    db.session.add_all([student33, student34, student35, student36, student37, student38, student39, student40, student41, student42, student43])
-    db.session.commit()
-    db.session.add_all([student44, student45, student46, student47, student48, student49, student50])
-    db.session.commit()
+    # db.session.add_all([student23, student24, student25, student26, student27, student28, student29, student30, student31, student32])
+    # db.session.commit()
+    # db.session.add_all([student33, student34, student35, student36, student37, student38, student39, student40, student41, student42, student43])
+    # db.session.commit()
+    # db.session.add_all([student44, student45, student46, student47, student48, student49, student50])
+    # db.session.commit()
     return jsonify({"status": "50 Studis mit 123456 erstellt."})
     
 # ===================== Index- und Login-Routen =====================
