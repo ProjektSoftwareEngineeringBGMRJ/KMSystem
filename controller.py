@@ -114,8 +114,8 @@ def setup_admin():
 
     return jsonify({"status": "Admin und Benutzer existieren bereits. Login unter http://127.0.0.1:5000/"})
 
-@app.route("/fuenf")
-def fuenf():
+@app.route("/f1")
+def f1():
     student3 = Studierende("Student 3", "s3@example.org", "123456")
     student4 = Studierende("Student 4", "s4@example.org", "123456")
     student5 = Studierende("Student 5", "s5@example.org", "123456")
@@ -126,9 +126,10 @@ def fuenf():
 
     db.session.add_all([student3, student4, student5, student6, student7, student8, student9])
     db.session.commit()
+    return jsonify({"status": "9 Studis mit 123456 erstellt."})
 
-@app.route("/fuenff")
-def fuenff():
+@app.route("/f2")
+def f2():
     student10 = Studierende("Student 10", "s10@example.org", "123456")
     student11 = Studierende("Student 11", "s11@example.org", "123456")
     student12 = Studierende("Student 12", "s12@example.org", "123456")
@@ -139,6 +140,7 @@ def fuenff():
     student17 = Studierende("Student 17", "s17@example.org", "123456")
     db.session.add_all([student10, student11, student12, student13, student14, student15, student16, student17])
     db.session.commit()
+    return jsonify({"status": "17 Studis mit 123456 erstellt."})
     
 @app.route("/f3")
 def f3():
