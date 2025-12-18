@@ -132,22 +132,22 @@ def login():
     '''
     if not inspect(db.engine).get_table_names():
         return jsonify({"status": "Datenbankfehler, bitte wenden Sie sich an den Administrator."})
+    else:
+        if request.method == "POST":
+            email = request.form["email"]
+            passwort = request.form["passwort"]
 
-    if request.method == "POST":
-        email = request.form["email"]
-        passwort = request.form["passwort"]
+            # Direkte SQL-Abfrage nach Benutzer
+            user = Benutzer.query.filter_by(email=email).first()
 
-        # Direkte SQL-Abfrage nach Benutzer
-        user = Benutzer.query.filter_by(email=email).first()
+            if user and user.check_passwort(passwort):
+                login_user(user)
+                flash(f"Login erfolgreich als {user.type}.")
+                return redirect(url_for("uebersicht"))
 
-        if user and user.check_passwort(passwort):
-            login_user(user)
-            flash(f"Login erfolgreich als {user.type}.")
-            return redirect(url_for("uebersicht"))
+            flash("Login fehlgeschlagen")
 
-        flash("Login fehlgeschlagen")
-
-    return render_template("login.html")
+        return render_template("login.html")
 
 
 # ===================== Logout =====================
