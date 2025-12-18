@@ -165,7 +165,15 @@ def fuenf():
     student49 = Studierende("Student 49", "s49@example.org", "123456")
     student50 = Studierende("Student 50", "s50@example.org", "123456")
 
-    db.session.add_all([student3, student4, student5, student6, student7, student8, student9, student10, student11, student12, student13, student14, student15, student16, student17, student18, student19, student20, student21, student22, student23, student24, student25, student26, student27, student28, student29, student30, student31, student32, student33, student34, student35, student36, student37, student38, student39, student40, student41, student42, student43, student44, student45, student46, student47, student48, student49, student50])
+    db.session.add_all([student3, student4, student5, student6, student7, student8, student9, student10, student11, student12])
+    db.session.commit()
+    db.session.add_all([student13, student14, student15, student16, student17, student18, student19, student20, student21, student22])
+    db.session.commit()
+    db.session.add_all([student23, student24, student25, student26, student27, student28, student29, student30, student31, student32])
+    db.session.commit()
+    db.session.add_all([student33, student34, student35, student36, student37, student38, student39, student40, student41, student42, student43])
+    db.session.commit()
+    db.session.add_all([student44, student45, student46, student47, student48, student49, student50])
     db.session.commit()
     return jsonify({"status": "50 Studis mit 123456 erstellt."})
     
