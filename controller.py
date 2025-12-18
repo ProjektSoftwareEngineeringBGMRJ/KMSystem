@@ -126,15 +126,20 @@ def fuenf():
 
     db.session.add_all([student3, student4, student5, student6, student7, student8, student9])
     db.session.commit()
+
+@app.route("/fuenff")
+def fuenff():
+    student10 = Studierende("Student 10", "s10@example.org", "123456")
+    student11 = Studierende("Student 11", "s11@example.org", "123456")
+    student12 = Studierende("Student 12", "s12@example.org", "123456")
+    student13 = Studierende("Student 13", "s13@example.org", "123456")
+    student14 = Studierende("Student 14", "s14@example.org", "123456")
+    student15 = Studierende("Student 15", "s15@example.org", "123456")
+    student16 = Studierende("Student 16", "s16@example.org", "123456")
+    student17 = Studierende("Student 17", "s17@example.org", "123456")
+    db.session.add_all([student10, student11, student12, student13, student14, student15, student16, student17])
+    db.session.commit()
     
-    # student10 = Studierende("Student 10", "s10@example.org", "123456")
-    # student11 = Studierende("Student 11", "s11@example.org", "123456")
-    # student12 = Studierende("Student 12", "s12@example.org", "123456")
-    # student13 = Studierende("Student 13", "s13@example.org", "123456")
-    # student14 = Studierende("Student 14", "s14@example.org", "123456")
-    # student15 = Studierende("Student 15", "s15@example.org", "123456")
-    # student16 = Studierende("Student 16", "s16@example.org", "123456")
-    # student17 = Studierende("Student 17", "s17@example.org", "123456")
     # student18 = Studierende("Student 18", "s18@example.org", "123456")
     # student19 = Studierende("Student 19", "s19@example.org", "123456")
     # student20 = Studierende("Student 20", "s20@example.org", "123456")
@@ -170,7 +175,7 @@ def fuenf():
     # student50 = Studierende("Student 50", "s50@example.org", "123456")
 
     #student10, student11, student12]
-    # db.session.add_all([student13, student14, student15, student16, student17, student18, student19, student20, student21, student22])
+    # , student18, student19, student20, student21, student22])
     # db.session.commit()
     # db.session.add_all([student23, student24, student25, student26, student27, student28, student29, student30, student31, student32])
     # db.session.commit()
