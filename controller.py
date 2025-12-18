@@ -130,6 +130,9 @@ def login():
     - Bei Erfolg: Weiterleitung zur Übersichtsseite.
     - Bei Misserfolg: Fehlermeldung über Flash.
     '''
+    if not inspect(db.engine).get_table_names():
+        return jsonify({"status": "Datenbankfehler, bitte wenden Sie sich an den Administrator."})
+
     if request.method == "POST":
         email = request.form["email"]
         passwort = request.form["passwort"]
