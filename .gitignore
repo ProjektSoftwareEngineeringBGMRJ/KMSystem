@@ -24,3 +24,10 @@ migrations/
 *.swp
 #test*.py
 *.ini
+
+# Allure reports/ Tests
+reports/
+allure-report/
+*.json
+.coverage
+report.html
