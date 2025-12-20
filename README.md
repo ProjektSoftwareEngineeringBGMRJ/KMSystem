@@ -14,9 +14,9 @@ Ein webbasiertes System zum Melden von Fehlern, Verbesserungsvorschlägen und Er
 ## Projektstruktur
 ```plaintext
 KMSystem/
-│── instance/                    # SQLite-Datenbank
+│── instance/                # SQLite-Datenbank
 │   └── kmsystem.db
-├── models/                      # alle SQLAlchemy-Datenmodelle
+├── models/                  # alle SQLAlchemy-Datenmodelle
 │   ├── __init__.py              # definiert Verzeichnis als Python-Paket
 │   ├── admin.py                 # Klasse Admin, erbt von Benutzer
 │   ├── benutzer.py              # Basisklasse für Benutzer (gemeinsame Attribute und Methoden)
@@ -28,7 +28,7 @@ KMSystem/
 │   ├── modul.py                 # Datenmodell für Module (Zuordnung von Meldungen und Lehrenden)
 │   ├── rollen_liste.py          # Mapping von Benutzerklasse für Rollen
 │   └── studierende.py           # Klasse Studierende, erbt von Benutzer
-├── templates/                   # Jinja2-HTML-Dateien für Benutzeroberfläche
+├── templates/               # Jinja2-HTML-Dateien für Benutzeroberfläche
 │   ├── benutzer_erstellen.html  # Formular zur Erstellung neuer Benutzer
 │   ├── login.html               # Login-Seite für alle Rollen
 │   ├── meldung_detail.html      # Detailansicht einer Meldung inkl. Kommentare
@@ -36,7 +36,7 @@ KMSystem/
 │   ├── module_verwalten.html    # Oberfläche für Admins zur Verwaltung von Modulen
 │   ├── nutzerverwaltung.html    # Oberfläche für Admins zur Verwaltung von Benutzern
 │   └── uebersicht.html          # Übersicht aller Meldungen (rollenabhängig gefiltert)
-├── tests/                       # alle Tests mit Pytest 
+├── tests/                   # alle Tests mit Pytest 
 │   ├── conftest.py              # Pytest-Konfiguration und Fixtures 
 │   ├── test_admin.py            # Tests für Admin-Funktionalität 
 │   ├── test_benutzer.py         # Tests für Basisklasse Benutzer 
@@ -46,15 +46,15 @@ KMSystem/
 │   ├── test_modul.py            # Tests für Modul-Zuordnung und Logik 
 │   ├── test_rollen_liste.py     # Tests für Rollen-Mapping
 │   └── test_studierende.py      # Tests für Studierenden-Rolle
-├── static/                      # (CSS, JS, Bilder - optional, bisher nicht vorhanden)
-├── .gitignore                   # Ausschlussregeln für Git (z. B. __pycache__, reports) 
-├── Procfile                     # Deployment-Konfiguration für Render 
-├── README.md                    # Projektdokumentation 
-├── controller.py                # zentrale Flask-Routen und Logik 
-├── init_db.py                   # Initialisierung der Datenbank aus Modellen 
-├── pytest.ini                   # Pytest-Konfiguration (z. B. Marker, Filter) 
-├── requirements.txt             # Python-Abhängigkeiten für das Projekt 
-└── setup_admin.py               # Skript zur Erstellung eines ersten Admin-Benutzers
+├── static/                  # (CSS, JS, Bilder - optional, bisher nicht vorhanden)
+├── .gitignore               # Ausschlussregeln für Git (z. B. __pycache__, reports) 
+├── Procfile                 # Deployment-Konfiguration für Render 
+├── README.md                # Projektdokumentation 
+├── controller.py            # zentrale Flask-Routen und Logik 
+├── init_db.py               # Initialisierung der Datenbank aus Modellen 
+├── pytest.ini               # Pytest-Konfiguration (z. B. Marker, Filter) 
+├── requirements.txt         # Python-Abhängigkeiten für das Projekt 
+└── setup_admin.py           # Skript zur Erstellung eines ersten Admin-Benutzers
 ```
 Die Projektstruktur von `KMSystem` ist modular und übersichtlich aufgebaut. 
 Die Datenmodelle befinden sich im Ordner `models/`, die Templates im Ordner `templates/`, und die zentrale Logik in `controller.py`. 
