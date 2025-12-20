@@ -1,6 +1,7 @@
 import pytest
 from models import Lehrende, Modul, Studierende, Meldung, Kommentar, Kategorie, Sichtbarkeit
 
+@pytest.mark.id_T10
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F02
@@ -55,6 +56,7 @@ def test_get_sichtbare_kommentare_oeffentlich(session):
     assert kommentar_privat in sichtbare_anderer
 
 
+@pytest.mark.id_T11
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F02
@@ -93,7 +95,7 @@ def test_get_sichtbare_kommentare_privat_lehrende(session):
     assert kommentar_privat in sichtbare
 
 
-
+@pytest.mark.id_T28
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F05

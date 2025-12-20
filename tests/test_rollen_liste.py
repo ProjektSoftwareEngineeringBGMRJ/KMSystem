@@ -2,6 +2,7 @@ import enum
 import pytest
 from models import get_rolle_klasse, Benutzer_rolle, Studierende, Lehrende, Admin
 
+@pytest.mark.id_T55
 @pytest.mark.unit
 @pytest.mark.funktion
 @pytest.mark.requirement_F06
@@ -17,6 +18,7 @@ def test_get_rolle_klasse_bekannte_rollen():
     assert get_rolle_klasse(Benutzer_rolle.ADMIN) is Admin
 
 
+@pytest.mark.id_T56
 @pytest.mark.unit
 @pytest.mark.funktion
 @pytest.mark.requirement_F06

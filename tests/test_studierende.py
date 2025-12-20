@@ -1,6 +1,7 @@
 import pytest
 from models import Studierende, Modul, Meldung, Kommentar, Kategorie, Sichtbarkeit, Lehrende
 
+@pytest.mark.id_T30
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F05
@@ -36,6 +37,7 @@ def test_antworte_auf_kommentar_erfolgreich(session):
     assert antwort.verfasser == student.name
 
 
+@pytest.mark.id_T31
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F05

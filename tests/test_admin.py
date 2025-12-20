@@ -2,6 +2,7 @@ import pytest
 from sqlalchemy.exc import NoResultFound
 from models import Studierende, Lehrende, Modul, Benutzer, Admin #, Meldung, Kategorie
 
+@pytest.mark.id_T32
 @pytest.mark.integration
 @pytest.mark.funktion
 @pytest.mark.requirement_F06
@@ -34,6 +35,7 @@ def test_create_update_delete_nutzer(session):
         session.query(Benutzer).filter_by(email="test@test.org").one()
 
 
+@pytest.mark.id_T33
 @pytest.mark.integration
 @pytest.mark.funktion
 @pytest.mark.requirement_F06
@@ -56,6 +58,7 @@ def test_module_zuweisen_model(session):
     assert modul in lehrende.module
 
 
+@pytest.mark.id_T34
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F06
@@ -71,57 +74,11 @@ def test_erstelle_modul_bereits_vorhanden(session):
     """
     admin = Admin(name="Admin", email="admin@example.org", passwort="secret")
     modul = Modul(titel="Testmodul")
-    session.add_all([admin, modul]); session.commit()
+    session.add_all([admin, modul])
+    session.commit()
 
     # Erneuter Versuch mit gleichem Titel → sollte ValueError werfen
     with pytest.raises(ValueError) as excinfo:
         admin.erstelle_modul("Testmodul")
 
     assert 'Modul "Testmodul" bereits vorhanden.' in str(excinfo.value)
-
-
-# @pytest.mark.system
-# @pytest.mark.funktion
-# @pytest.mark.requirement_F07
-# def test_loesche_modul_erfolgreich(session):
-#     """
-#     Testart: Systemtest
-#     Testkategorie: Funktional (F-07 Modulverwaltung)
-
-#     - Prüft, dass ein Modul ohne Meldungen erfolgreich gelöscht wird.
-#     - Erwartung: Methode gibt True zurück und Modul ist nicht mehr in der DB.
-#     """
-#     admin = Admin(name="Admin", email="admin@example.org", passwort="secret")
-#     modul = Modul(titel="Testmodul")
-#     session.add_all([admin, modul])
-#     session.commit()
-
-#     result = admin.loesche_modul(modul)
-
-#     assert result is True
-#     assert Modul.query.filter_by(titel="Testmodul").first() is None
-
-
-# @pytest.mark.system
-# @pytest.mark.funktion
-# @pytest.mark.requirement_F07
-# def test_loesche_modul_mit_meldungen(session):
-#     """
-#     Testart: Systemtest
-#     Testkategorie: Funktional (F-07 Modulverwaltung)
-
-#     - Prüft, dass ein Modul mit Meldungen nicht gelöscht wird.
-#     - Erwartung: Methode gibt False zurück und Modul bleibt in der DB.
-#     """
-#     admin = Admin(name="Admin", email="admin@example.org", passwort="secret")
-#     modul = Modul(titel="Testmodul")
-#     student = Studierende(name="Student", email="stud@example.org", passwort="secret")
-#     meldung = Meldung("Testmeldung", Kategorie.ONLINESKRIPT, student, modul)
-
-#     session.add_all([admin, modul, student, meldung])
-#     session.commit()
-
-#     result = admin.loesche_modul(modul)
-
-#     assert result is False
-#     assert Modul.query.filter_by(titel="Testmodul").first() is not None

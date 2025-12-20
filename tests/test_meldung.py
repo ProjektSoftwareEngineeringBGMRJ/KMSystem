@@ -2,6 +2,7 @@ from datetime import datetime
 import pytest
 from models import Meldung, Modul, Studierende, Kategorie, Status, Kommentar, Sichtbarkeit
 
+@pytest.mark.id_T06
 @pytest.mark.integration
 @pytest.mark.funktion
 @pytest.mark.requirement_F01
@@ -37,7 +38,7 @@ def test_meldung_initialisierung(session):
     meldung_id = meldung.id
     assert session.query(Meldung).filter_by(id=meldung_id).first()
 
-
+@pytest.mark.id_T07
 @pytest.mark.unit
 @pytest.mark.funktion
 @pytest.mark.requirement_F01
@@ -62,7 +63,7 @@ def test_meldung_defaults(session):
     assert meldung.status == Status.OFFEN
     assert isinstance(meldung.zeitstempel, datetime)
 
-
+@pytest.mark.id_T12
 @pytest.mark.integration
 @pytest.mark.funktion
 @pytest.mark.requirement_F02
@@ -87,6 +88,7 @@ def test_meldung_ersteller_beziehung(session):
     assert meldung.ersteller.email == "test@testen.org"
 
 
+@pytest.mark.id_T61
 @pytest.mark.integration
 @pytest.mark.funktion
 @pytest.mark.requirement_F07
@@ -112,6 +114,7 @@ def test_meldung_cascade_delete(session):
     assert session.query(Meldung).filter_by(id=meldung_id).first() is None
 
 
+@pytest.mark.id_T29
 @pytest.mark.integration
 @pytest.mark.funktion
 @pytest.mark.requirement_F05

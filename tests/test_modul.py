@@ -1,6 +1,7 @@
 import pytest
 from models import Modul, Meldung, Studierende, Kategorie
 
+@pytest.mark.id_T62
 @pytest.mark.unit
 @pytest.mark.funktion
 @pytest.mark.requirement_F07
@@ -16,6 +17,7 @@ def test_modul_initialisierung():
     assert modul.titel == "Software Engineering"
 
 
+@pytest.mark.id_T08
 @pytest.mark.integration
 @pytest.mark.funktion
 @pytest.mark.requirement_F01

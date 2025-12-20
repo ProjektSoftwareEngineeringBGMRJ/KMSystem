@@ -5,6 +5,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import pytest
+import allure
 from controller import app, db
 
 #Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
@@ -63,3 +64,40 @@ def app_context():
     """
     with app.app_context():
         yield
+
+# Decorator zum Filtern in allure
+def pytest_runtest_setup(item):
+    for marker in item.iter_markers():
+        name = marker.name
+
+        # Anforderungen (funktional) → Feature
+        if name.startswith("requirement_F"):
+            allure.dynamic.feature(name)
+
+        # Anforderungen (nicht-funktional) → Story
+        elif name.startswith("requirement_NF"):
+            #allure.dynamic.story(name)
+            allure.dynamic.feature(name)
+
+        # Teststufen → Severity
+        elif name in ["unit", "integration", "system", "acceptance"]:
+            level_map = {
+                "unit": allure.severity_level.MINOR,
+                "integration": allure.severity_level.NORMAL,
+                "system": allure.severity_level.CRITICAL,
+                "acceptance": allure.severity_level.BLOCKER,
+            }
+            allure.dynamic.severity(level_map[name])
+
+        # Testkategorien → Tag
+        elif name in ["funktion", "usability", "performance", "sicherheit", "kompatibilitaet"]:
+            #allure.dynamic.tag(name)
+            allure.dynamic.story(name)
+
+        # IDs → zusätzliche Tags
+        elif name.startswith("id_T"):
+            allure.dynamic.tag(name)
+
+        # Fallback: alles andere als Tag
+        else:
+            allure.dynamic.tag(name)

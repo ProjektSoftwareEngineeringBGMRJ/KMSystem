@@ -6,6 +6,7 @@ from sqlalchemy import select
 from models import Modul, Benutzer, Studierende, Lehrende, Admin, Meldung, Kategorie, Sichtbarkeit, Kommentar
 from controller import load_user
 
+@pytest.mark.id_T13
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F03
@@ -14,7 +15,8 @@ from controller import load_user
 def test_uebersicht_studierende(client, session):
     '''
     Testart: Systemtest
-    Testkategorie: Funktionstest (F-03 Meldungsübersicht, F-08 Rollen- und Rechteverwaltung, F-09 Dashboard-Ansicht)
+    Testkategorie: Funktionstest 
+        (F-03 Meldungsübersicht, F-08 Rollen- und Rechteverwaltung, F-09 Dashboard-Ansicht)
 
     - Prüft die Übersichtsseite aus Sicht eines Studierenden.
     - Szenarien:
@@ -96,6 +98,7 @@ def test_uebersicht_studierende(client, session):
     assert "Zweite Meldung!" in html
 
 
+@pytest.mark.id_T14
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F03
@@ -104,7 +107,8 @@ def test_uebersicht_studierende(client, session):
 def test_uebersicht_lehrende(client, session):
     '''
     Testart: Systemtest
-    Testkategorie: Funktionstest (F-03 Meldungsübersicht, F-08 Rollen- und Rechteverwaltung, F-09 Dashboard-Ansicht)
+    Testkategorie: Funktionstest 
+        (F-03 Meldungsübersicht, F-08 Rollen- und Rechteverwaltung, F-09 Dashboard-Ansicht)
 
     - Prüft die Übersichtsseite aus Sicht einer Lehrenden.
     - Szenarien:
@@ -186,6 +190,7 @@ def test_uebersicht_lehrende(client, session):
     assert "Fehler im Modul 2" not in html
 
 
+@pytest.mark.id_T15
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F03
@@ -194,7 +199,8 @@ def test_uebersicht_lehrende(client, session):
 def test_uebersicht_admin(client, session):
     '''
     Testart: Systemtest
-    Testkategorie: Funktionstest (F-03 Meldungsübersicht, F-08 Rollen- und Rechteverwaltung, F-09 Dashboard-Ansicht)
+    Testkategorie: Funktionstest 
+        (F-03 Meldungsübersicht, F-08 Rollen- und Rechteverwaltung, F-09 Dashboard-Ansicht)
 
     Zweck:
     - Prüft die Übersichtsseite aus Sicht eines Admins.
@@ -276,6 +282,7 @@ def test_uebersicht_admin(client, session):
     assert "Fehler im Modul 2" not in html
 
 
+@pytest.mark.id_T16
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F04
@@ -325,7 +332,7 @@ def test_status_aendern_lehrende(client, session):
     session.refresh(meldung)
     assert meldung.status.name == "GESCHLOSSEN"
 
-
+@pytest.mark.id_T17
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F04
@@ -376,6 +383,8 @@ def test_status_aendern_admin_verboten(client, session):
     html = response.data.decode("utf-8")
     assert "Nur Lehrende dürfen den Status ändern." in html
 
+
+@pytest.mark.id_T25
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F05
@@ -476,6 +485,7 @@ def test_antwort_speichern(client, session):
     assert "Antwort darf nicht leer sein." in html
 
 
+@pytest.mark.id_T26
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F05
@@ -532,6 +542,7 @@ def test_antwort_speichern_nicht_melder_verboten(client, session):
     assert "Nur Melder darf antworten." in html
 
 
+@pytest.mark.id_T65
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F08
@@ -589,6 +600,7 @@ def test_benutzer_erstellen(client, session):
     assert "/uebersicht" in response.headers["Location"]
 
 
+@pytest.mark.id_T36
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F06
@@ -628,6 +640,7 @@ def test_benutzer_speichern_admin(client, session):
     assert session.execute(select(Benutzer).filter_by(email="neu@test.org")).scalars().one()
 
 
+@pytest.mark.id_T37
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F06
@@ -670,6 +683,7 @@ def test_benutzer_speichern_nicht_admin_verboten(client, session):
         ).scalars().first() is None
 
 
+@pytest.mark.id_T66
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F08
@@ -710,6 +724,7 @@ def test_benutzer_loeschen_admin(client, session):
         ).scalars().first() is None
 
 
+@pytest.mark.id_T67
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F08
@@ -752,6 +767,7 @@ def test_benutzer_loeschen_nicht_admin_verboten(client, session):
         ).scalars().first() is not None
 
 
+@pytest.mark.id_T68
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F08
@@ -793,6 +809,7 @@ def test_admin_selbst_loeschen_verboten(client, session):
         ).scalars().first() is not None
 
 
+@pytest.mark.id_T69
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F08
@@ -833,6 +850,7 @@ def test_letzten_admin_loeschen_verboten(client, session):
         ).scalars().first() is not None
 
 
+@pytest.mark.id_T38
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F06
@@ -875,6 +893,7 @@ def test_modul_aktion(client, session):
     assert modul in lehrende.module
 
 
+@pytest.mark.id_T39
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F06
@@ -920,6 +939,7 @@ def test_modul_aktion_entziehen(client, session):
     assert modul not in lehrende.module
 
 
+@pytest.mark.id_T40
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F06
@@ -964,6 +984,7 @@ def test_modul_aktion_nicht_admin_verboten(client, session):
     assert modul not in lehrende.module
 
 
+@pytest.mark.id_T41
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F06
@@ -1003,6 +1024,7 @@ def test_benutzer_speichern_gleiche_email_verboten(client, session):
     assert "Benutzer mit dieser Email existiert bereits." in html
 
 
+@pytest.mark.id_T42
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F06
@@ -1046,6 +1068,7 @@ def test_benutzer_speichern_passwort_zu_kurz(client, session):
         ).scalars().first() is None
 
 
+@pytest.mark.id_T75
 @pytest.mark.integration
 @pytest.mark.requirement_NF09
 def test_render_db_url(monkeypatch):
@@ -1069,6 +1092,7 @@ def test_render_db_url(monkeypatch):
     assert controller.DB_URL == "postgresql://korrektur_system_db_user:abc12&@d/korrektur_system_db"
 
 
+@pytest.mark.id_T71
 @pytest.mark.integration
 @pytest.mark.requirement_NF06
 def test_load_user_returns_correct_user(app_context, session):
@@ -1090,7 +1114,7 @@ def test_load_user_returns_correct_user(app_context, session):
     assert loaded.id == benutzer.id
     assert loaded.name == "TestUser"
 
-
+@pytest.mark.id_T70
 @pytest.mark.system
 @pytest.mark.requirement_NF01
 @pytest.mark.requirement_NF02
@@ -1110,9 +1134,10 @@ def test_index_leitet_zu_login(client):
     assert "/login" in response.headers["Location"]
 
 
+@pytest.mark.id_T72
 @pytest.mark.system
 @pytest.mark.requirement_NF06
-def test_login_rendert_login_seite(client):
+def test_login_rendert_login_seite(client, session):
     '''
     Testart: Systemtest
     Testkategorie: Authentifizierung (NF-06 Sicherheit)
@@ -1129,7 +1154,7 @@ def test_login_rendert_login_seite(client):
     assert "Passwort:" in html
     assert "Einloggen" in html
 
-
+@pytest.mark.id_T73
 @pytest.mark.system
 @pytest.mark.requirement_NF06
 def test_login_flasche_zugangsdaten(client, session):
@@ -1153,6 +1178,7 @@ def test_login_flasche_zugangsdaten(client, session):
     assert "Login fehlgeschlagen" in html
 
 
+@pytest.mark.id_T74
 @pytest.mark.system
 @pytest.mark.requirement_NF06
 @pytest.mark.requirement_NF11
@@ -1183,7 +1209,7 @@ def test_logout_weiterleitung_und_flashes(client, session):
     with client.session_transaction() as session:
         assert "_user_id" not in session
 
-
+@pytest.mark.id_T09
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F02
@@ -1228,6 +1254,7 @@ def test_meldung_anzeigen_ohne_meldungen(client, session):
     assert "Das ist nicht erlaubt." in html
 
 
+@pytest.mark.id_T18
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F04
@@ -1261,6 +1288,7 @@ def test_status_aendern_meldung_nicht_vorhanden(client, session):
     assert "Keine Meldungen vorhanden." in html
 
 
+@pytest.mark.id_T19
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F04
@@ -1294,6 +1322,7 @@ def test_status_aendern_nur_lehrende(client, session):
     assert "Nur Lehrende dürfen den Status ändern." in html
 
 
+@pytest.mark.id_T20
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F04
@@ -1329,6 +1358,7 @@ def test_status_aendern_fremdes_modul(client, session):
     assert "Dies ist nur für Meldungen eigener Module möglich." in html
 
 
+@pytest.mark.id_T21
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F04
@@ -1364,6 +1394,7 @@ def test_status_aendern_erlaubt_ohne_kommentar(client, session):
     assert "Status ohne Kommentar zu &#34;in Bearbeitung&#34; gewechselt." in html
 
 
+@pytest.mark.id_T22
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F04
@@ -1398,6 +1429,7 @@ def test_status_aendern_erlaubt_mit_kommentar(client, session):
     assert "Neuen privaten Kommentar hinzugefügt und Status zu &#34;in Bearbeitung&#34; gewechselt." in html
 
 
+@pytest.mark.id_T27
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F05
@@ -1433,6 +1465,7 @@ def test_status_aendern_nur_kommentar(client, session):
     assert "Neuen privaten Kommentar ohne Statuswechsel hinzugefügt." in html
 
 
+@pytest.mark.id_T23
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F04
@@ -1466,7 +1499,7 @@ def test_status_aendern_keine_aenderung(client, session):
     html = response.data.decode("utf-8")
     assert "Status nicht gewechselt." in html
 
-
+@pytest.mark.id_T24
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F04
@@ -1501,7 +1534,7 @@ def test_status_aendern_nicht_erlaubt(client, session):
     html = response.data.decode("utf-8")
     assert "Statuswechsel von &#34;offen&#34; zu &#34;abgeschlossen&#34; ist nicht erlaubt." in html
 
-
+@pytest.mark.id_T02
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F01
@@ -1525,7 +1558,7 @@ def test_meldung_erstellen_get(client, session):
     html = response.data.decode("utf-8")
     assert "<h2>Neue Meldung erstellen</h2>" in html
 
-
+@pytest.mark.id_T03
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F01
@@ -1552,7 +1585,7 @@ def test_meldung_erstellen_erfolg(client, session):
     html = response.data.decode("utf-8")
     assert "Meldung erfolgreich erstellt." in html
 
-
+@pytest.mark.id_T04
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F01
@@ -1593,7 +1626,7 @@ def test_meldung_erstellen_post_integrityerror(client, session, monkeypatch):
     html = response.data.decode("utf-8")
     assert "Fehler: Meldung konnte nicht gespeichert werden." in html
 
-
+@pytest.mark.id_T05
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F01
@@ -1635,6 +1668,7 @@ def test_meldung_erstellen_post_exception(client, session, monkeypatch):
     assert "Fehler im Skript" in html  # vorausgefülltes Feld
 
 
+@pytest.mark.id_T43
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F06
@@ -1667,6 +1701,7 @@ def test_nutzerverwaltung_redirect(client, session):
     assert response.headers["Location"].endswith("/uebersicht")
 
 
+@pytest.mark.id_T44
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F06
@@ -1702,8 +1737,9 @@ def test_benutzer_speichern_fehlgeschlagen(client, session, monkeypatch):
 
     html = response.data.decode("utf-8")
     assert "Benutzer hinzufügen fehlgeschlagen." in html
-    
-    
+
+
+@pytest.mark.id_T45
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F06
@@ -1736,6 +1772,7 @@ def test_benutzer_loeschen_nicht_vorhanden(client, session):
     assert "Benutzer nicht gefunden." in html
 
 
+@pytest.mark.id_T57
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F07
@@ -1743,7 +1780,8 @@ def test_benutzer_loeschen_nicht_vorhanden(client, session):
 def test_module_verwalten_keine_berechtigung(client, session):
     """
     Testart: Systemtest
-    Testkategorie: Funktional (F-07 Modulverwaltung), Sicherheit (NF-07 Rollenbasierte Rechtevergabe)
+    Testkategorie: Funktional (F-07 Modulverwaltung), 
+                   Sicherheit (NF-07 Rollenbasierte Rechtevergabe)
 
     - Prüft, dass ein Nicht-Admin keinen Zugriff auf die Modulverwaltung hat.
     - Erwartung: Flash-Meldung "Keine Berechtigung." erscheint.
@@ -1759,6 +1797,7 @@ def test_module_verwalten_keine_berechtigung(client, session):
     assert "Keine Berechtigung." in html
 
 
+@pytest.mark.id_T46
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F06
@@ -1780,8 +1819,7 @@ def test_module_verwalten_modul_erfolgreich(client, session):
     assert "Modul &#34;Testmodul&#34; wurde erfolgreich erstellt." in html
 
 
-#import controller
-
+@pytest.mark.id_T47
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F06
@@ -1807,6 +1845,7 @@ def test_module_verwalten_modul_fehler(client, session, monkeypatch):
     assert "Fehler: Titel ungültig" in html
 
 
+@pytest.mark.id_T58
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F07
@@ -1832,6 +1871,7 @@ def test_modul_loeschen_keine_berechtigung(client, session):
     assert "Keine Berechtigung." in html
 
 
+@pytest.mark.id_T59
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F07
@@ -1856,6 +1896,7 @@ def test_modul_loeschen_erfolgreich(client, session):
     assert "Modul &#34;Testmodul&#34; gelöscht" in html
 
 
+@pytest.mark.id_T60
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F07
@@ -1881,6 +1922,7 @@ def test_modul_loeschen_nicht_vorhanden(client, session):
     assert "Modul nicht gefunden." in html
 
 
+@pytest.mark.id_T48
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F06
@@ -1905,6 +1947,7 @@ def test_modul_aktion_keine_module(client, session):
     assert "Bitte zuerst Module anlegen." in html
 
 
+@pytest.mark.id_T49
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F06
@@ -1937,6 +1980,7 @@ def test_modul_aktion_modul_nicht_vorhanden(client, session):
     assert "Lehrende oder Modul nicht gefunden." in html
 
 
+@pytest.mark.id_T50
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F06
@@ -1962,6 +2006,7 @@ def test_modul_aktion_modul_nicht_ausgewaehlt(client, session):
     assert "Bitte zuerst Modul auswählen." in html
 
 
+@pytest.mark.id_T51
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F06
@@ -1991,6 +2036,7 @@ def test_modul_aktion_lehrende_nicht_vorhanden(client, session):
     assert "Lehrende oder Modul nicht gefunden." in html
 
 
+@pytest.mark.id_T52
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F06
@@ -2029,6 +2075,7 @@ def test_modul_aktion_modul_bereits_zugewiesen(client, session):
     assert "Modul bereits zugewiesen." in html
 
 
+@pytest.mark.id_T53
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F06
@@ -2059,8 +2106,9 @@ def test_modul_aktion_modul_war_nicht_zugewiesen(client, session):
 
     html = response.data.decode("utf-8")
     assert "Modul war nicht zugewiesen." in html
-    
-    
+
+
+@pytest.mark.id_T54
 @pytest.mark.system
 @pytest.mark.funktion
 @pytest.mark.requirement_F06
@@ -2079,15 +2127,14 @@ def test_modul_aktion_ungueltige_aktion(client, session):
 
     client.post("/login", data={"email":"admin@example.org","passwort":"secret"})
 
-    response = client.post("/modul_aktion", 
+    response = client.post("/modul_aktion",
         data={
             "lehrende_id": lehrender.id,
             "modul_id": modul.id,
             "aktion": "falsch"   # ungültige Aktion
-            }, 
+            },
         follow_redirects=True
     )
 
     html = response.data.decode("utf-8")
     assert "Ungültige Aktion." in html
-

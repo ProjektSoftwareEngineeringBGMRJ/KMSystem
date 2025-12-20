@@ -1,6 +1,7 @@
 import pytest
 from models import Benutzer, Meldung, Kategorie, Studierende, Modul
 
+@pytest.mark.id_T35
 @pytest.mark.unit
 @pytest.mark.funktion
 @pytest.mark.requirement_F06
@@ -29,6 +30,7 @@ def test_benutzer_initialisierung():
     assert benutzer.passwort_hash != "test123"
 
 
+@pytest.mark.id_T63
 @pytest.mark.unit
 @pytest.mark.funktion
 @pytest.mark.requirement_F08
@@ -52,6 +54,7 @@ def test_benutzer_get_sichtbare_kommentare_not_implemented():
         benutzer.get_sichtbare_kommentare(meldung)
 
 
+@pytest.mark.id_T64
 @pytest.mark.integration
 @pytest.mark.funktion
 @pytest.mark.requirement_F08
@@ -64,12 +67,12 @@ def test_studierende_polymorphie(session):
     - Prüfen ob type durch Unterklassen richtig gesetzt wird
     '''
     student = Studierende(name="Test Nutzer", email="test@mail.org", passwort="sicher123")
-    
+
     session.add(student)
     session.commit()
     assert student.type == "studierende"
 
-
+@pytest.mark.id_T01
 @pytest.mark.integration
 @pytest.mark.funktion
 @pytest.mark.requirement_F01
