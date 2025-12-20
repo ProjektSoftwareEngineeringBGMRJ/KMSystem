@@ -52,7 +52,8 @@ KMSystem/
 ├── README.md                # Projektdokumentation 
 ├── controller.py            # zentrale Flask-Routen und Logik 
 ├── init_db.py               # Initialisierung der Datenbank aus Modellen 
-├── pytest.ini               # Pytest-Konfiguration (z. B. Marker, Filter) 
+├── pytest.ini               # Pytest-Konfiguration (z. B. Marker, Filter)
+├── report.html              # generierter HTML-Testreport (optional)
 ├── requirements.txt         # Python-Abhängigkeiten für das Projekt 
 └── setup_admin.py           # Skript zur Erstellung eines ersten Admin-Benutzers
 ```
