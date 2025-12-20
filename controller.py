@@ -58,7 +58,7 @@ def load_user(user_id):
 @app.route("/setup-db")
 def setup_db():
     '''
-    Initialisiert die Datenbank.
+    Initialisiert die Datenbank ohne User.
     Ruft init_db() auf und gibt eine JSON-Bestätigung zurück.
     '''
     inspector = inspect(db.engine)
@@ -89,7 +89,11 @@ def del_db():
 @app.route("/setup-admin")
 def setup_admin():
     '''
-    Erstellt einen Admin und Benutzer, falls noch keiner existiert.
+    Falls die Datenbank noch leer ist:
+    - Initialisiert Datenbank
+    - Erstellt einen Admin 
+    - Erstellt Benutzer
+
     - Einmalig über "App-URL/setup-admin" aufrufen.
     - Login-Daten sollten in einer .env-Datei liegen,
       sind hier aber für lokale Installation hardcodiert.
@@ -100,10 +104,10 @@ def setup_admin():
 
     if not Admin.query.filter_by(email="admin@example.org").first():
         admin = Admin("Admin", "admin@example.org", "admin123")
-        student1 = Studierende("Student 1", "s1@example.org", "123456")
-        student2 = Studierende("Student 2", "s2@example.org", "123456")
-        lehrende1 = Lehrende("Tutor 1", "l1@example.org", "123456")
-        lehrende2 = Lehrende("Tutor 2","l2@example.org", "123456")
+        student1 = Studierende("Student 1", "s1@example.org", "1234567")
+        student2 = Studierende("Student 2", "s2@example.org", "1234567")
+        lehrende1 = Lehrende("Tutor 1", "l1@example.org", "1234567")
+        lehrende2 = Lehrende("Tutor 2","l2@example.org", "1234567")
         modul = Modul("Testmodul")
 
         db.session.add_all([admin, student1, student2, lehrende1, lehrende2, modul])
