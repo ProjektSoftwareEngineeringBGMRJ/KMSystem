@@ -30,4 +30,4 @@ reports/
 allure-report/
 *.json
 .coverage
-report.html
+#report.html
