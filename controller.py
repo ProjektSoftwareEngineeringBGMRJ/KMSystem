@@ -69,22 +69,6 @@ def setup_db():
     return jsonify({"status": "Datenbank bereits initialisiert."})
 
 
-#####################################################################
-@app.route("/del-db")
-def del_db():
-    '''
-    Löscht Datenbank.
-    Ruft delete_db() auf und gibt eine JSON-Bestätigung zurück.
-    Nur für Entwicklungszwecke genutzt, im finalen System nicht vorgesehen!
-    '''
-    inspector = inspect(db.engine)
-    if inspector.get_table_names():
-        from init_db import delete_db
-        delete_db()
-        return jsonify({"status": "Datenbank wurde geloescht."})
-    return jsonify({"status": "Datenbank nicht vorhanden."})
-#####################################################################
-
 # Controller: @app.route(...) reagiert auf HTTP-Anfragen:
 @app.route("/setup-admin")
 def setup_admin():
