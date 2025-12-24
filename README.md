@@ -102,11 +102,10 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass # erlaubt Skripte fü
 
 pip install -r requirements.txt # Abhängigkeitren installieren
 
-python init_db.py               # einmalig zur DB-Erzeugung
 flask --app=controller run      # App sarten
 
 # Aufrufen im Browser (URL, die in cmd angezeigt wird) z.B.:
-http://127.0.0.1:5000/setup-admin # Admin beim ersten Start initialisieren 
+http://127.0.0.1:5000/setup-admin # DB, Admin und Test-User beim ersten Start initialisieren 
 
 http://127.0.0.1:5000/ # Login aufrufen und als Admin anmelden (email: admin@example.org, pw: admin123)
 -> Als Admin können Module und User erstellt werden.
