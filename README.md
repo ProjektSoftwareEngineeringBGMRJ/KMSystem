@@ -54,7 +54,8 @@ KMSystem/
 ├── init_db.py               # Initialisierung der Datenbank aus Modellen 
 ├── pytest.ini               # Pytest-Konfiguration (z. B. Marker, Filter)
 ├── report.html              # generierter HTML-Testreport (optional)
-├── requirements.txt         # Python-Abhängigkeiten für das Projekt 
+├── requirements.txt         # Python-Abhängigkeiten für das Projekt
+├── requirements-dev.txt     # Entwicklungs- und Test-Abhängigkeiten (pytest etc.)
 └── setup_admin.py           # Skript zur Erstellung eines ersten Admin-Benutzers
 ```
 Die Projektstruktur von `KMSystem` ist modular und übersichtlich aufgebaut. 
@@ -87,7 +88,7 @@ mkdir KMStest # neuen, leeren Ordner an dem Ort anlegen
 dir # prüfen, ob Ordner existiert
 cd KMStest # in erstellten Ordner navigieren
 
-git clone https://github.com/moechtegern90/KMSystem.git # lädt Programm herunter
+git clone https://github.com/ProjektSoftwareEngineeringBGMRJ/KMSystem.git # lädt Programm herunter
 cd KMSystem
 python -m venv venv             # Virtuelle Umgebung installieren (empfohlen)
 
